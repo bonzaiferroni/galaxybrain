@@ -66,6 +66,9 @@ kotlin {
 
             implementation(project(":pondui"))
             implementation(project(":model"))
+
+            implementation(libs.room.runtime)
+            implementation(libs.sqlite.bundled)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -79,11 +82,11 @@ kotlin {
 }
 
 android {
-    namespace = "ponder.contemplate"
+    namespace = "ponder.galaxy"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "ponder.contemplate"
+        applicationId = "ponder.galaxy"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
@@ -123,12 +126,18 @@ dependencies {
 
 compose.desktop {
     application {
-        mainClass = "ponder.contemplate.MainKt"
+        mainClass = "ponder.galaxy.MainKt"
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "ponder.contemplate"
+            packageName = "ponder.galaxy"
             packageVersion = "1.0.0"
         }
     }
+}
+
+tasks.register<Exec>("clearDb") {
+    group = "dev"
+    description = "Wipe app data on device"
+    commandLine("adb", "shell", "pm", "clear", "ponder.galaxy")
 }
