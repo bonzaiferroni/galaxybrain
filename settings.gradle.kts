@@ -1,4 +1,4 @@
-rootProject.name = "contemplate"
+rootProject.name = "galaxy"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
