@@ -5,10 +5,10 @@ import pondui.ValueRepository
 import pondui.ui.core.StateModel
 import pondui.ui.core.ViewState
 
-class AppSettingsModel(
+class AppConfigModel(
     private val valueRepo: ValueRepository = LocalValueRepository()
-): StateModel<AppSettingsState>() {
-    override val state = ViewState(AppSettingsState(
+): StateModel<AppConfigState>() {
+    override val state = ViewState(AppConfigState(
         redditUsername = valueRepo.readString(REDDIT_USERNAME_KEY, ""),
         redditPassword = valueRepo.readString(REDDIT_PASSWORD_KEY, ""),
         redditAppId = valueRepo.readString(REDDIT_APP_ID_KEY, ""),
@@ -36,7 +36,7 @@ class AppSettingsModel(
     }
 }
 
-data class AppSettingsState(
+data class AppConfigState(
     val redditUsername: String,
     val redditPassword: String,
     val redditAppId: String,

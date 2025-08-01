@@ -27,7 +27,7 @@ fun StartScreen() {
     Scaffold {
         var showContent by remember { mutableStateOf(false) }
         Column(
-            spacingUnits = 1,
+            gap = 1,
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
