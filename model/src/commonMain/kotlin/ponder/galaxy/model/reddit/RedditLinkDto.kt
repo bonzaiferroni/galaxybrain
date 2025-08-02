@@ -1,0 +1,130 @@
+package ponder.galaxy.model.reddit
+
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.JsonTransformingSerializer
+import kotlinx.serialization.json.booleanOrNull
+
+@Serializable
+data class RedditLinkDto(
+    @SerialName("approved_at_utc") val approvedAtUtc: Double? = null,
+    val subreddit: String,
+    val selftext: String,
+    @SerialName("author_fullname") val authorFullname: String,
+    val saved: Boolean,
+    @SerialName("mod_reason_title") val modReasonTitle: String? = null,
+    val gilded: Int,
+    val clicked: Boolean,
+    val title: String,
+    // @SerialName("link_flair_richtext") val linkFlairRichtext: List<String>,
+    @SerialName("subreddit_name_prefixed") val subredditNamePrefixed: String,
+    val hidden: Boolean,
+    // val pwls: Int,
+    @SerialName("link_flair_css_class") val linkFlairCssClass: String? = null,
+    val downs: Int,
+    @SerialName("thumbnail_height") val thumbnailHeight: Int? = null,
+    @SerialName("top_awarded_type") val topAwardedType: String? = null,
+    @SerialName("hide_score") val hideScore: Boolean,
+    val name: String,
+    val quarantine: Boolean,
+    @SerialName("link_flair_text_color") val linkFlairTextColor: String? = null,
+    @SerialName("upvote_ratio") val upvoteRatio: Double,
+    @SerialName("author_flair_background_color") val authorFlairBackgroundColor: String? = null,
+    @SerialName("subreddit_type") val subredditType: String,
+    val ups: Int,
+    @SerialName("total_awards_received") val totalAwardsReceived: Int,
+    // @SerialName("media_embed") val mediaEmbed: MediaEmbedDto,
+    @SerialName("thumbnail_width") val thumbnailWidth: Int? = null,
+    @SerialName("author_flair_template_id") val authorFlairTemplateId: String? = null,
+    @SerialName("is_original_content") val isOriginalContent: Boolean,
+    // @SerialName("user_reports") val userReports: List<Any>,
+    // @SerialName("secure_media") val secureMedia: SecureMediaDto? = null,
+    @SerialName("is_reddit_media_domain") val isRedditMediaDomain: Boolean,
+    @SerialName("is_meta") val isMeta: Boolean,
+    val category: String? = null,
+    // @SerialName("secure_media_embed") val secureMediaEmbed: SecureMediaEmbedDto,
+    @SerialName("link_flair_text") val linkFlairText: String? = null,
+    @SerialName("can_mod_post") val canModPost: Boolean,
+    val score: Int,
+    @SerialName("approved_by") val approvedBy: String? = null,
+    @SerialName("is_created_from_ads_ui") val isCreatedFromAdsUi: Boolean,
+    @SerialName("author_premium") val authorPremium: Boolean,
+    val thumbnail: String,
+    @Serializable(with = DoubleOrBooleanSerializer::class)
+    val edited: Double,
+    @SerialName("author_flair_css_class") val authorFlairCssClass: String? = null,
+    // @SerialName("author_flair_richtext") val authorFlairRichtext: List<String>,
+    // val gildings: GildingsDto,
+    @SerialName("post_hint") val postHint: String? = null,
+    @SerialName("content_categories") val contentCategories: List<String>? = null,
+    @SerialName("is_self") val isSelf: Boolean,
+    @SerialName("mod_note") val modNote: String? = null,
+    val created: Double,
+    @SerialName("link_flair_type") val linkFlairType: String? = null,
+    // val wls: Int,
+    @SerialName("removed_by_category") val removedByCategory: String? = null,
+    @SerialName("banned_by") val bannedBy: String? = null,
+    @SerialName("author_flair_type") val authorFlairType: String? = null,
+    val domain: String,
+    @SerialName("allow_live_comments") val allowLiveComments: Boolean,
+    @SerialName("selftext_html") val selftextHtml: String? = null,
+    val likes: Boolean? = null,
+    @SerialName("suggested_sort") val suggestedSort: String? = null,
+    @SerialName("banned_at_utc") val bannedAtUtc: Double? = null,
+    @SerialName("view_count") val viewCount: Int? = null,
+    val archived: Boolean,
+    @SerialName("no_follow") val noFollow: Boolean,
+    @SerialName("is_crosspostable") val isCrosspostable: Boolean,
+    val pinned: Boolean,
+    @SerialName("over_18") val over18: Boolean,
+    val preview: PreviewDto? = null,
+    // @SerialName("all_awardings") val allAwardings: List<Any>,
+    // val awarders: List<Any>,
+    @SerialName("media_only") val mediaOnly: Boolean,
+    @SerialName("can_gild") val canGild: Boolean,
+    val spoiler: Boolean,
+    val locked: Boolean,
+    // @SerialName("author_flair_text") val authorFlairText: String? = null,
+    // @SerialName("treatment_tags") val treatmentTags: List<Any>,
+    val visited: Boolean,
+    @SerialName("removed_by") val removedBy: String? = null,
+    @SerialName("num_reports") val numReports: Int? = null,
+    val distinguished: String? = null,
+    @SerialName("subreddit_id") val subredditId: String,
+    @SerialName("author_is_blocked") val authorIsBlocked: Boolean,
+    @SerialName("mod_reason_by") val modReasonBy: String? = null,
+    @SerialName("removal_reason") val removalReason: String? = null,
+    @SerialName("link_flair_background_color") val linkFlairBackgroundColor: String? = null,
+    val id: String,
+    @SerialName("is_robot_indexable") val isRobotIndexable: Boolean,
+    // @SerialName("report_reasons") val reportReasons: List<Any>? = null,
+    val author: String,
+    @SerialName("discussion_type") val discussionType: String? = null,
+    @SerialName("num_comments") val numComments: Int,
+    @SerialName("send_replies") val sendReplies: Boolean,
+    @SerialName("contest_mode") val contestMode: Boolean,
+    // @SerialName("mod_reports") val modReports: List<Any>,
+    @SerialName("author_patreon_flair") val authorPatreonFlair: Boolean,
+    @SerialName("author_flair_text_color") val authorFlairTextColor: String? = null,
+    val permalink: String,
+    val stickied: Boolean,
+    val url: String,
+    @SerialName("subreddit_subscribers") val subredditSubscribers: Int,
+    @SerialName("created_utc") val createdUtc: Double,
+    @SerialName("num_crossposts") val numCrossposts: Int,
+    // val media: SecureMediaDto? = null,
+    @SerialName("is_video") val isVideo: Boolean
+)
+
+object DoubleOrBooleanSerializer :
+    JsonTransformingSerializer<Double>(Double.serializer()) {
+
+    override fun transformDeserialize(element: JsonElement): JsonElement =
+        if (element is JsonPrimitive && element.booleanOrNull != null)
+            JsonPrimitive(-1.0)
+        else
+            element
+}

@@ -15,6 +15,5 @@ fun Application.configureApiRoutes() {
         }
 
         serveUsers()
-        serveExamples()
     }
 }

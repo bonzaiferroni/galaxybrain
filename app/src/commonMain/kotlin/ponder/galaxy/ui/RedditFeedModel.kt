@@ -2,10 +2,11 @@ package ponder.galaxy.ui
 
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import ponder.galaxy.model.io.RedditAuth
+import ponder.galaxy.model.reddit.ListingType
+import ponder.galaxy.model.reddit.RedditAuth
 import pondui.LocalValueRepository
 import pondui.ValueRepository
-import ponder.galaxy.model.io.RedditClient
+import ponder.galaxy.model.reddit.RedditClient
 import pondui.ui.core.StateModel
 import pondui.ui.core.ViewState
 
@@ -26,8 +27,8 @@ class RedditFeedModel(
 
     init {
         viewModelScope.launch {
-            val me = client.me()
-            println(me.name)
+            val links = client.getListing("news", ListingType.Rising).map { RedditPost(it.title)}
+            setState { it.copy(posts = links) }
         }
     }
 

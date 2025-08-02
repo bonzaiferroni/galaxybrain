@@ -1,8 +1,7 @@
-package ponder.galaxy.model.io
+package ponder.galaxy.model.reddit
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.request.accept
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody

@@ -1,4 +1,4 @@
-package ponder.galaxy.model.io
+package ponder.galaxy.model.reddit
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -103,7 +103,7 @@ data class RedditSubredditDto(
     @SerialName("subscribers") val subscribers: Int,
     @SerialName("submit_text_label") val submitTextLabel: String,
     @SerialName("is_default_icon") val isDefaultIcon: Boolean,
-    @SerialName("link_flair_position") val linkFlairPosition: String,
+    @SerialName("link_flair_position") val linkFlairPosition: String? = null,
     @SerialName("display_name_prefixed") val displayNamePrefixed: String,
     @SerialName("key_color") val keyColor: String,
     @SerialName("name") val name: String,
