@@ -16,7 +16,7 @@ import java.util.UUID
 @Database(
     entities = [
         StarEntity::class, GalaxyEntity::class
-    ], version = 1
+    ], version = 2
 )
 @ConstructedBy(AppDatabaseConstructor::class)
 @TypeConverters(Converters::class)

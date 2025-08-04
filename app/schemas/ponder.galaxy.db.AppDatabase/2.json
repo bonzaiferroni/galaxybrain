@@ -1,22 +1,16 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 1,
-    "identityHash": "a2c0f9011f02b2521e7db006e0a20ea1",
+    "version": 2,
+    "identityHash": "69475ac584fa461c4a19bd52c1b7f5a7",
     "entities": [
       {
         "tableName": "StarEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`starId` TEXT NOT NULL, `galaxyId` TEXT NOT NULL, `title` TEXT NOT NULL, `url` TEXT NOT NULL, `visibility` REAL NOT NULL, `updatedAt` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, `discoveredAt` INTEGER NOT NULL, PRIMARY KEY(`starId`), FOREIGN KEY(`galaxyId`) REFERENCES `GalaxyEntity`(`galaxyId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`starId` TEXT NOT NULL, `title` TEXT NOT NULL, `url` TEXT NOT NULL, `visibility` REAL NOT NULL, `updatedAt` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, `discoveredAt` INTEGER NOT NULL, PRIMARY KEY(`starId`))",
         "fields": [
           {
             "fieldPath": "starId",
             "columnName": "starId",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "galaxyId",
-            "columnName": "galaxyId",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -62,31 +56,7 @@
           "columnNames": [
             "starId"
           ]
-        },
-        "indices": [
-          {
-            "name": "index_StarEntity_galaxyId",
-            "unique": false,
-            "columnNames": [
-              "galaxyId"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_StarEntity_galaxyId` ON `${TABLE_NAME}` (`galaxyId`)"
-          }
-        ],
-        "foreignKeys": [
-          {
-            "table": "GalaxyEntity",
-            "onDelete": "CASCADE",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "galaxyId"
-            ],
-            "referencedColumns": [
-              "galaxyId"
-            ]
-          }
-        ]
+        }
       },
       {
         "tableName": "GalaxyEntity",
@@ -121,7 +91,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a2c0f9011f02b2521e7db006e0a20ea1')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '69475ac584fa461c4a19bd52c1b7f5a7')"
     ]
   }
 }

@@ -2,6 +2,7 @@ package ponder.galaxy
 
 import androidx.compose.runtime.*
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import ponder.galaxy.db.AppDatabase
 
 import pondui.io.ProvideUserContext
 import pondui.ui.core.PondApp
@@ -26,3 +27,6 @@ fun App(
         )
     }
 }
+
+var db: AppDatabase? = null
+val appDb: AppDatabase get() = db ?: error("You must initialize the database")

@@ -24,6 +24,8 @@ fun Route.serveStarFlow(
     webSocket("/starflow") {
         syncLock.withLock { syncClients += this }
 
+        println("client connect")
+
         try {
             redditMonitor.starFlow.collect { stars ->
                 val bytes = Cbor.encodeToByteArray(ListSerializer(Star.serializer()), stars)

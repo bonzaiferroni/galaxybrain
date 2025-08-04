@@ -4,12 +4,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import kotlinx.serialization.Serializable
+import ponder.galaxy.db.getDatabaseBuilder
+import ponder.galaxy.db.getRoomDatabase
 import pondui.CacheFile
 import pondui.WatchWindow
 import pondui.WindowSize
 import pondui.ui.core.ProvideAddressContext
 
 fun main() {
+    db = getRoomDatabase(getDatabaseBuilder())
     application {
         val cacheFlow = CacheFile("appcache.json") { AppCache() }
         val cache by cacheFlow.collectAsState()

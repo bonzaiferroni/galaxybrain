@@ -2,6 +2,10 @@ package ponder.galaxy.ui
 
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
+import ponder.galaxy.appDb
+import ponder.galaxy.db.StarDao
+import ponder.galaxy.db.toEntity
+import ponder.galaxy.io.StarSocket
 import ponder.galaxy.model.reddit.ListingType
 import ponder.galaxy.model.reddit.RedditAuth
 import pondui.LocalValueRepository
@@ -11,7 +15,8 @@ import pondui.ui.core.StateModel
 import pondui.ui.core.ViewState
 
 class RedditFeedModel(
-    private val valueRepo: ValueRepository = LocalValueRepository(),
+    private val starSocket: StarSocket = StarSocket(),
+    private val starDao: StarDao = appDb.getStarDao()
 ): StateModel<RedditFeedState>() {
     override val state = ViewState(RedditFeedState())
 
@@ -19,8 +24,14 @@ class RedditFeedModel(
 
     init {
         viewModelScope.launch {
-//            val links = client.getListing("news", ListingType.Rising).map { RedditPost(it.title)}
-//            setState { it.copy(posts = links) }
+            starSocket.starFlow.collect { stars ->
+                starDao.upsert(*stars.map {it.toEntity() }.toTypedArray())
+                setState { it -> it.copy(posts = stars.map { star -> RedditPost(star.title) })}
+            }
+        }
+
+        viewModelScope.launch {
+            starSocket.start()
         }
     }
 
