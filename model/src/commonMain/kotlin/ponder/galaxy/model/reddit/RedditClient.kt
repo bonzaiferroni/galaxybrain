@@ -54,6 +54,8 @@ class RedditClient(
     }
 }
 
+const val REDDIT_URL_BASE = "https://www.reddit.com"
+
 enum class ListingType(val urlFragment: String) {
     New("new"),
     Rising("rising"),

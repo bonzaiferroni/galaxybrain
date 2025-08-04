@@ -5,6 +5,8 @@ import klutch.db.initDb
 import klutch.db.tables.RefreshTokenTable
 import klutch.db.tables.UserTable
 import klutch.environment.readEnvFromPath
+import ponder.galaxy.server.db.tables.GalaxyTable
+import ponder.galaxy.server.db.tables.StarTable
 
 fun Application.configureDatabases() {
     initDb(env, dbTables)
@@ -15,6 +17,8 @@ val env = readEnvFromPath()
 val dbTables = listOf(
     UserTable,
     RefreshTokenTable,
+    StarTable,
+    GalaxyTable,
 )
 
 //CREATE DATABASE example_db;

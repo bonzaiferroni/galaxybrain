@@ -3,6 +3,7 @@ package ponder.galaxy.server.plugins
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.routing.routing
+import io.ktor.server.websocket.DefaultWebSocketServerSession
 import io.ktor.server.websocket.WebSockets
 import io.ktor.server.websocket.pingPeriod
 import io.ktor.server.websocket.timeout
@@ -11,9 +12,14 @@ import io.ktor.websocket.CloseReason
 import io.ktor.websocket.Frame
 import io.ktor.websocket.close
 import io.ktor.websocket.readText
+import kotlinx.coroutines.sync.Mutex
+import ponder.galaxy.server.io.RedditMonitor
+import ponder.galaxy.server.routes.serveStarFlow
 import kotlin.time.Duration.Companion.seconds
 
-fun Application.configureWebSockets() {
+fun Application.configureWebSockets(
+    redditMonitor: RedditMonitor
+) {
     install(WebSockets) {
         pingPeriod = 15.seconds
         timeout = 15.seconds
@@ -34,5 +40,8 @@ fun Application.configureWebSockets() {
                 }
             }
         }
+
+        serveStarFlow(redditMonitor)
     }
 }
+

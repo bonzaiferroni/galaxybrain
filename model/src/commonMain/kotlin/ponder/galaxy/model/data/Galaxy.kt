@@ -1,5 +1,6 @@
 package ponder.galaxy.model.data
 
+import kabinet.db.TableId
 import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmInline
 
@@ -11,4 +12,4 @@ data class Galaxy(
 )
 
 @JvmInline @Serializable
-value class GalaxyId(val value: String)
+value class GalaxyId(override val value: String): TableId

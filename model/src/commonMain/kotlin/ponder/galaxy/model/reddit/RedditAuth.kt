@@ -44,3 +44,8 @@ data class RedditTokenResponse(
     val expiresIn: Long,
     val scope: String
 )
+
+const val REDDIT_USERNAME_KEY = "REDDIT_USERNAME"
+const val REDDIT_PASSWORD_KEY = "REDDIT_PASSWORD"
+const val REDDIT_APP_ID_KEY = "REDDIT_APP_ID"
+const val REDDIT_APP_SECRET_KEY = "REDDIT_APP_SECRET"

@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.Instant
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import java.util.UUID
 
 @Database(
     entities = [
@@ -39,6 +40,7 @@ class Converters {
     fun fromStringList(value: List<String>): String = value.joinToString(",")
     @TypeConverter
     fun toStringList(value: String): List<String> = if (value.isEmpty()) emptyList() else value.split(",")
+
 }
 
 // The Room compiler generates the `actual` implementations.

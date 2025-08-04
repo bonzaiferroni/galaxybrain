@@ -1,5 +1,7 @@
 package ponder.galaxy.model.data
 
+import kabinet.db.TableId
+import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmInline
 
@@ -9,7 +11,11 @@ data class Star(
     val galaxyId: GalaxyId,
     val title: String,
     val url: String,
+    val visibility: Float,
+    val updatedAt: Instant,
+    val createdAt: Instant,
+    val discoveredAt: Instant,
 )
 
 @JvmInline @Serializable
-value class StarId(val value: String)
+value class StarId(override val value: String): TableId

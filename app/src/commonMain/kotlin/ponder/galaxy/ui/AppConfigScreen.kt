@@ -24,32 +24,7 @@ fun AppConfigScreen(
             gap = 2,
             modifier = Modifier.widthIn(max = 400.dp)
         ) {
-            Row(1) {
-                TextField(
-                    text = state.redditUsername,
-                    onTextChanged = viewModel::setRedditUsername,
-                    label = "reddit username",
-                    modifier = Modifier.weight(1f)
-                )
-                TextField(
-                    text = state.redditPassword,
-                    onTextChanged = viewModel::setRedditPassword,
-                    label = "reddit password",
-                    modifier = Modifier.weight(1f)
-                )
-            }
-            TextField(
-                text = state.redditAppId,
-                onTextChanged = viewModel::setRedditAppId,
-                label = "reddit client id",
-                modifier = Modifier.fillMaxWidth()
-            )
-            TextField(
-                text = state.redditAppSecret,
-                onTextChanged = viewModel::setRedditAppSecret,
-                label = "reddit client secret",
-                modifier = Modifier.fillMaxWidth()
-            )
+
         }
     }
 }
