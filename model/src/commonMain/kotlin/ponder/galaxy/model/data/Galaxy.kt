@@ -12,4 +12,4 @@ data class Galaxy(
 )
 
 @JvmInline @Serializable
-value class GalaxyId(override val value: String): TableId
+value class GalaxyId(override val value: String): TableId<String>

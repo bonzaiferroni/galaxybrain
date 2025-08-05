@@ -6,6 +6,7 @@ import klutch.db.tables.RefreshTokenTable
 import klutch.db.tables.UserTable
 import klutch.environment.readEnvFromPath
 import ponder.galaxy.server.db.tables.GalaxyTable
+import ponder.galaxy.server.db.tables.StarLogTable
 import ponder.galaxy.server.db.tables.StarTable
 
 fun Application.configureDatabases() {
@@ -18,6 +19,7 @@ val dbTables = listOf(
     UserTable,
     RefreshTokenTable,
     StarTable,
+    StarLogTable,
     GalaxyTable,
 )
 

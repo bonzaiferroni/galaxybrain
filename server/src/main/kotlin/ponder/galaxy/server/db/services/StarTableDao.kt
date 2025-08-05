@@ -16,6 +16,7 @@ import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.update
 import ponder.galaxy.model.data.Star
+import ponder.galaxy.model.data.StarId
 import ponder.galaxy.server.db.tables.StarTable
 import ponder.galaxy.server.db.tables.toStar
 import ponder.galaxy.server.db.tables.update
@@ -54,7 +55,11 @@ class StarTableDao: DbService() {
             .map { it.toStar() }
     }
 
-    suspend fun readById(starId: UUID) = dbQuery {
-        StarTable.readById(starId).toStar()
+    suspend fun readById(starId: StarId) = dbQuery {
+        StarTable.readById(starId.toUUID()).toStar()
+    }
+
+    suspend fun readByIds(starIds: List<StarId>) = dbQuery {
+        StarTable.read { it.id.inList(starIds.map { starId -> starId.toUUID()}) }.map { it.toStar() }
     }
 }

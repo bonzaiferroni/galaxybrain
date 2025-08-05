@@ -15,5 +15,8 @@ fun Application.configureApiRoutes() {
         }
 
         serveUsers()
+
+        serveStars()
+        serveStarLogs()
     }
 }

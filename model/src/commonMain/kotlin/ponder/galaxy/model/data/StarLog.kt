@@ -6,16 +6,12 @@ import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmInline
 
 @Serializable
-data class Star(
+data class StarLog(
+    val starLogId: StarLogId,
     val starId: StarId,
-    val galaxyId: GalaxyId,
-    val title: String,
-    val url: String,
     val visibility: Float,
-    val updatedAt: Instant,
     val createdAt: Instant,
-    val discoveredAt: Instant,
 )
 
 @JvmInline @Serializable
-value class StarId(override val value: String): TableId<String>
+value class StarLogId(override val value: Long): TableId<Long>

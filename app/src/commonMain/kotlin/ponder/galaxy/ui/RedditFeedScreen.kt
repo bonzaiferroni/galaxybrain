@@ -16,8 +16,8 @@ fun RedditFeedScreen(
 
     Scaffold {
         Column(1) {
-            for (post in state.posts) {
-                Text(post.title)
+            for (star in state.stars) {
+                Text(star.title)
             }
         }
     }
