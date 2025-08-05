@@ -68,12 +68,15 @@ class RedditMonitor(
                         val visibilityRatio = galaxyVisibility.takeIf{ it > 0 }?.let { visibility / galaxyVisibility } ?: 1f
                         val createdAt = Instant.fromEpochSeconds(link.createdUtc.toLong())
 
+                        val thumbnail = link.preview?.images?.firstOrNull()?.source?.url
+
                         val starId = starDao.updateByUrlOrInsert(link.url) {
                             Star(
                                 starId = StarId(generateUuidString()),
                                 galaxyId = galaxy.galaxyId,
                                 title = link.title,
                                 url = link.url,
+                                thumbnailUrl = thumbnail,
                                 visibility = visibility,
                                 voteCount = link.ups,
                                 commentCount = link.numComments,
@@ -83,7 +86,7 @@ class RedditMonitor(
                             )
                         }.let { StarId(it.toStringId()) }
 
-                        val age = (now - createdAt).inWholeMinutes / (60 * 24).toFloat()
+                        val age = ((now - createdAt).inWholeMinutes / (60 * 24).toFloat()).takeIf { it > 0 } ?: 1f
                         val rise = visibilityRatio / age
 
                         val starLogId = starLogDao.insert(StarLog(

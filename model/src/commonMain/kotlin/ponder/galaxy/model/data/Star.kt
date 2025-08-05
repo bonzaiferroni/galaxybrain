@@ -11,6 +11,7 @@ data class Star(
     val galaxyId: GalaxyId,
     val title: String,
     val url: String,
+    val thumbnailUrl: String?,
     val visibility: Float,
     val commentCount: Int,
     val voteCount: Int,

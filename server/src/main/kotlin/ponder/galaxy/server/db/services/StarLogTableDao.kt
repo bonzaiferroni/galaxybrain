@@ -11,14 +11,13 @@ import ponder.galaxy.model.data.StarId
 import ponder.galaxy.model.data.StarLog
 import ponder.galaxy.model.data.StarLogId
 import ponder.galaxy.server.db.tables.StarLogTable
-import ponder.galaxy.server.db.tables.toStar
 import ponder.galaxy.server.db.tables.toStarLog
-import ponder.galaxy.server.db.tables.write
+import ponder.galaxy.server.db.tables.writeFull
 
 class StarLogTableDao(): DbService() {
 
     suspend fun insert(starLog: StarLog) = dbQuery {
-        StarLogTable.insertAndGetId { it.write(starLog) }.value
+        StarLogTable.insertAndGetId { it.writeFull(starLog) }.value
     }
 
     suspend fun readById(starLogId: StarLogId) = dbQuery {

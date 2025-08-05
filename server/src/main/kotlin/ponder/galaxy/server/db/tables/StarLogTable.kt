@@ -34,7 +34,7 @@ internal fun ResultRow.toStarLog() = StarLog(
     createdAt = this[StarLogTable.createdAt].toInstantFromUtc()
 )
 
-internal fun UpdateBuilder<*>.write(starLog: StarLog) {
+internal fun UpdateBuilder<*>.writeFull(starLog: StarLog) {
     this[StarLogTable.starId] = starLog.starId.toUUID()
     this[StarLogTable.visibility] = starLog.visibility
     this[StarLogTable.rise] = starLog.rise

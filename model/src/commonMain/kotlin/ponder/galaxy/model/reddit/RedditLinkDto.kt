@@ -52,7 +52,6 @@ data class RedditLinkDto(
     @SerialName("approved_by") val approvedBy: String? = null,
     @SerialName("is_created_from_ads_ui") val isCreatedFromAdsUi: Boolean,
     @SerialName("author_premium") val authorPremium: Boolean,
-    val thumbnail: String,
     @Serializable(with = DoubleOrBooleanSerializer::class)
     val edited: Double,
     @SerialName("author_flair_css_class") val authorFlairCssClass: String? = null,

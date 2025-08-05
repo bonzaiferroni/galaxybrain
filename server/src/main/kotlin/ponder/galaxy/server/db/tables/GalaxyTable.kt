@@ -26,14 +26,13 @@ internal fun ResultRow.toGalaxy() = Galaxy(
     visibility = this[GalaxyTable.visibility]
 )
 
-internal fun UpdateBuilder<*>.write(galaxy: Galaxy) {
+internal fun UpdateBuilder<*>.writeFull(galaxy: Galaxy) {
     this[GalaxyTable.id] = galaxy.galaxyId.toUUID()
-    this[GalaxyTable.name] = galaxy.name
-    this[GalaxyTable.url] = galaxy.url
-    this[GalaxyTable.visibility] = galaxy.visibility
+    writeUpdate(galaxy)
 }
 
-internal fun UpdateStatement.update(galaxy: Galaxy) {
+internal fun UpdateBuilder<*>.writeUpdate(galaxy: Galaxy) {
+    this[GalaxyTable.name] = galaxy.name
     this[GalaxyTable.url] = galaxy.url
     this[GalaxyTable.visibility] = galaxy.visibility
 }

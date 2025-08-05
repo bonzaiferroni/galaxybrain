@@ -3,7 +3,6 @@ package ponder.galaxy.server.db.services
 import klutch.db.DbService
 import klutch.db.read
 import klutch.db.readById
-import klutch.db.readSingleOrNull
 import klutch.db.updateSingleWhere
 import klutch.utils.greaterEq
 import klutch.utils.toUUID
@@ -19,22 +18,21 @@ import ponder.galaxy.model.data.Star
 import ponder.galaxy.model.data.StarId
 import ponder.galaxy.server.db.tables.StarTable
 import ponder.galaxy.server.db.tables.toStar
-import ponder.galaxy.server.db.tables.update
-import ponder.galaxy.server.db.tables.write
-import java.util.UUID
+import ponder.galaxy.server.db.tables.writeFull
+import ponder.galaxy.server.db.tables.writeUpdate
 
 class StarTableDao: DbService() {
 
     suspend fun insert(vararg stars: Star) = dbQuery {
-        StarTable.batchInsert(stars.toList()) { write(it) }
+        StarTable.batchInsert(stars.toList()) { writeFull(it) }
     }
 
     suspend fun upsert(vararg stars: Star) = dbQuery {
-        StarTable.batchUpsert(stars.toList()) { write(it) }
+        StarTable.batchUpsert(stars.toList()) { writeFull(it) }
     }
 
     suspend fun update(vararg stars: Star) = dbQuery {
-        stars.forEach { star -> StarTable.update { it.update(star) } }
+        stars.forEach { star -> StarTable.update { it.writeUpdate(star) } }
     }
 
     suspend fun delete(vararg stars: Star) = dbQuery {
@@ -44,8 +42,8 @@ class StarTableDao: DbService() {
     suspend fun updateByUrlOrInsert(url: String, provideStar: () -> Star) = dbQuery {
         val star = provideStar()
         StarTable.updateSingleWhere({ it.url.eq(url) }) {
-            it.update(star)
-        } ?: StarTable.insertAndGetId { it.write(star) }.value
+            it.writeUpdate(star)
+        } ?: StarTable.insertAndGetId { it.writeFull(star) }.value
     }
 
     suspend fun readVisibleStars(limit: Int, createdAfter: Instant) = dbQuery {

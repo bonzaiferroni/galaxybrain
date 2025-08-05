@@ -29,14 +29,14 @@ data class PreviewDto(
 
 @Serializable
 data class PreviewImageDto(
-    val source: ResolutionDto,
-    val resolutions: List<ResolutionDto>,
+    val source: PreviewSourceDto,
+    val resolutions: List<PreviewSourceDto>,
     // val variants: VariantsDto,
     val id: String
 )
 
 @Serializable
-data class ResolutionDto(
+data class PreviewSourceDto(
     val url: String,
     val width: Int,
     val height: Int
