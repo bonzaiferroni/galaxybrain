@@ -2,12 +2,17 @@ package ponder.galaxy.model.reddit
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.request.HttpRequest
+import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.http.HttpHeaders
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
+import io.ktor.client.request.request
 import io.ktor.client.statement.HttpResponse
+import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.path
 import kotlinx.coroutines.delay
 
 class RedditClient(
@@ -19,14 +24,9 @@ class RedditClient(
     private suspend fun provideToken() = cachedToken ?: auth.authorize().also { cachedToken = it }
     ?: error("unable to provide token")
 
-    private suspend fun get(endpoint: String): HttpResponse {
+    private suspend fun request(request: HttpRequestBuilder): HttpResponse {
         repeat(3) {
-            val token = provideToken()
-            val url = "https://oauth.reddit.com/$endpoint"
-            val response = client.get(url) {
-                header(HttpHeaders.Authorization, "bearer $token")
-                parameter("raw_json", 1)
-            }
+            val response = client.request(request)
             if (response.status == HttpStatusCode.OK) {
                 return response
             }
@@ -34,21 +34,33 @@ class RedditClient(
                 cachedToken = null
                 return@repeat
             }
-            error("REDDIT API ERROR > get $endpoint: ${response.status}")
+            error("REDDIT API ERROR > get ${request.url}: ${response.status}")
         }
-        error("REDDIT API ERROR > endpoint fail: $endpoint")
+        error("REDDIT API ERROR > endpoint fail: ${request.url}")
     }
 
-    suspend fun me(): RedditIdentityDto = get("api/v1/me").body()
+    private suspend fun buildRequest(endpoint: String, method: HttpMethod = HttpMethod.Get) = HttpRequestBuilder().apply {
+        this.method = method
+        url {
+            host = "oauth.reddit.com"
+            path(endpoint)
+        }
+        header(HttpHeaders.Authorization, "bearer ${provideToken()}")
+        parameter("raw_json", 1)
+    }
+
+    suspend fun me(): RedditIdentityDto = request(buildRequest("api/v1/me")).body()
 
     suspend fun best(): List<RedditLinkDto> {
-        val response = get("best")
+        val response = request(buildRequest("best"))
         val data: RedditData<RedditListingDto<RedditData<RedditLinkDto>>> = response.body()
         return data.data.children.map { it.data }
     }
 
     suspend fun getListing(subreddit: String, listingType: ListingType): List<RedditLinkDto> {
-        val response = get("r/$subreddit/${listingType.urlFragment}")
+        val response = request(buildRequest("r/$subreddit/${listingType.urlFragment}").apply {
+            parameter("count", 100)
+        })
         val data: RedditData<RedditListingDto<RedditData<RedditLinkDto>>> = response.body()
         return data.data.children.map { it.data }
     }

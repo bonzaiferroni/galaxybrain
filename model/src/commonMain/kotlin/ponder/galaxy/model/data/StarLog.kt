@@ -10,6 +10,9 @@ data class StarLog(
     val starLogId: StarLogId,
     val starId: StarId,
     val visibility: Float,
+    val rise: Float,
+    val commentCount: Int,
+    val voteCount: Int,
     val createdAt: Instant,
 )
 

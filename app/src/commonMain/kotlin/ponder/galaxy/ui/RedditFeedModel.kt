@@ -30,7 +30,8 @@ class RedditFeedModel(
                     val currentList = stateNow.starLogMap[starLog.starId] ?: continue
                     starLogMap[starLog.starId] = currentList + starLog
                 }
-                val stars = stateNow.stars.filter { star -> starLogs.any { star.starId == it.starId } } + missingStars
+                val stars = (stateNow.stars.filter { star -> starLogs.any { star.starId == it.starId } } + missingStars)
+                    .sortedByDescending { starLogMap[it.starId]?.lastOrNull()?.rise }
                 setState { it -> it.copy(stars = stars, starLogMap = starLogMap) }
             }
         }

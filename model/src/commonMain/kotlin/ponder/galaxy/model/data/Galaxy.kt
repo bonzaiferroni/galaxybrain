@@ -9,6 +9,7 @@ data class Galaxy(
     val galaxyId: GalaxyId,
     val name: String,
     val url: String,
+    val visibility: Float,
 )
 
 @JvmInline @Serializable

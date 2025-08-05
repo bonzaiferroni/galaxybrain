@@ -3,7 +3,9 @@ package ponder.galaxy.server.db.services
 import klutch.db.DbService
 import klutch.db.read
 import klutch.db.readById
+import klutch.utils.eq
 import klutch.utils.toUUID
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.insertAndGetId
 import ponder.galaxy.model.data.StarId
 import ponder.galaxy.model.data.StarLog
@@ -26,5 +28,11 @@ class StarLogTableDao(): DbService() {
     suspend fun readLogsByStarIds(starIds: List<StarId>) = dbQuery {
         StarLogTable.read { it.starId.inList(starIds.map { starId -> starId.toUUID()}) }.map { it.toStarLog() }
             .groupBy { it.starId }
+    }
+
+    suspend fun readLatestByStarId(starId: StarId) = dbQuery {
+        StarLogTable.read { it.starId.eq(starId) }
+            .orderBy(StarLogTable.createdAt, SortOrder.DESC)
+            .limit(1).firstOrNull()?.toStarLog()
     }
 }

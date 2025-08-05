@@ -16,20 +16,24 @@ import java.util.UUID
 internal object GalaxyTable: UUIDTable("galaxy") {
     val name = text("name")
     val url = text("url")
+    val visibility = float("visibility")
 }
 
 internal fun ResultRow.toGalaxy() = Galaxy(
     galaxyId = GalaxyId(this[GalaxyTable.id].value.toStringId()),
     name = this[GalaxyTable.name],
-    url = this[GalaxyTable.url]
+    url = this[GalaxyTable.url],
+    visibility = this[GalaxyTable.visibility]
 )
 
 internal fun UpdateBuilder<*>.write(galaxy: Galaxy) {
     this[GalaxyTable.id] = galaxy.galaxyId.toUUID()
     this[GalaxyTable.name] = galaxy.name
     this[GalaxyTable.url] = galaxy.url
+    this[GalaxyTable.visibility] = galaxy.visibility
 }
 
 internal fun UpdateStatement.update(galaxy: Galaxy) {
     this[GalaxyTable.url] = galaxy.url
+    this[GalaxyTable.visibility] = galaxy.visibility
 }

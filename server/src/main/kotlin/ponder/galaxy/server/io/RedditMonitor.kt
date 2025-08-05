@@ -25,6 +25,7 @@ import ponder.galaxy.model.reddit.RedditLinkDto
 import ponder.galaxy.server.db.services.GalaxyTableDao
 import ponder.galaxy.server.db.services.StarLogTableDao
 import ponder.galaxy.server.db.services.StarTableDao
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
 class RedditMonitor(
@@ -47,16 +48,26 @@ class RedditMonitor(
                 val starLogs = mutableListOf<StarLog>()
                 val now = Clock.System.now()
                 subredditNames.forEach { subredditName ->
+
+                    val links = client.getListing(subredditName, ListingType.Hot)
+                    val visibilitySum = links.sumOf { it.deriveVisibility().toDouble() }.toFloat()
+                    val galaxyVisibility = visibilitySum / links.size
+
                     val galaxy = galaxyDao.readByNameOrInsert(subredditName) {
                         Galaxy(
                             galaxyId = GalaxyId(generateUuidString()),
                             name = subredditName,
-                            url = "$REDDIT_URL_BASE/r/$subredditName"
+                            url = "$REDDIT_URL_BASE/r/$subredditName",
+                            visibility = galaxyVisibility
                         )
                     }
-                    val links = client.getListing(subredditName, ListingType.Rising)
-                    links.forEach { link ->
+
+                    links.forEachIndexed { position, link ->
+
                         val visibility = link.deriveVisibility()
+                        val visibilityRatio = galaxyVisibility.takeIf{ it > 0 }?.let { visibility / galaxyVisibility } ?: 1f
+                        val createdAt = Instant.fromEpochSeconds(link.createdUtc.toLong())
+
                         val starId = starDao.updateByUrlOrInsert(link.url) {
                             Star(
                                 starId = StarId(generateUuidString()),
@@ -64,15 +75,24 @@ class RedditMonitor(
                                 title = link.title,
                                 url = link.url,
                                 visibility = visibility,
+                                voteCount = link.ups,
+                                commentCount = link.numComments,
                                 updatedAt = now,
-                                createdAt = Instant.fromEpochSeconds(link.createdUtc.toLong()),
+                                createdAt = createdAt,
                                 discoveredAt = now
                             )
-                        }
+                        }.let { StarId(it.toStringId()) }
+
+                        val age = (now - createdAt).inWholeMinutes / (60 * 24).toFloat()
+                        val rise = visibilityRatio / age
+
                         val starLogId = starLogDao.insert(StarLog(
                             starLogId = StarLogId(0L),
-                            starId = StarId(starId.toStringId()),
+                            starId = starId,
                             visibility = visibility,
+                            rise = rise,
+                            commentCount = link.numComments,
+                            voteCount = link.ups,
                             createdAt = now,
                         )).let { StarLogId(it) }
                         val starLog = starLogDao.readById(starLogId)
@@ -88,3 +108,4 @@ class RedditMonitor(
 }
 
 fun RedditLinkDto.deriveVisibility() = (numComments * 2 + ups).toFloat()
+

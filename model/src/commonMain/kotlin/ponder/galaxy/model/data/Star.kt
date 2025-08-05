@@ -12,6 +12,8 @@ data class Star(
     val title: String,
     val url: String,
     val visibility: Float,
+    val commentCount: Int,
+    val voteCount: Int,
     val updatedAt: Instant,
     val createdAt: Instant,
     val discoveredAt: Instant,

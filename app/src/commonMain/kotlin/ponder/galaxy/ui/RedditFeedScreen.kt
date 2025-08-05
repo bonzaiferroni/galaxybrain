@@ -1,11 +1,16 @@
 package ponder.galaxy.ui
 
+import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kabinet.utils.toMetricString
 import pondui.ui.controls.Column
+import pondui.ui.controls.LazyColumn
+import pondui.ui.controls.Row
 import pondui.ui.controls.Scaffold
+import pondui.ui.controls.Section
 import pondui.ui.controls.Text
 
 @Composable
@@ -15,9 +20,21 @@ fun RedditFeedScreen(
     val state by viewModel.stateFlow.collectAsState()
 
     Scaffold {
-        Column(1) {
-            for (star in state.stars) {
-                Text(star.title)
+        LazyColumn(1) {
+            items(state.stars) { star ->
+                val starLogs = state.starLogMap[star.starId] ?: return@items
+                val latestStarLog = starLogs.lastOrNull() ?: return@items
+                Section {
+                    Column(1) {
+                        Row(1) {
+                            Text("${star.visibility.toMetricString()}:")
+                            Text(star.title)
+                        }
+                        Row(1) {
+                            Text("rise: ${latestStarLog.rise.toMetricString()} comments: ${star.commentCount}")
+                        }
+                    }
+                }
             }
         }
     }

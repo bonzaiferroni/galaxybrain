@@ -24,6 +24,8 @@ internal object StarTable: UUIDTable("star") {
     val title = text("title")
     val url = text("url")
     val visibility = float("visibility")
+    val commentCount = integer("comment_count")
+    val voteCount = integer("vote_count")
     val updatedAt = datetime("updated_at")
     val createdAt = datetime("created_at")
     val discoveredAt = datetime("discovered_at")
@@ -35,6 +37,8 @@ internal fun ResultRow.toStar() = Star(
     title = this[StarTable.title],
     url = this[StarTable.url],
     visibility = this[StarTable.visibility],
+    commentCount = this[StarTable.commentCount],
+    voteCount = this[StarTable.voteCount],
     updatedAt = this[StarTable.updatedAt].toInstantFromUtc(),
     createdAt = this[StarTable.createdAt].toInstantFromUtc(),
     discoveredAt = this[StarTable.discoveredAt].toInstantFromUtc()
@@ -46,6 +50,8 @@ internal fun UpdateBuilder<*>.write(star: Star) {
     this[StarTable.title] = star.title
     this[StarTable.url] = star.url
     this[StarTable.visibility] = star.visibility
+    this[StarTable.commentCount] = star.commentCount
+    this[StarTable.voteCount] = star.voteCount
     this[StarTable.updatedAt] = star.updatedAt.toLocalDateTimeUtc()
     this[StarTable.createdAt] = star.createdAt.toLocalDateTimeUtc()
     this[StarTable.discoveredAt] = star.discoveredAt.toLocalDateTimeUtc()
