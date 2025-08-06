@@ -40,4 +40,8 @@ class GalaxyTableDao : DbService() {
                 .let { GalaxyTable.readById(it.value) }
         resultRow.toGalaxy()
     }
+
+    suspend fun readByName(name: String) = dbQuery {
+        GalaxyTable.readSingleOrNull { it.name eq name }?.toGalaxy()
+    }
 }

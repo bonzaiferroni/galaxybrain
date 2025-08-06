@@ -17,22 +17,28 @@ class RedditFeedModel(
     override val state = ViewState(RedditFeedState())
 
     // val messenger = MessengerModel()
+    private val allStarLogs = mutableMapOf<StarId, List<StarLog>>()
+    private val allStars = mutableMapOf<StarId, Star>()
 
     init {
         viewModelScope.launch {
-            starSocket.starLogFlow.collect { starLogs ->
-                val missingStarIds = starLogs.filter { starLog -> stateNow.stars.none { starLog.starId == it.starId } }
-                    .map {it.starId}
-                val missingStars = starSource.readStars(missingStarIds)
-                val starLogMap = starSource.readStarLogs(missingStarIds).toMutableMap()
+            starSocket.galaxyProbeFlow.collect { galaxyProbe ->
+                val galaxyId = galaxyProbe.galaxyId; val starLogs = galaxyProbe.starLogs
+                val missingStarIds = starLogs.filter { starLog -> !allStars.containsKey(starLog.starId) }.map {it.starId}
+                starSource.readStars(missingStarIds).forEach { allStars[it.starId] = it }
+                val missingStarLogs = starSource.readStarLogs(missingStarIds)
+                allStarLogs.putAll(missingStarLogs)
+
                 for (starLog in starLogs) {
                     if (missingStarIds.any { starLog.starId == it }) continue
-                    val currentList = stateNow.starLogMap[starLog.starId] ?: continue
-                    starLogMap[starLog.starId] = currentList + starLog
+                    val currentList = allStarLogs[starLog.starId] ?: continue
+                    allStarLogs[starLog.starId] = currentList + starLog
                 }
-                val stars = (stateNow.stars.filter { star -> starLogs.any { star.starId == it.starId } } + missingStars)
-                    .sortedByDescending { starLogMap[it.starId]?.lastOrNull()?.rise }
-                setState { it -> it.copy(stars = stars, starLogMap = starLogMap) }
+
+                val stars = allStars.values.sortedByDescending { allStarLogs[it.starId]?.lastOrNull()?.rise }
+                    .take(100)
+
+                setState { it -> it.copy(stars = stars) }
             }
         }
 
@@ -41,13 +47,10 @@ class RedditFeedModel(
         }
     }
 
+    fun getStarLogs(starId: StarId) = allStarLogs[starId]
+
 }
 
 data class RedditFeedState(
     val stars: List<Star> = emptyList(),
-    val starLogMap: Map<StarId, List<StarLog>> = emptyMap()
-)
-
-data class RedditPost(
-    val title: String,
 )

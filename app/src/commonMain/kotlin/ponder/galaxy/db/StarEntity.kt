@@ -1,11 +1,8 @@
 package ponder.galaxy.db
 
 import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.datetime.Instant
-import ponder.galaxy.model.data.GalaxyId
 import ponder.galaxy.model.data.Star
 import ponder.galaxy.model.data.StarId
 
@@ -33,7 +30,7 @@ fun Star.toEntity() = StarEntity(
     starId = starId,
     // galaxyId = galaxyId,
     title = title,
-    url = url,
+    url = link,
     visibility = visibility,
     updatedAt = updatedAt,
     createdAt = createdAt,

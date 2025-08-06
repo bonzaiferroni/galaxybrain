@@ -1,19 +1,22 @@
 package ponder.galaxy.server.io
 
+import kabinet.utils.format
 import kabinet.utils.generateUuidString
+import kabinet.utils.lerp
 import klutch.utils.toStringId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import ponder.galaxy.model.data.Galaxy
 import ponder.galaxy.model.data.GalaxyId
+import ponder.galaxy.model.data.GalaxyProbe
 import ponder.galaxy.model.data.Star
 import ponder.galaxy.model.data.StarId
 import ponder.galaxy.model.data.StarLog
@@ -25,7 +28,9 @@ import ponder.galaxy.model.reddit.RedditLinkDto
 import ponder.galaxy.server.db.services.GalaxyTableDao
 import ponder.galaxy.server.db.services.StarLogTableDao
 import ponder.galaxy.server.db.services.StarTableDao
-import kotlin.time.Duration.Companion.hours
+import kotlin.math.exp
+import kotlin.math.max
+import kotlin.math.pow
 import kotlin.time.Duration.Companion.minutes
 
 class RedditMonitor(
@@ -36,22 +41,24 @@ class RedditMonitor(
 ) {
 
     private var job: Job? = null
-    private val subredditNames = listOf("news")
+    private val subredditNames = listOf("news", "politics", "Artificial", "programming") // "ChatGPT"
 
-    private val _starLogFlow = MutableStateFlow<List<StarLog>>(emptyList())
-    val starLogFlow: StateFlow<List<StarLog>> = _starLogFlow
+    private val _galaxyProbeFlow = MutableSharedFlow<GalaxyProbe>(replay = 1)
+    val galaxyProbeFlow: SharedFlow<GalaxyProbe> = _galaxyProbeFlow
 
     fun start() {
         job = CoroutineScope(Dispatchers.IO).launch {
 
             while(isActive) {
-                val starLogs = mutableListOf<StarLog>()
-                val now = Clock.System.now()
                 subredditNames.forEach { subredditName ->
+                    val now = Clock.System.now()
+                    val starLogs = mutableListOf<StarLog>()
 
+                    val prevVisibility = galaxyDao.readByName(subredditName)?.visibility
                     val links = client.getListing(subredditName, ListingType.Hot)
                     val visibilitySum = links.sumOf { it.deriveVisibility().toDouble() }.toFloat()
-                    val galaxyVisibility = visibilitySum / links.size
+                    val currentVisibility = visibilitySum / links.size
+                    val galaxyVisibility = lerp(prevVisibility ?: currentVisibility, currentVisibility, .1f)
 
                     val galaxy = galaxyDao.readByNameOrInsert(subredditName) {
                         Galaxy(
@@ -65,7 +72,7 @@ class RedditMonitor(
                     links.forEachIndexed { position, link ->
 
                         val visibility = link.deriveVisibility()
-                        val visibilityRatio = galaxyVisibility.takeIf{ it > 0 }?.let { visibility / galaxyVisibility } ?: 1f
+                        val visibilityRatio = galaxyVisibility.takeIf{ it > 0 }?.let { visibility / it } ?: 0f
                         val createdAt = Instant.fromEpochSeconds(link.createdUtc.toLong())
 
                         val thumbnail = link.preview?.images?.firstOrNull()?.source?.url
@@ -75,7 +82,8 @@ class RedditMonitor(
                                 starId = StarId(generateUuidString()),
                                 galaxyId = galaxy.galaxyId,
                                 title = link.title,
-                                url = link.url,
+                                link = link.url,
+                                permalink = "https://www.reddit.com${link.permalink}",
                                 thumbnailUrl = thumbnail,
                                 visibility = visibility,
                                 voteCount = link.ups,
@@ -86,8 +94,8 @@ class RedditMonitor(
                             )
                         }.let { StarId(it.toStringId()) }
 
-                        val age = ((now - createdAt).inWholeMinutes / (60 * 24).toFloat()).takeIf { it > 0 } ?: 1f
-                        val rise = visibilityRatio / age
+                        val age = max(((now - createdAt).inWholeMinutes / (60 * 24)).toFloat(), 10f)
+                        val rise = visibilityRatio * exp(-(age * age))
 
                         val starLogId = starLogDao.insert(StarLog(
                             starLogId = StarLogId(0L),
@@ -101,14 +109,13 @@ class RedditMonitor(
                         val starLog = starLogDao.readById(starLogId)
                         starLogs.add(starLog)
                     }
+                    _galaxyProbeFlow.emit(GalaxyProbe(galaxy.galaxyId, starLogs))
                 }
-                _starLogFlow.value = starLogs
-                println("added ${starLogs.size} stars")
                 delay(1.minutes)
             }
         }
     }
 }
 
-fun RedditLinkDto.deriveVisibility() = (numComments * 2 + ups).toFloat()
+fun RedditLinkDto.deriveVisibility() = (numComments * 2 + score).toFloat()
 

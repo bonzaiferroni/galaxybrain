@@ -9,7 +9,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.cbor.Cbor
-import ponder.galaxy.model.data.Star
+import ponder.galaxy.model.data.GalaxyProbe
 import ponder.galaxy.model.data.StarLog
 import ponder.galaxy.server.io.RedditMonitor
 
@@ -26,8 +26,8 @@ fun Route.serveStarSocket(
         println("client connect")
 
         try {
-            redditMonitor.starLogFlow.collect { starLogs ->
-                val bytes = Cbor.encodeToByteArray(ListSerializer(StarLog.serializer()), starLogs)
+            redditMonitor.galaxyProbeFlow.collect { galaxyProbe ->
+                val bytes = Cbor.encodeToByteArray(GalaxyProbe.serializer(), galaxyProbe)
                 syncLock.withLock { syncClients.forEach { it.send(Frame.Binary(true, bytes)) } }
             }
         } finally {

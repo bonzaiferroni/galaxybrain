@@ -16,7 +16,8 @@ import ponder.galaxy.model.data.StarId
 internal object StarTable: UUIDTable("star") {
     val galaxyId = reference("galaxy_id", GalaxyTable, onDelete = ReferenceOption.CASCADE)
     val title = text("title")
-    val url = text("url")
+    val link = text("link")
+    val permalink = text("permalink")
     val thumbnailUrl = text("thumbnail_url").nullable()
     val visibility = float("visibility")
     val commentCount = integer("comment_count")
@@ -30,7 +31,8 @@ internal fun ResultRow.toStar() = Star(
     starId = StarId(this[StarTable.id].value.toStringId()),
     galaxyId = GalaxyId(this[StarTable.galaxyId].value.toStringId()),
     title = this[StarTable.title],
-    url = this[StarTable.url],
+    link = this[StarTable.link],
+    permalink = this[StarTable.permalink],
     thumbnailUrl = this[StarTable.thumbnailUrl],
     visibility = this[StarTable.visibility],
     commentCount = this[StarTable.commentCount],
@@ -50,7 +52,8 @@ internal fun UpdateBuilder<*>.writeFull(star: Star) {
 
 internal fun UpdateBuilder<*>.writeUpdate(star: Star) {
     this[StarTable.title] = star.title
-    this[StarTable.url] = star.url
+    this[StarTable.link] = star.link
+    this[StarTable.permalink] = star.permalink
     this[StarTable.thumbnailUrl] = star.thumbnailUrl
     this[StarTable.visibility] = star.visibility
     this[StarTable.commentCount] = star.commentCount

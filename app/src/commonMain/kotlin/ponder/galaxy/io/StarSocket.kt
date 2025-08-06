@@ -7,13 +7,14 @@ import io.ktor.client.plugins.websocket.pingInterval
 import io.ktor.client.plugins.websocket.webSocket
 import io.ktor.http.HttpMethod
 import io.ktor.websocket.Frame
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.NonCancellable.isActive
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.decodeFromByteArray
-import ponder.galaxy.model.data.Star
-import ponder.galaxy.model.data.StarLog
+import ponder.galaxy.model.data.GalaxyProbe
 import kotlin.time.Duration.Companion.seconds
 
 class StarSocket() {
@@ -24,27 +25,35 @@ class StarSocket() {
         }
     }
 
-    private val _starLogFlow = MutableStateFlow<List<StarLog>>(emptyList())
-    val starLogFlow: StateFlow<List<StarLog>> = _starLogFlow
+    private val _galaxyProbeFlow = MutableSharedFlow<GalaxyProbe>(replay = 1)
+    val galaxyProbeFlow: SharedFlow<GalaxyProbe> = _galaxyProbeFlow
 
     @OptIn(ExperimentalSerializationApi::class)
     suspend fun start() {
-        client.webSocket(
-            method = HttpMethod.Get,
-            host = "192.168.1.100",
-            port = 8080,
-            path = "/starsocket",
-        ) {
-            for (frame in incoming) {
-                when (frame) {
-                    is Frame.Binary -> {
-                        val list = Cbor.decodeFromByteArray<List<StarLog>>(frame.data)
-                        _starLogFlow.value = list
+        while(true) {
+            try {
+                println("connecting to socket")
+                client.webSocket(
+                    method = HttpMethod.Get,
+                    host = "192.168.1.100",
+                    port = 8080,
+                    path = "/starsocket",
+                ) {
+                    for (frame in incoming) {
+                        when (frame) {
+                            is Frame.Binary -> {
+                                val galaxyProbe = Cbor.decodeFromByteArray<GalaxyProbe>(frame.data)
+                                _galaxyProbeFlow.emit(galaxyProbe)
+                            }
+                            else -> {} // ignore Text/Ping/Pong
+                        }
                     }
-                    else -> {} // ignore Text/Ping/Pong
                 }
+            } finally {
+                println("closing socket")
+                client.close()
+                delay(10000)
             }
         }
-        client.close()
     }
 }

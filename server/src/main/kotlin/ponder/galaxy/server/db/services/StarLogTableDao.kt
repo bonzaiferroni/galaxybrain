@@ -25,7 +25,9 @@ class StarLogTableDao(): DbService() {
     }
 
     suspend fun readLogsByStarIds(starIds: List<StarId>) = dbQuery {
-        StarLogTable.read { it.starId.inList(starIds.map { starId -> starId.toUUID()}) }.map { it.toStarLog() }
+        StarLogTable.read { it.starId.inList(starIds.map { starId -> starId.toUUID()}) }
+            .orderBy(StarLogTable.createdAt, SortOrder.ASC)
+            .map { it.toStarLog() }
             .groupBy { it.starId }
     }
 
