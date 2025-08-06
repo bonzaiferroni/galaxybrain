@@ -2,7 +2,7 @@ package ponder.galaxy.ui
 
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import ponder.galaxy.io.StarSocket
+import ponder.galaxy.io.ProbeSocket
 import ponder.galaxy.io.StarSource
 import ponder.galaxy.model.data.Star
 import ponder.galaxy.model.data.StarId
@@ -11,7 +11,7 @@ import pondui.ui.core.StateModel
 import pondui.ui.core.ViewState
 
 class RedditFeedModel(
-    private val starSocket: StarSocket = StarSocket(),
+    private val probeSocket: ProbeSocket = ProbeSocket(),
     private val starSource: StarSource = StarSource()
 ): StateModel<RedditFeedState>() {
     override val state = ViewState(RedditFeedState())
@@ -22,7 +22,7 @@ class RedditFeedModel(
 
     init {
         viewModelScope.launch {
-            starSocket.galaxyProbeFlow.collect { galaxyProbe ->
+            probeSocket.probeFlow.collect { galaxyProbe ->
                 val galaxyId = galaxyProbe.galaxyId; val starLogs = galaxyProbe.starLogs
                 val missingStarIds = starLogs.filter { starLog -> !allStars.containsKey(starLog.starId) }.map {it.starId}
                 starSource.readStars(missingStarIds).forEach { allStars[it.starId] = it }
@@ -43,7 +43,7 @@ class RedditFeedModel(
         }
 
         viewModelScope.launch {
-            starSocket.start()
+            probeSocket.start()
         }
     }
 

@@ -3,6 +3,8 @@ package ponder.galaxy.server.db.services
 import klutch.db.DbService
 import klutch.db.readById
 import klutch.db.readSingleOrNull
+import klutch.db.updateSingleWhere
+import klutch.utils.eq
 import klutch.utils.toUUID
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.batchInsert
@@ -27,7 +29,9 @@ class GalaxyTableDao : DbService() {
     }
 
     suspend fun update(vararg galaxys: Galaxy) = dbQuery {
-        galaxys.forEach { galaxy -> GalaxyTable.update { it.writeUpdate(galaxy) } }
+        galaxys.forEach { galaxy ->
+            GalaxyTable.updateSingleWhere({ it.id.eq(galaxy.galaxyId)}) { it.writeUpdate(galaxy) }
+        }
     }
 
     suspend fun delete(vararg galaxys: Galaxy) = dbQuery {

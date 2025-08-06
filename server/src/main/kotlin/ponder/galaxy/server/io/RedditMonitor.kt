@@ -1,6 +1,5 @@
 package ponder.galaxy.server.io
 
-import kabinet.utils.format
 import kabinet.utils.generateUuidString
 import kabinet.utils.lerp
 import klutch.utils.toStringId
@@ -8,8 +7,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
@@ -30,7 +29,6 @@ import ponder.galaxy.server.db.services.StarLogTableDao
 import ponder.galaxy.server.db.services.StarTableDao
 import kotlin.math.exp
 import kotlin.math.max
-import kotlin.math.pow
 import kotlin.time.Duration.Companion.minutes
 
 class RedditMonitor(
@@ -43,31 +41,41 @@ class RedditMonitor(
     private var job: Job? = null
     private val subredditNames = listOf("news", "politics", "Artificial", "programming") // "ChatGPT"
 
-    private val _galaxyProbeFlow = MutableSharedFlow<GalaxyProbe>(replay = 1)
-    val galaxyProbeFlow: SharedFlow<GalaxyProbe> = _galaxyProbeFlow
+    private val _galaxyProbeFlows = mutableMapOf<GalaxyId, MutableStateFlow<GalaxyProbe>>()
+    val probeFlows: Map<GalaxyId, StateFlow<GalaxyProbe>> = _galaxyProbeFlows
 
     fun start() {
         job = CoroutineScope(Dispatchers.IO).launch {
 
+            subredditNames.forEach { subredditName ->
+                val galaxy = galaxyDao.readByNameOrInsert(subredditName) {
+                    Galaxy(
+                        galaxyId = GalaxyId(generateUuidString()),
+                        name = subredditName,
+                        url = "$REDDIT_URL_BASE/r/$subredditName",
+                        visibility = 0f
+                    )
+                }
+
+                _galaxyProbeFlows[galaxy.galaxyId] = MutableStateFlow(GalaxyProbe(galaxy.galaxyId, emptyList()))
+            }
+
             while(isActive) {
+
                 subredditNames.forEach { subredditName ->
                     val now = Clock.System.now()
                     val starLogs = mutableListOf<StarLog>()
 
-                    val prevVisibility = galaxyDao.readByName(subredditName)?.visibility
+                    val galaxy = galaxyDao.readByName(subredditName) ?: error("galaxy not found: ${subredditName}")
                     val links = client.getListing(subredditName, ListingType.Hot)
                     val visibilitySum = links.sumOf { it.deriveVisibility().toDouble() }.toFloat()
                     val currentVisibility = visibilitySum / links.size
-                    val galaxyVisibility = lerp(prevVisibility ?: currentVisibility, currentVisibility, .1f)
+                    val prevVisibility = galaxy.visibility.takeIf { it > 0 } ?: currentVisibility
+                    val galaxyVisibility = lerp(prevVisibility, currentVisibility, .1f)
 
-                    val galaxy = galaxyDao.readByNameOrInsert(subredditName) {
-                        Galaxy(
-                            galaxyId = GalaxyId(generateUuidString()),
-                            name = subredditName,
-                            url = "$REDDIT_URL_BASE/r/$subredditName",
-                            visibility = galaxyVisibility
-                        )
-                    }
+                    galaxyDao.update(galaxy.copy(
+                        visibility = galaxyVisibility
+                    ))
 
                     links.forEachIndexed { position, link ->
 
@@ -109,7 +117,8 @@ class RedditMonitor(
                         val starLog = starLogDao.readById(starLogId)
                         starLogs.add(starLog)
                     }
-                    _galaxyProbeFlow.emit(GalaxyProbe(galaxy.galaxyId, starLogs))
+
+                    _galaxyProbeFlows.getValue(galaxy.galaxyId).value = GalaxyProbe(galaxy.galaxyId, starLogs)
                 }
                 delay(1.minutes)
             }

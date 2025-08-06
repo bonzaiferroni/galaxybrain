@@ -12,7 +12,7 @@ import io.ktor.websocket.Frame
 import io.ktor.websocket.close
 import io.ktor.websocket.readText
 import ponder.galaxy.server.io.RedditMonitor
-import ponder.galaxy.server.routes.serveStarSocket
+import ponder.galaxy.server.routes.serveProbeSocket
 import kotlin.time.Duration.Companion.seconds
 
 fun Application.configureWebSockets(
@@ -39,7 +39,7 @@ fun Application.configureWebSockets(
             }
         }
 
-        serveStarSocket(redditMonitor)
+        serveProbeSocket(redditMonitor)
     }
 }
 

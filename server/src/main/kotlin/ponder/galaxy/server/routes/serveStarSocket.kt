@@ -4,35 +4,33 @@ import io.ktor.server.routing.Route
 import io.ktor.server.websocket.DefaultWebSocketServerSession
 import io.ktor.server.websocket.webSocket
 import io.ktor.websocket.Frame
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.flow.merge
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.cbor.Cbor
 import ponder.galaxy.model.data.GalaxyProbe
-import ponder.galaxy.model.data.StarLog
 import ponder.galaxy.server.io.RedditMonitor
 
-@OptIn(ExperimentalSerializationApi::class)
-fun Route.serveStarSocket(
+fun Route.serveProbeSocket(
     redditMonitor: RedditMonitor
 ) {
-    val syncClients = mutableSetOf<DefaultWebSocketServerSession>()
-    val syncLock = Mutex()
 
-    webSocket("/starsocket") {
-        syncLock.withLock { syncClients += this }
+    webSocket("/probe_socket") {
 
         println("client connect")
 
-        try {
-            redditMonitor.galaxyProbeFlow.collect { galaxyProbe ->
-                val bytes = Cbor.encodeToByteArray(GalaxyProbe.serializer(), galaxyProbe)
-                syncLock.withLock { syncClients.forEach { it.send(Frame.Binary(true, bytes)) } }
-            }
-        } finally {
-            // remove on disconnect
-            syncLock.withLock { syncClients -= this }
+        val initialProbes = redditMonitor.probeFlows.values.map { it.value }
+        for (probe in initialProbes) {
+            sendGalaxyProbe(probe)
+        }
+
+        merge(*redditMonitor.probeFlows.values.toTypedArray()).collect { galaxyProbe ->
+            sendGalaxyProbe(galaxyProbe)
         }
     }
+}
+
+@OptIn(ExperimentalSerializationApi::class)
+suspend fun DefaultWebSocketServerSession.sendGalaxyProbe(galaxyProbe: GalaxyProbe) {
+    val bytes = Cbor.encodeToByteArray(GalaxyProbe.serializer(), galaxyProbe)
+    send(Frame.Binary(true, bytes))
 }
