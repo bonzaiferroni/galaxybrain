@@ -6,12 +6,12 @@ import ponder.galaxy.io.ExampleStore
 import ponder.galaxy.model.data.Example
 import ponder.galaxy.model.data.NewExample
 import pondui.ui.core.StateModel
-import pondui.ui.core.ViewState
+import pondui.ui.core.ModelState
 
 class ExampleListModel(
     private val store: ExampleStore = ExampleStore(),
 ): StateModel<ExampleListState>() {
-    override val state = ViewState(ExampleListState())
+    override val state = ModelState(ExampleListState())
 
     init {
         refreshItems()

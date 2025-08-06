@@ -3,6 +3,7 @@ package ponder.galaxy
 import androidx.compose.runtime.*
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import ponder.galaxy.db.AppDatabase
+import ponder.galaxy.io.ProbeService
 
 import pondui.io.ProvideUserContext
 import pondui.ui.core.PondApp
@@ -19,14 +20,19 @@ fun App(
 //        ProvideUserContext {
 //
 //        }
+        LaunchedEffect(Unit) {
+            globalProbeService.start()
+        }
 
         PondApp(
             config = appConfig,
             changeRoute = changeRoute,
             exitApp = exitApp
         )
+
     }
 }
 
 var db: AppDatabase? = null
 val appDb: AppDatabase get() = db ?: error("You must initialize the database")
+val globalProbeService = ProbeService()

@@ -6,14 +6,14 @@ import ponder.galaxy.ExampleProfileRoute
 import ponder.galaxy.io.ExampleStore
 import ponder.galaxy.model.data.Example
 import pondui.ui.core.StateModel
-import pondui.ui.core.ViewState
+import pondui.ui.core.ModelState
 
 class ExampleProfileModel(
     route: ExampleProfileRoute,
     private val store: ExampleStore = ExampleStore()
 ): StateModel<ExampleProfileState>() {
 
-    override val state = ViewState(ExampleProfileState())
+    override val state = ModelState(ExampleProfileState())
 
     init {
         viewModelScope.launch {
