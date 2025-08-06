@@ -16,7 +16,7 @@ object Api: ParentEndpoint(null, apiPrefix) {
         object Update: UpdateEndpoint<Example>(this)
     }
 
-    object Stars: GetByIdEndpoint<Star>(this, "/star") {
+    object Stars: GetByTableIdEndpoint<StarId, Star>(this, "/star") {
         object Multi : PostEndpoint<List<StarId>, List<Star>>(this, "multi")
     }
 

@@ -25,21 +25,20 @@ import compose.icons.tablericons.BrandReddit
 import kabinet.utils.toMetricString
 import kabinet.utils.toShortDescription
 import kotlinx.datetime.Clock
+import ponder.galaxy.StarProfileRoute
 import pondui.ui.controls.Column
 import pondui.ui.controls.Icon
-import pondui.ui.controls.LazyColumn
 import pondui.ui.controls.LazyScaffold
 import pondui.ui.controls.ProgressBar
 import pondui.ui.controls.Row
-import pondui.ui.controls.Scaffold
 import pondui.ui.controls.Section
 import pondui.ui.controls.Text
 import pondui.ui.controls.actionable
 import pondui.ui.theme.Pond
 
 @Composable
-fun RedditFeedScreen(
-    viewModel: RedditFeedModel = viewModel { RedditFeedModel() }
+fun GalaxyFlowScreen(
+    viewModel: GalaxyFlowModel = viewModel { GalaxyFlowModel() }
 ) {
     val state by viewModel.stateFlow.collectAsState()
     val uriHandler = LocalUriHandler.current
@@ -56,6 +55,7 @@ fun RedditFeedScreen(
                         gap = 1,
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.width(100.dp)
+                            .actionable(StarProfileRoute(star.starId.value))
                     ) {
                         when (star.thumbnailUrl) {
                             null -> {

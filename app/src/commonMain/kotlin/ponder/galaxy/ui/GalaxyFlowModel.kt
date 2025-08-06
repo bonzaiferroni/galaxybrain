@@ -4,20 +4,17 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import ponder.galaxy.globalProbeService
 import ponder.galaxy.io.ProbeService
-import ponder.galaxy.io.ProbeSocket
-import ponder.galaxy.io.StarSource
 import ponder.galaxy.model.data.Star
 import ponder.galaxy.model.data.StarId
 import pondui.ui.core.StateModel
 import pondui.ui.core.ModelState
 
-class RedditFeedModel(
+class GalaxyFlowModel(
     private val probeService: ProbeService = globalProbeService
-): StateModel<RedditFeedState>() {
-    override val state = ModelState(RedditFeedState())
+): StateModel<GalaxyFlowState>() {
+    override val state = ModelState(GalaxyFlowState())
 
     // val messenger = MessengerModel()
-
 
     init {
         viewModelScope.launch {
@@ -33,6 +30,6 @@ class RedditFeedModel(
 
 }
 
-data class RedditFeedState(
+data class GalaxyFlowState(
     val stars: List<Star> = emptyList(),
 )
