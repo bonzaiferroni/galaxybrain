@@ -51,18 +51,23 @@ class ProbeService(
                     allStarLogs[starLog.starId] = currentList + starLog
                 }
 
-                state.setValue { it.copy(stars = allStars.values.toList()) }
+                state.setValue { it.copy(stars = allStars.values.toList(), starLogs = allStarLogs) }
             }
         }
     }
 
-    fun getRise(starId: StarId) = allStarLogs[starId]?.lastOrNull()?.rise
+    fun getRise(starId: StarId) = allStars[starId]?.let{ allStarLogs[starId]?.lastOrNull()?.getRise(it.createdAt) }
 
     fun getStarLogs(starId: StarId) = allStarLogs[starId]
 
-    suspend fun getStar(starId: StarId) = allStars[starId] ?: apiClient.get(Api.Stars, starId).also { allStars[starId] = it }
+    suspend fun readStarLogs(starId: StarId) = allStarLogs[starId] ?: apiClient.getOrNull(Api.StarLogs, starId)
+        ?.also { allStarLogs[starId] = it }
+
+    suspend fun getStar(starId: StarId) = allStars[starId] ?: apiClient.getOrNull(Api.Stars, starId)
+        ?.also { allStars[starId] = it }
 }
 
 data class ProbeServiceState(
     val stars: List<Star> = emptyList(),
+    val starLogs: Map<StarId, List<StarLog>> = emptyMap()
 )

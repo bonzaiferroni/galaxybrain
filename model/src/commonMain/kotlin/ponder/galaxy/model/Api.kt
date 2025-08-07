@@ -20,7 +20,9 @@ object Api: ParentEndpoint(null, apiPrefix) {
         object Multi : PostEndpoint<List<StarId>, List<Star>>(this, "multi")
     }
 
-    object StarLogs: PostEndpoint<List<StarId>, Map<StarId, List<StarLog>>>(this, "/star_log")
+    object StarLogs: GetByTableIdEndpoint<StarId, List<StarLog>>(this, "/star_log") {
+        object Multi : PostEndpoint<List<StarId>, Map<StarId, List<StarLog>>>(this, "/multi")
+    }
 }
 
 val apiPrefix = "/api/v1"

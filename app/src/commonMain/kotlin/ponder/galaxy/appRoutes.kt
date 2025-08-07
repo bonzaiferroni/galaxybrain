@@ -3,6 +3,7 @@ package ponder.galaxy
 import kotlinx.serialization.Serializable
 import ponder.galaxy.model.data.StarId
 import pondui.ui.nav.AppRoute
+import pondui.ui.nav.IdRoute
 import pondui.ui.nav.matchLongIdRoute
 import pondui.ui.nav.matchStringIdRoute
 
@@ -22,7 +23,7 @@ object AppSettingsRoute : AppRoute("Settings")
 object RedditFeedRoute : AppRoute("Reddit")
 
 @Serializable
-data class StarProfileRoute(val starId: String) : AppRoute("Star") {
+data class StarProfileRoute(val starId: String) : IdRoute<String>("Star", starId) {
     companion object {
         const val TITLE = "Star"
         fun matchRoute(path: String) = matchStringIdRoute(path, TITLE) { StarProfileRoute(it) }

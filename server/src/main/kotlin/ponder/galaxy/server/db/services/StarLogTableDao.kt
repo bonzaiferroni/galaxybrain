@@ -24,11 +24,17 @@ class StarLogTableDao(): DbService() {
         StarLogTable.readById(starLogId.value).toStarLog()
     }
 
-    suspend fun readLogsByStarIds(starIds: List<StarId>) = dbQuery {
+    suspend fun readAllByStarIds(starIds: List<StarId>) = dbQuery {
         StarLogTable.read { it.starId.inList(starIds.map { starId -> starId.toUUID()}) }
             .orderBy(StarLogTable.createdAt, SortOrder.ASC)
             .map { it.toStarLog() }
             .groupBy { it.starId }
+    }
+
+    suspend fun readAllByStarId(starId: StarId) = dbQuery {
+        StarLogTable.read { it.starId.eq(starId)}
+            .orderBy(StarLogTable.createdAt, SortOrder.ASC)
+            .map { it.toStarLog() }
     }
 
     suspend fun readLatestByStarId(starId: StarId) = dbQuery {

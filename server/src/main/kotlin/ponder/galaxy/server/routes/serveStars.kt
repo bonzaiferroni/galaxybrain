@@ -1,7 +1,6 @@
 package ponder.galaxy.server.routes
 
 import io.ktor.server.routing.Routing
-import io.ktor.server.routing.get
 import klutch.server.get
 import klutch.server.post
 import ponder.galaxy.model.Api
@@ -16,6 +15,6 @@ fun Routing.serveStars(
     }
 
     get(Api.Stars, { StarId(it) }) { starId, endpoint ->
-        service.readById(starId)
+        service.readByIdOrNull(starId)
     }
 }

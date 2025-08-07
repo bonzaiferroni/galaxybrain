@@ -9,6 +9,6 @@ import pondui.io.globalApiClient
 class StarSource(
     private val client: ApiClient = globalApiClient
 ) {
-    suspend fun readStarLogs(starIds: List<StarId>) = client.post(Api.StarLogs, starIds)
+    suspend fun readStarLogs(starIds: List<StarId>) = client.post(Api.StarLogs.Multi, starIds)
     suspend fun readStars(starIds: List<StarId>) = client.post(Api.Stars.Multi,starIds)
 }

@@ -98,7 +98,7 @@ fun GalaxyFlowScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text("rise: ${latestStarLog.rise.toMetricString()}")
+                            Text("rise: ${latestStarLog.getRise(star.createdAt).toMetricString()}")
                             Text(
                                 text = "comments: ${star.commentCount}",
                                 modifier = Modifier.actionable { uriHandler.openUri(star.permalink)}

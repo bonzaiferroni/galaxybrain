@@ -2,7 +2,7 @@ package ponder.galaxy.server.db.services
 
 import klutch.db.DbService
 import klutch.db.read
-import klutch.db.readById
+import klutch.db.readByIdOrNull
 import klutch.db.updateSingleWhere
 import klutch.utils.greaterEq
 import klutch.utils.toUUID
@@ -53,8 +53,8 @@ class StarTableDao: DbService() {
             .map { it.toStar() }
     }
 
-    suspend fun readById(starId: StarId) = dbQuery {
-        StarTable.readById(starId.toUUID()).toStar()
+    suspend fun readByIdOrNull(starId: StarId) = dbQuery {
+        StarTable.readByIdOrNull(starId.toUUID())?.toStar()
     }
 
     suspend fun readByIds(starIds: List<StarId>) = dbQuery {

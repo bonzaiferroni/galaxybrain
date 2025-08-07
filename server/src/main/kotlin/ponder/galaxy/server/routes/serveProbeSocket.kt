@@ -3,8 +3,11 @@ package ponder.galaxy.server.routes
 import io.ktor.server.routing.Route
 import io.ktor.server.websocket.DefaultWebSocketServerSession
 import io.ktor.server.websocket.webSocket
+import io.ktor.websocket.CloseReason
 import io.ktor.websocket.Frame
+import io.ktor.websocket.close
 import kotlinx.coroutines.flow.merge
+import kotlinx.io.IOException
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.cbor.Cbor
 import ponder.galaxy.model.data.GalaxyProbe
@@ -18,13 +21,19 @@ fun Route.serveProbeSocket(
 
         println("client connect")
 
-        val initialProbes = redditMonitor.probeFlows.values.map { it.value }
-        for (probe in initialProbes) {
-            sendGalaxyProbe(probe)
-        }
+        try {
+            val initialProbes = redditMonitor.probeFlows.values.map { it.value }
+            for (probe in initialProbes) {
+                sendGalaxyProbe(probe)
+            }
 
-        merge(*redditMonitor.probeFlows.values.toTypedArray()).collect { galaxyProbe ->
-            sendGalaxyProbe(galaxyProbe)
+            merge(*redditMonitor.probeFlows.values.toTypedArray()).collect { galaxyProbe ->
+                sendGalaxyProbe(galaxyProbe)
+            }
+        } catch (ioe: IOException) {
+            // handle ping timeout
+            println("Ping timeout: ${ioe.message}")
+            close(CloseReason(CloseReason.Codes.GOING_AWAY, "Ping timeout"))
         }
     }
 }
