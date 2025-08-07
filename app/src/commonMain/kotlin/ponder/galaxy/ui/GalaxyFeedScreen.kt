@@ -26,6 +26,7 @@ import kabinet.utils.toMetricString
 import kabinet.utils.toShortDescription
 import kotlinx.datetime.Clock
 import ponder.galaxy.StarProfileRoute
+import pondui.ui.controls.Button
 import pondui.ui.controls.ButtonToggle
 import pondui.ui.controls.Column
 import pondui.ui.controls.FlowRow
@@ -35,6 +36,7 @@ import pondui.ui.controls.ProgressBar
 import pondui.ui.controls.Row
 import pondui.ui.controls.Section
 import pondui.ui.controls.Text
+import pondui.ui.controls.TitleCloud
 import pondui.ui.controls.actionable
 import pondui.ui.theme.Pond
 
@@ -45,23 +47,28 @@ fun GalaxyFeedScreen(
     val state by viewModel.stateFlow.collectAsState()
     val uriHandler = LocalUriHandler.current
 
-    LazyScaffold {
-        item("header") {
-            FlowRow(
-                gap = 1,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                state.galaxies.forEach { galaxy ->
-                    ButtonToggle(state.activeGalaxyNames.contains(galaxy.name), galaxy.name) {
-                        viewModel.toggleGalaxy(galaxy.name)
-                    }
+    TitleCloud("Active Galaxies", state.isGalaxyCloudVisible, viewModel::toggleGalaxyCloud) {
+        FlowRow(
+            gap = 1,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            state.galaxies.forEach { galaxy ->
+                ButtonToggle(state.activeGalaxyNames.contains(galaxy.name), galaxy.name) {
+                    viewModel.toggleGalaxy(galaxy.name)
                 }
             }
+        }
+    }
+
+    LazyScaffold {
+        item("header") {
+            Button("Set Galaxies", onClick = viewModel::toggleGalaxyCloud)
         }
 
         items(state.stars, key = { it.starId }) { star ->
             val starLogs = viewModel.getStarLogs(star.starId) ?: return@items
             val latestStarLog = starLogs.lastOrNull() ?: return@items
+            val galaxy = state.galaxies.firstOrNull { it.galaxyId == star.galaxyId } ?: return@items
             val now = Clock.System.now()
 
             Section(modifier = Modifier.animateItem()) {
@@ -118,6 +125,9 @@ fun GalaxyFeedScreen(
                                 text = "comments: ${star.commentCount}",
                                 modifier = Modifier.actionable { uriHandler.openUri(star.permalink)}
                             )
+                        }
+                        Row(1) {
+                            Text(galaxy.name)
                         }
                     }
                 }

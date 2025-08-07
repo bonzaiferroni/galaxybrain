@@ -53,12 +53,17 @@ class GalaxyFeedModel(
     }
 
     fun getStarLogs(starId: StarId) = probeService.getStarLogs(starId)
+
+    fun toggleGalaxyCloud(isVisible: Boolean = !stateNow.isGalaxyCloudVisible) {
+        setState { it.copy(isGalaxyCloudVisible = isVisible) }
+    }
 }
 
 data class GalaxyFlowState(
     val stars: List<Star> = emptyList(),
     val galaxies: List<Galaxy> = emptyList(),
-    val activeGalaxyNames: List<String> = emptyList()
+    val activeGalaxyNames: List<String> = emptyList(),
+    val isGalaxyCloudVisible: Boolean = false,
 )
 
 const val ACTIVE_GALAXY_NAMES_KEY = "active_galaxies"
