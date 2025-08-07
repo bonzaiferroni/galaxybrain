@@ -11,6 +11,7 @@ import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.batchUpsert
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insertAndGetId
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.update
 import ponder.galaxy.model.data.Galaxy
 import ponder.galaxy.server.db.tables.GalaxyTable
@@ -47,5 +48,9 @@ class GalaxyTableDao : DbService() {
 
     suspend fun readByName(name: String) = dbQuery {
         GalaxyTable.readSingleOrNull { it.name eq name }?.toGalaxy()
+    }
+
+    suspend fun readAll() = dbQuery {
+        GalaxyTable.selectAll().map { it.toGalaxy() }
     }
 }

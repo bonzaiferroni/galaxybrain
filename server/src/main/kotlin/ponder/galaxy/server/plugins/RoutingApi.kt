@@ -18,5 +18,6 @@ fun Application.configureApiRoutes() {
 
         serveStars()
         serveStarLogs()
+        serveGalaxies()
     }
 }

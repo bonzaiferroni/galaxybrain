@@ -56,6 +56,8 @@ class ProbeService(
         }
     }
 
+    fun getStars() = allStars.values.toList()
+
     fun getRise(starId: StarId) = allStars[starId]?.let{ allStarLogs[starId]?.lastOrNull()?.getRise(it.createdAt) }
 
     fun getStarLogs(starId: StarId) = allStarLogs[starId]
@@ -65,6 +67,7 @@ class ProbeService(
 
     suspend fun getStar(starId: StarId) = allStars[starId] ?: apiClient.getOrNull(Api.Stars, starId)
         ?.also { allStars[starId] = it }
+
 }
 
 data class ProbeServiceState(

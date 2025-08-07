@@ -6,9 +6,8 @@ import compose.icons.tablericons.Heart
 import compose.icons.tablericons.Home
 import compose.icons.tablericons.Settings
 import kotlinx.collections.immutable.persistentListOf
-import ponder.galaxy.model.data.StarId
 import ponder.galaxy.ui.AppConfigScreen
-import ponder.galaxy.ui.GalaxyFlowScreen
+import ponder.galaxy.ui.GalaxyFeedScreen
 import ponder.galaxy.ui.StarProfileScreen
 import ponder.galaxy.ui.StartScreen
 import pondui.ui.core.PondConfig
@@ -23,7 +22,7 @@ val appConfig = PondConfig(
     routes = persistentListOf(
         RouteConfig(StartRoute::matchRoute) { defaultScreen<StartRoute> { StartScreen() } },
         RouteConfig(AppSettingsRoute::matchRoute) { defaultScreen<AppSettingsRoute> { AppConfigScreen() } },
-        RouteConfig(RedditFeedRoute::matchRoute) { defaultScreen<RedditFeedRoute> { GalaxyFlowScreen() } },
+        RouteConfig(RedditFeedRoute::matchRoute) { defaultScreen<RedditFeedRoute> { GalaxyFeedScreen() } },
         RouteConfig(StarProfileRoute::matchRoute) { defaultScreen<StarProfileRoute> { StarProfileScreen(it) } }
     ),
     doors = persistentListOf(

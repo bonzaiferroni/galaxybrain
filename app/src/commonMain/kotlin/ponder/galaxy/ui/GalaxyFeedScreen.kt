@@ -26,7 +26,9 @@ import kabinet.utils.toMetricString
 import kabinet.utils.toShortDescription
 import kotlinx.datetime.Clock
 import ponder.galaxy.StarProfileRoute
+import pondui.ui.controls.ButtonToggle
 import pondui.ui.controls.Column
+import pondui.ui.controls.FlowRow
 import pondui.ui.controls.Icon
 import pondui.ui.controls.LazyScaffold
 import pondui.ui.controls.ProgressBar
@@ -37,13 +39,26 @@ import pondui.ui.controls.actionable
 import pondui.ui.theme.Pond
 
 @Composable
-fun GalaxyFlowScreen(
-    viewModel: GalaxyFlowModel = viewModel { GalaxyFlowModel() }
+fun GalaxyFeedScreen(
+    viewModel: GalaxyFeedModel = viewModel { GalaxyFeedModel() }
 ) {
     val state by viewModel.stateFlow.collectAsState()
     val uriHandler = LocalUriHandler.current
 
     LazyScaffold {
+        item("header") {
+            FlowRow(
+                gap = 1,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                state.galaxies.forEach { galaxy ->
+                    ButtonToggle(state.activeGalaxyNames.contains(galaxy.name), galaxy.name) {
+                        viewModel.toggleGalaxy(galaxy.name)
+                    }
+                }
+            }
+        }
+
         items(state.stars, key = { it.starId }) { star ->
             val starLogs = viewModel.getStarLogs(star.starId) ?: return@items
             val latestStarLog = starLogs.lastOrNull() ?: return@items

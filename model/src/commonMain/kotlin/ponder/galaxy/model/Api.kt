@@ -2,6 +2,8 @@ package ponder.galaxy.model
 
 import kabinet.api.*
 import ponder.galaxy.model.data.Example
+import ponder.galaxy.model.data.Galaxy
+import ponder.galaxy.model.data.GalaxyId
 import ponder.galaxy.model.data.NewExample
 import ponder.galaxy.model.data.Star
 import ponder.galaxy.model.data.StarId
@@ -22,6 +24,10 @@ object Api: ParentEndpoint(null, apiPrefix) {
 
     object StarLogs: GetByTableIdEndpoint<StarId, List<StarLog>>(this, "/star_log") {
         object Multi : PostEndpoint<List<StarId>, Map<StarId, List<StarLog>>>(this, "/multi")
+    }
+
+    object Galaxies: GetByTableIdEndpoint<GalaxyId, Galaxy>(this, "/galaxy") {
+        object All : GetEndpoint<List<Galaxy>>(this, "/all")
     }
 }
 
