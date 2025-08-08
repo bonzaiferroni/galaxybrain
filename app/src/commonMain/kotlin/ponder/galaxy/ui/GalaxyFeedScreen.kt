@@ -3,6 +3,7 @@ package ponder.galaxy.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -23,12 +25,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import compose.icons.TablerIcons
 import compose.icons.tablericons.BrandReddit
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.hazeSource
+import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
+import dev.chrisbanes.haze.materials.HazeMaterials
 import kabinet.utils.toMetricString
 import kabinet.utils.toShortDescription
 import kabinet.utils.toTimeFormat
@@ -36,6 +46,7 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import ponder.galaxy.StarProfileRoute
 import ponder.galaxy.model.data.Galaxy
+import pondui.ui.behavior.padBottom
 import pondui.ui.charts.AxisSide
 import pondui.ui.charts.BottomAxisAutoConfig
 import pondui.ui.charts.ChartBox
@@ -61,9 +72,15 @@ import pondui.ui.controls.TitleCloud
 import pondui.ui.controls.TopBarSpacer
 import pondui.ui.controls.actionable
 import pondui.ui.controls.bottomBarSpacerItem
+import pondui.ui.controls.toDpSize
+import pondui.ui.nav.portalTopBarHeight
 import pondui.ui.theme.Pond
 import pondui.ui.theme.PondColors
+import pondui.utils.darken
+import pondui.utils.lighten
+import pondui.utils.mixWith
 
+@OptIn(ExperimentalHazeMaterialsApi::class)
 @Composable
 fun GalaxyFeedScreen(
     viewModel: GalaxyFeedModel = viewModel { GalaxyFeedModel() }
@@ -74,6 +91,9 @@ fun GalaxyFeedScreen(
     var isChartVisible by remember { mutableStateOf(false) }
     var topY by remember (isChartVisible) { mutableStateOf(1.0) }
     val topGalaxy = state.galaxies.maxByOrNull { it.visibility }
+    val hazeState = remember { HazeState() }
+    var headerSize by remember { mutableStateOf(DpSize.Zero)}
+    val density = LocalDensity.current
 
     TitleCloud("Active Galaxies", state.isGalaxyCloudVisible, viewModel::toggleGalaxyCloud) {
         Column(1) {
@@ -103,58 +123,16 @@ fun GalaxyFeedScreen(
         derivedStateOf { lazyListState.firstVisibleItemIndex }
     }
 
-    Column(1) {
-        TopBarSpacer()
-
-        Drawer(
-            isOpen = isChartVisible,
-            height = 200.dp,
-        ) {
-            val firstVisibleStarId = state.stars.takeIf { it.size > firstVisibleIndex }
-                ?.let { it[firstVisibleIndex].starId }
-            val chartConfig = remember(firstVisibleStarId, state.isNormalized) {
-                val stars = viewModel.getStarsAfterIndex(firstVisibleIndex)
-                val arrays = stars.mapNotNull { star ->
-                    val galaxy = state.galaxies.firstOrNull { it.galaxyId == star.galaxyId } ?: return@mapNotNull null
-                    val starLogs = viewModel.getStarLogs(star.starId) ?: return@mapNotNull null
-                    val scale =
-                        if (state.isNormalized && topGalaxy != null) topGalaxy.visibility / galaxy.visibility else 1f
-                    LineChartArray(
-                        values = starLogs,
-                        color = galaxy.toColor(colors),
-                        isBezier = false,
-                        axis = SideAxisAutoConfig(5, AxisSide.Left, colors.contentSky),
-                        floor = 0.0,
-                        // key = star.starId,
-                        // ceiling = topY
-                    ) { (it.visibility * scale).toDouble().also { rise -> if (rise > topY) topY = rise } }
-                }
-                LineChartConfig(
-                    arrays = arrays,
-                    contentColor = colors.contentSky,
-                    provideLabelX = { Instant.fromEpochSeconds(it.toLong()).toTimeFormat(false) },
-                    bottomAxis = BottomAxisAutoConfig(5),
-                ) { it.createdAt.epochSeconds.toDouble() }
-            }
-
-            ChartBox("Chart") {
-                LineChart(
-                    config = chartConfig,
-                    modifier = Modifier.fillMaxWidth()
-                        .height(200.dp)
-                )
-            }
-        }
-
+    Box {
         LazyColumn(
             gap = 1,
-            state = lazyListState
+            state = lazyListState,
+            modifier = Modifier.hazeSource(state = hazeState)
+                .padding(horizontal = Pond.ruler.unitSpacing)
         ) {
             item("header") {
-                Row(1) {
-                    Button("Set Galaxies", onClick = viewModel::toggleGalaxyCloud)
-                    ButtonToggle(isChartVisible, "Chart") { isChartVisible = !isChartVisible }
-                    ButtonToggle(state.isNormalized, "Normalize", onToggle = viewModel::setNormalized)
+                Column(1) {
+                    Box(modifier = Modifier.height(headerSize.height))
                 }
             }
 
@@ -249,6 +227,75 @@ fun GalaxyFeedScreen(
             }
 
             bottomBarSpacerItem()
+        }
+
+        Column(
+            gap = 1,
+            modifier = Modifier.onGloballyPositioned { headerSize = it.size.toDpSize(density) }
+                .clip(RoundedCornerShape(
+                    topStart = 0.dp,
+                    topEnd = 0.dp,
+                    bottomStart = Pond.ruler.defaultCorner,
+                    bottomEnd = Pond.ruler.defaultCorner
+                ))
+                .hazeEffect(state = hazeState, style = HazeMaterials.thin(Pond.colors.void.darken(.1f)))
+                .padding(
+                    top = portalTopBarHeight,
+                    start = 0.dp,
+                    end = 0.dp,
+                    bottom = 0.dp,
+                )
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth()
+                    .padding(Pond.ruler.unitPadding)
+            ) {
+                Drawer(
+                    isOpen = isChartVisible,
+                    height = 200.dp,
+                ) {
+                    val firstVisibleStarId = state.stars.takeIf { it.size > firstVisibleIndex }
+                        ?.let { it[firstVisibleIndex].starId }
+                    val chartConfig = remember(firstVisibleStarId, state.isNormalized) {
+                        val stars = viewModel.getStarsAfterIndex(firstVisibleIndex)
+                        val arrays = stars.mapNotNull { star ->
+                            val galaxy = state.galaxies.firstOrNull { it.galaxyId == star.galaxyId } ?: return@mapNotNull null
+                            val starLogs = viewModel.getStarLogs(star.starId) ?: return@mapNotNull null
+                            val scale =
+                                if (state.isNormalized && topGalaxy != null) topGalaxy.visibility / galaxy.visibility else 1f
+                            LineChartArray(
+                                values = starLogs,
+                                color = galaxy.toColor(colors),
+                                isBezier = false,
+                                axis = SideAxisAutoConfig(5, AxisSide.Left, colors.contentSky),
+                                floor = 0.0,
+                                // key = star.starId,
+                                // ceiling = topY
+                            ) { (it.visibility * scale).toDouble().also { rise -> if (rise > topY) topY = rise } }
+                        }
+                        LineChartConfig(
+                            arrays = arrays,
+                            contentColor = colors.contentSky,
+                            provideLabelX = { Instant.fromEpochSeconds(it.toLong()).toTimeFormat(false) },
+                            bottomAxis = BottomAxisAutoConfig(5),
+                        ) { it.createdAt.epochSeconds.toDouble() }
+                    }
+
+                    ChartBox("Chart", modifier = Modifier.padBottom(1)) {
+                        LineChart(
+                            config = chartConfig,
+                            modifier = Modifier.fillMaxWidth()
+                                .height(200.dp)
+                        )
+                    }
+                }
+
+                Row(1) {
+                    Button("Set Galaxies", onClick = viewModel::toggleGalaxyCloud)
+                    ButtonToggle(isChartVisible, "Chart") { isChartVisible = !isChartVisible }
+                    ButtonToggle(state.isNormalized, "Normalize", onToggle = viewModel::setNormalized)
+                }
+            }
         }
     }
 }

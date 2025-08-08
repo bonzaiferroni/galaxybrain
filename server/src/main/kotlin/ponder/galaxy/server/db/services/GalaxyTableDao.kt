@@ -14,6 +14,7 @@ import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.update
 import ponder.galaxy.model.data.Galaxy
+import ponder.galaxy.model.data.GalaxyId
 import ponder.galaxy.server.db.tables.GalaxyTable
 import ponder.galaxy.server.db.tables.toGalaxy
 import ponder.galaxy.server.db.tables.writeFull
@@ -52,5 +53,9 @@ class GalaxyTableDao : DbService() {
 
     suspend fun readAll() = dbQuery {
         GalaxyTable.selectAll().map { it.toGalaxy() }
+    }
+
+    suspend fun readById(galaxyId: GalaxyId) = dbQuery {
+        GalaxyTable.readById(galaxyId.toUUID()).toGalaxy()
     }
 }

@@ -8,7 +8,7 @@ import ponder.galaxy.io.ProbeService
 import ponder.galaxy.model.data.Galaxy
 import ponder.galaxy.model.data.Star
 import ponder.galaxy.model.data.StarId
-import pondui.LocalValueRepository
+import pondui.LocalValueSource
 import pondui.ui.core.StateModel
 import pondui.ui.core.ModelState
 import kotlin.math.min
@@ -16,7 +16,7 @@ import kotlin.math.min
 class GalaxyFeedModel(
     private val probeService: ProbeService = globalProbeService,
     private val galaxySource: GalaxySource = GalaxySource(),
-    private val valueStore: LocalValueRepository = LocalValueRepository()
+    private val valueStore: LocalValueSource = LocalValueSource()
 ): StateModel<GalaxyFlowState>() {
     override val state = ModelState(GalaxyFlowState())
 

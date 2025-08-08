@@ -1,5 +1,6 @@
 package ponder.galaxy
 
+import androidx.compose.ui.unit.dp
 import compose.icons.TablerIcons
 import compose.icons.tablericons.BrandReddit
 import compose.icons.tablericons.Heart
@@ -22,12 +23,12 @@ val appConfig = PondConfig(
     routes = persistentListOf(
         RouteConfig(StartRoute::matchRoute) { defaultScreen<StartRoute> { StartScreen() } },
         RouteConfig(AppSettingsRoute::matchRoute) { defaultScreen<AppSettingsRoute> { AppConfigScreen() } },
-        RouteConfig(RedditFeedRoute::matchRoute) { defaultScreen<RedditFeedRoute> { GalaxyFeedScreen() } },
+        RouteConfig(GalaxyFeedRoute::matchRoute) { defaultScreen<GalaxyFeedRoute>(0.dp) { GalaxyFeedScreen() } },
         RouteConfig(StarProfileRoute::matchRoute) { defaultScreen<StarProfileRoute> { StarProfileScreen(it) } }
     ),
     doors = persistentListOf(
         PortalDoor(TablerIcons.Home, StartRoute),
-        PortalDoor(TablerIcons.BrandReddit, RedditFeedRoute),
+        PortalDoor(TablerIcons.BrandReddit, GalaxyFeedRoute),
         PortalDoor(TablerIcons.Settings, AppSettingsRoute),
     ),
 )

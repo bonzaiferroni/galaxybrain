@@ -1,12 +1,12 @@
 package ponder.galaxy.ui
 
-import pondui.LocalValueRepository
+import pondui.LocalValueSource
 import pondui.ValueRepository
 import pondui.ui.core.StateModel
 import pondui.ui.core.ModelState
 
 class AppConfigModel(
-    private val valueRepo: ValueRepository = LocalValueRepository()
+    private val valueRepo: ValueRepository = LocalValueSource()
 ): StateModel<AppConfigState>() {
     override val state = ModelState(AppConfigState())
 }

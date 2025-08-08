@@ -1,7 +1,6 @@
 package ponder.galaxy
 
 import kotlinx.serialization.Serializable
-import ponder.galaxy.model.data.StarId
 import pondui.ui.nav.AppRoute
 import pondui.ui.nav.IdRoute
 import pondui.ui.nav.matchLongIdRoute
@@ -20,7 +19,7 @@ object ExampleListRoute : AppRoute("Examples")
 object AppSettingsRoute : AppRoute("Settings")
 
 @Serializable
-object RedditFeedRoute : AppRoute("Reddit")
+object GalaxyFeedRoute : AppRoute("Reddit")
 
 @Serializable
 data class StarProfileRoute(val starId: String) : IdRoute<String>("Star", starId) {
