@@ -125,7 +125,8 @@ fun GalaxyFeedScreen(
                         isBezier = false,
                         axis = SideAxisAutoConfig(5, AxisSide.Left, colors.contentSky),
                         floor = 0.0,
-                        ceiling = topY
+                        // key = star.starId,
+                        // ceiling = topY
                     ) { (it.visibility * scale).toDouble().also { rise -> if (rise > topY) topY = rise } }
                 }
                 LineChartConfig(

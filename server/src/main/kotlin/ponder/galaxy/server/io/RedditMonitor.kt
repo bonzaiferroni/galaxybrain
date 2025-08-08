@@ -65,13 +65,14 @@ class RedditMonitor(
                             visibility = 0f
                         )
                     }
+                    // val starLogs = galaxyDao.readLatestStarLogs(galaxy.galaxyId)
                     _galaxyProbeFlows[galaxy.galaxyId] = MutableStateFlow(GalaxyProbe(galaxy.galaxyId, emptyList()))
 
                     while(isActive) {
                         val now = Clock.System.now()
                         val starLogs = mutableListOf<StarLog>()
 
-                        val galaxy = galaxyDao.readByName(subredditName) ?: error("galaxy not found: ${subredditName}")
+                        val galaxy = galaxyDao.readByName(subredditName) ?: error("galaxy not found: $subredditName")
                         val links = client.getListing(subredditName, ListingType.Hot)
                         val visibilitySum = links.sumOf { it.deriveVisibility().toDouble() }.toFloat()
                         val currentVisibility = visibilitySum / links.size
