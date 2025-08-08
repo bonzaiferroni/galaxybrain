@@ -40,7 +40,8 @@ class GalaxyFeedModel(
             val galaxy = stateNow.galaxies.firstOrNull { it.galaxyId == star.galaxyId } ?: return@filter false
             stateNow.activeGalaxyNames.contains(galaxy.name)
         }
-            .sortedByDescending { probeService.getRise(it.starId) }.take(100)
+            .sortedByDescending { probeService.getRise(it.starId, stateNow.riseFactor) }.take(100)
+
 
         setState { it -> it.copy(stars = filteredStars) }
     }
@@ -63,6 +64,16 @@ class GalaxyFeedModel(
         index < stateNow.stars.size -> stateNow.stars.subList(index, min(index + count, stateNow.stars.size))
         else -> emptyList()
     }
+
+    fun setNormalized(isNormalized: Boolean) {
+        setState { it.copy(isNormalized = isNormalized) }
+    }
+
+    fun setRiseFactor(value: Int) {
+        valueStore.writeInt(RISE_FACTOR_KEY, value)
+        setState { it.copy(riseFactor = value) }
+        setStars(stateNow.stars)
+    }
 }
 
 data class GalaxyFlowState(
@@ -70,6 +81,9 @@ data class GalaxyFlowState(
     val galaxies: List<Galaxy> = emptyList(),
     val activeGalaxyNames: List<String> = emptyList(),
     val isGalaxyCloudVisible: Boolean = false,
+    val isNormalized: Boolean = true,
+    val riseFactor: Int = 1,
 )
 
 const val ACTIVE_GALAXY_NAMES_KEY = "active_galaxies"
+const val RISE_FACTOR_KEY = "rise_factor"

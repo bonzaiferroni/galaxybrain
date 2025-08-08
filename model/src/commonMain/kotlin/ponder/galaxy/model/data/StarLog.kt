@@ -1,7 +1,6 @@
 package ponder.galaxy.model.data
 
 import kabinet.db.TableId
-import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmInline
@@ -18,9 +17,9 @@ data class StarLog(
     val voteCount: Int,
     val createdAt: Instant,
 ) {
-    fun getRise(startedAt: Instant, freshWeight: Int = 100): Float {
+    fun getRise(startedAt: Instant, riseFactor: Int): Float {
         val age = max((createdAt - startedAt).inWholeMinutes, 10) / (60 * 24).toFloat()
-        return visibilityRatio * exp(-freshWeight * (age * age))
+        return visibilityRatio * exp(-riseFactor * (age * age))
     }
 }
 

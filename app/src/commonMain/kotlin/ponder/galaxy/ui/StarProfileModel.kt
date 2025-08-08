@@ -7,12 +7,14 @@ import ponder.galaxy.io.ProbeService
 import ponder.galaxy.model.data.Star
 import ponder.galaxy.model.data.StarId
 import ponder.galaxy.model.data.StarLog
+import pondui.LocalValueRepository
 import pondui.ui.core.ModelState
 import pondui.ui.core.StateModel
 
 class StarProfileModel(
     starId: StarId,
-    private val probeService: ProbeService = globalProbeService
+    private val probeService: ProbeService = globalProbeService,
+    private val valueStore: LocalValueRepository = LocalValueRepository(),
 ): StateModel<StarProfileState>() {
 
     override val state = ModelState(StarProfileState())
@@ -21,7 +23,8 @@ class StarProfileModel(
         viewModelScope.launch {
             val star = probeService.getStar(starId)
             val starLogs = probeService.readStarLogs(starId) ?: emptyList()
-            setState { it.copy(star = star, starLogs = starLogs) }
+            val riseFactor = valueStore.readInt(RISE_FACTOR_KEY, 1)
+            setState { it.copy(star = star, starLogs = starLogs, riseFactor = riseFactor) }
 
             probeService.stateFlow.collect { state ->
                 val starLogs = state.starLogs[starId] ?: return@collect
@@ -33,5 +36,6 @@ class StarProfileModel(
 
 data class StarProfileState(
     val star: Star? = null,
-    val starLogs: List<StarLog> = emptyList()
+    val starLogs: List<StarLog> = emptyList(),
+    val riseFactor: Int = 1,
 )

@@ -64,7 +64,7 @@ fun StarProfileScreen(
                             label = "Rise",
                             axis = SideAxisAutoConfig(3, AxisSide.Right),
                             isBezier = false,
-                        ) { it.getRise(star.createdAt).toDouble() },
+                        ) { it.getRise(star.createdAt, state.riseFactor).toDouble() },
                         LineChartArray(
                             values = state.starLogs,
                             color = Pond.colors.swatches[3],
@@ -84,7 +84,7 @@ fun StarProfileScreen(
         Section {
             Text(text = "Visibility: ${star.visibility}", color = Pond.colors.swatches[0])
             Text(text = "Comments: ${starLog.commentCount}", color = Pond.colors.swatches[1])
-            Text(text = "Rise: ${starLog.getRise(star.createdAt).format(1)}", color = Pond.colors.swatches[2])
+            Text(text = "Rise: ${starLog.getRise(star.createdAt, state.riseFactor).format(1)}", color = Pond.colors.swatches[2])
             Text(text = "Votes: ${starLog.voteCount}", color = Pond.colors.swatches[3])
         }
     }
