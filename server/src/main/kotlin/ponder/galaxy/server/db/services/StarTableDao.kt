@@ -4,16 +4,19 @@ import klutch.db.DbService
 import klutch.db.read
 import klutch.db.readByIdOrNull
 import klutch.db.updateSingleWhere
+import klutch.utils.eq
 import klutch.utils.greaterEq
 import klutch.utils.toUUID
 import kotlinx.datetime.Instant
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.batchUpsert
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.update
+import ponder.galaxy.model.data.GalaxyId
 import ponder.galaxy.model.data.Star
 import ponder.galaxy.model.data.StarId
 import ponder.galaxy.server.db.tables.StarTable
@@ -39,9 +42,9 @@ class StarTableDao: DbService() {
         StarTable.deleteWhere { StarTable.id inList stars.map { it.starId.toUUID() } }
     }
 
-    suspend fun updateByUrlOrInsert(url: String, provideStar: () -> Star) = dbQuery {
+    suspend fun updateByUrlOrInsert(url: String, galaxyId: GalaxyId, provideStar: () -> Star) = dbQuery {
         val star = provideStar()
-        StarTable.updateSingleWhere({ it.link.eq(url) }) {
+        StarTable.updateSingleWhere({ it.link.eq(url) and it.galaxyId.eq(galaxyId) }) {
             it.writeUpdate(star)
         } ?: StarTable.insertAndGetId { it.writeFull(star) }.value
     }

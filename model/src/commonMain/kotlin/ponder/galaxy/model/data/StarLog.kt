@@ -18,8 +18,8 @@ data class StarLog(
     val voteCount: Int,
     val createdAt: Instant,
 ) {
-    fun getRise(startedAt: Instant, freshWeight: Int = 2): Float {
-        val age = max((Clock.System.now() - startedAt).inWholeMinutes, 10) / (60 * 24).toFloat()
+    fun getRise(startedAt: Instant, freshWeight: Int = 100): Float {
+        val age = max((createdAt - startedAt).inWholeMinutes, 10) / (60 * 24).toFloat()
         return visibilityRatio * exp(-freshWeight * (age * age))
     }
 }

@@ -11,6 +11,7 @@ import ponder.galaxy.model.data.StarId
 import pondui.LocalValueRepository
 import pondui.ui.core.StateModel
 import pondui.ui.core.ModelState
+import kotlin.math.min
 
 class GalaxyFeedModel(
     private val probeService: ProbeService = globalProbeService,
@@ -56,6 +57,11 @@ class GalaxyFeedModel(
 
     fun toggleGalaxyCloud(isVisible: Boolean = !stateNow.isGalaxyCloudVisible) {
         setState { it.copy(isGalaxyCloudVisible = isVisible) }
+    }
+
+    fun getStarsAfterIndex(index: Int, count: Int = 4) = when {
+        index < stateNow.stars.size -> stateNow.stars.subList(index, min(index + count, stateNow.stars.size))
+        else -> emptyList()
     }
 }
 

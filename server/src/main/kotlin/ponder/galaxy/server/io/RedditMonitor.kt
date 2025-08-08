@@ -90,7 +90,7 @@ class RedditMonitor(
 
                             val thumbnail = link.preview?.images?.firstOrNull()?.source?.url
 
-                            val starId = starDao.updateByUrlOrInsert(link.url) {
+                            val starId = starDao.updateByUrlOrInsert(link.url, galaxy.galaxyId) {
                                 Star(
                                     starId = StarId(generateUuidString()),
                                     galaxyId = galaxy.galaxyId,
