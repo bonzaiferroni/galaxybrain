@@ -1,6 +1,5 @@
 package ponder.galaxy.server.io
 
-import kabinet.utils.format
 import kabinet.utils.generateUuidString
 import kabinet.utils.lerp
 import klutch.utils.toStringId
@@ -24,12 +23,10 @@ import ponder.galaxy.model.data.StarLogId
 import ponder.galaxy.model.reddit.ListingType
 import ponder.galaxy.model.reddit.REDDIT_URL_BASE
 import ponder.galaxy.model.reddit.RedditClient
-import ponder.galaxy.model.reddit.RedditLinkDto
+import ponder.galaxy.model.reddit.RedditArticleDto
 import ponder.galaxy.server.db.services.GalaxyTableDao
 import ponder.galaxy.server.db.services.StarLogTableDao
 import ponder.galaxy.server.db.services.StarTableDao
-import kotlin.math.exp
-import kotlin.math.max
 import kotlin.math.min
 import kotlin.time.Duration.Companion.minutes
 
@@ -134,5 +131,5 @@ class RedditMonitor(
     }
 }
 
-fun RedditLinkDto.deriveVisibility() = (numComments * 2 + score).toFloat()
+fun RedditArticleDto.deriveVisibility() = (numComments * 2 + score).toFloat()
 

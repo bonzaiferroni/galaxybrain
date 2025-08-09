@@ -2,19 +2,16 @@ package ponder.galaxy.model.reddit
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.request.HttpRequest
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.http.HttpHeaders
-import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
 import io.ktor.client.request.request
 import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.path
-import kotlinx.coroutines.delay
+import kotlinx.serialization.json.Json
 
 class RedditClient(
     private val auth: RedditAuth,
@@ -52,24 +49,36 @@ class RedditClient(
 
     suspend fun me(): RedditIdentityDto = request(buildRequest("api/v1/me")).body()
 
-    suspend fun best(): List<RedditLinkDto> {
-        val response = request(buildRequest("best"))
-        val data: RedditData<RedditListingDto<RedditData<RedditLinkDto>>> = response.body()
-        return data.data.children.map { it.data }
-    }
+//    suspend fun best(): List<RedditLinkDto> {
+//        val response = request(buildRequest("best"))
+//        val data: RedditData<RedditListingDto<RedditData<RedditLinkDto>>> = response.body()
+//        return data.data.children.map { it.data }
+//    }
 
-    suspend fun getListing(subreddit: String, listingType: ListingType): List<RedditLinkDto> {
-        val response = request(buildRequest("r/$subreddit/${listingType.urlFragment}").apply {
+    suspend fun getListing(subreddit: String, listingType: ListingType): List<RedditArticleDto> {
+        val response = request(buildRequest("r/$subreddit/${listingType.urlValue}").apply {
             parameter("count", 100)
         })
-        val data: RedditData<RedditListingDto<RedditData<RedditLinkDto>>> = response.body()
-        return data.data.children.map { it.data }
+        val box: RedditListingBox<RedditArticleBox> = response.body()
+        return box.data.children.map { it.data }
+    }
+
+    suspend fun getComments(
+        subreddit: String,
+        articleId: String,
+        listingType: ListingType = ListingType.Top
+    ): List<RedditCommentDto> {
+        val response = request(buildRequest("r/$subreddit/comments/$articleId").apply {
+            parameter("sort", listingType.urlValue)
+        })
+        val boxes: List<RedditListingBox<RedditDtoBox>> = response.body()
+        return boxes[1].data.children.map { it.data as RedditCommentDto }
     }
 }
 
 const val REDDIT_URL_BASE = "https://www.reddit.com"
 
-enum class ListingType(val urlFragment: String) {
+enum class ListingType(val urlValue: String) {
     New("new"),
     Rising("rising"),
     Hot("hot"),

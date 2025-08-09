@@ -4,6 +4,10 @@ import io.ktor.server.application.*
 import klutch.db.generateMigrationScript
 import klutch.environment.readEnvFromPath
 import klutch.server.configureSecurity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import ponder.galaxy.model.reddit.ListingType
 import ponder.galaxy.model.reddit.REDDIT_APP_ID_KEY
 import ponder.galaxy.model.reddit.REDDIT_APP_SECRET_KEY
 import ponder.galaxy.model.reddit.REDDIT_PASSWORD_KEY
@@ -18,6 +22,7 @@ import ponder.galaxy.server.plugins.configureLogging
 import ponder.galaxy.server.plugins.configureSerialization
 import ponder.galaxy.server.plugins.configureWebSockets
 import ponder.galaxy.server.plugins.dbTables
+import java.io.File
 
 fun main(args: Array<String>) {
     if ("migrate" in args) generateMigrationScript(readEnvFromPath(), dbTables)
@@ -25,26 +30,32 @@ fun main(args: Array<String>) {
 }
 
 fun Application.module() {
-    val redditMonitor = RedditMonitor(
-        RedditClient(
-            RedditAuth(
-                username = env.read(REDDIT_USERNAME_KEY),
-                password = env.read(REDDIT_PASSWORD_KEY),
-                appId = env.read(REDDIT_APP_ID_KEY),
-                appSecret = env.read(REDDIT_APP_SECRET_KEY)
-            )
+    val redditClient = RedditClient(
+        RedditAuth(
+            username = env.read(REDDIT_USERNAME_KEY),
+            password = env.read(REDDIT_PASSWORD_KEY),
+            appId = env.read(REDDIT_APP_ID_KEY),
+            appSecret = env.read(REDDIT_APP_SECRET_KEY)
         )
     )
+    val redditMonitor = RedditMonitor(redditClient)
 
     configureCors()
     configureSerialization()
     configureDatabases()
     configureSecurity()
     configureApiRoutes()
-    configureWebSockets(redditMonitor)
+    configureWebSockets(redditMonitor, redditClient)
     configureLogging()
 
-    redditMonitor.start()
+    // redditMonitor.start()
+
+    CoroutineScope(Dispatchers.IO).launch {
+        val links = redditClient.getListing("Artificial", ListingType.Hot)
+        for (link in links) {
+            println(link.title)
+        }
+    }
 }
 
 private val env = readEnvFromPath()

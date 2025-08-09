@@ -9,7 +9,7 @@ import kotlinx.serialization.json.JsonTransformingSerializer
 import kotlinx.serialization.json.booleanOrNull
 
 @Serializable
-data class RedditLinkDto(
+data class RedditArticleDto(
     @SerialName("approved_at_utc") val approvedAtUtc: Double? = null,
     val subreddit: String,
     val selftext: String,
@@ -116,7 +116,7 @@ data class RedditLinkDto(
     @SerialName("num_crossposts") val numCrossposts: Int,
     // val media: SecureMediaDto? = null,
     @SerialName("is_video") val isVideo: Boolean
-)
+): RedditDto
 
 object DoubleOrBooleanSerializer :
     JsonTransformingSerializer<Double>(Double.serializer()) {
@@ -127,3 +127,24 @@ object DoubleOrBooleanSerializer :
         else
             element
 }
+
+@Serializable
+data class PreviewDto(
+    val images: List<PreviewImageDto>,
+    val enabled: Boolean
+)
+
+@Serializable
+data class PreviewImageDto(
+    val source: PreviewSourceDto,
+    val resolutions: List<PreviewSourceDto>,
+    // val variants: VariantsDto,
+    val id: String
+)
+
+@Serializable
+data class PreviewSourceDto(
+    val url: String,
+    val width: Int,
+    val height: Int
+)

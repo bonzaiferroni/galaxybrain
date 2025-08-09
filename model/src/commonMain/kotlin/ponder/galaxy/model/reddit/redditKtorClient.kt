@@ -19,6 +19,8 @@ internal val redditKtorClient = HttpClient(CIO) {
             prettyPrint = true
             isLenient = true
             ignoreUnknownKeys = true
+            classDiscriminator = "kind"
+            explicitNulls = false
         })
     }
     defaultRequest {

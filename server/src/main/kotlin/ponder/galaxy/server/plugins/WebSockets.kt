@@ -11,12 +11,15 @@ import io.ktor.websocket.CloseReason
 import io.ktor.websocket.Frame
 import io.ktor.websocket.close
 import io.ktor.websocket.readText
+import ponder.galaxy.model.reddit.RedditClient
 import ponder.galaxy.server.io.RedditMonitor
 import ponder.galaxy.server.routes.serveProbeSocket
+import ponder.galaxy.server.routes.serveRedditComments
 import kotlin.time.Duration.Companion.seconds
 
 fun Application.configureWebSockets(
-    redditMonitor: RedditMonitor
+    redditMonitor: RedditMonitor,
+    redditClient: RedditClient
 ) {
     install(WebSockets) {
         pingPeriod = 15.seconds
@@ -40,6 +43,8 @@ fun Application.configureWebSockets(
         }
 
         serveProbeSocket(redditMonitor)
+
+        serveRedditComments(redditClient)
     }
 }
 
