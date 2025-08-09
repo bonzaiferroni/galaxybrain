@@ -14,7 +14,7 @@ import io.ktor.websocket.readText
 import ponder.galaxy.model.reddit.RedditClient
 import ponder.galaxy.server.io.RedditMonitor
 import ponder.galaxy.server.routes.serveProbeSocket
-import ponder.galaxy.server.routes.serveRedditComments
+import ponder.galaxy.server.routes.serveChatter
 import kotlin.time.Duration.Companion.seconds
 
 fun Application.configureWebSockets(
@@ -44,7 +44,7 @@ fun Application.configureWebSockets(
 
         serveProbeSocket(redditMonitor)
 
-        serveRedditComments(redditClient)
+        serveChatter(redditClient)
     }
 }
 

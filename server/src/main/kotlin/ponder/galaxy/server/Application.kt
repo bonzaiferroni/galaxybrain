@@ -48,14 +48,7 @@ fun Application.module() {
     configureWebSockets(redditMonitor, redditClient)
     configureLogging()
 
-    // redditMonitor.start()
-
-    CoroutineScope(Dispatchers.IO).launch {
-        val links = redditClient.getListing("Artificial", ListingType.Hot)
-        for (link in links) {
-            println(link.title)
-        }
-    }
+    redditMonitor.start()
 }
 
 private val env = readEnvFromPath()

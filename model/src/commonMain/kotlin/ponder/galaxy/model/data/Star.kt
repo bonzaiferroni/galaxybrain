@@ -9,6 +9,7 @@ import kotlin.jvm.JvmInline
 data class Star(
     val starId: StarId,
     val galaxyId: GalaxyId,
+    val identifier: String,
     val title: String,
     val link: String,
     val permalink: String,

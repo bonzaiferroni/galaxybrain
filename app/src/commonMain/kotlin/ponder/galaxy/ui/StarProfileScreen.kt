@@ -159,7 +159,7 @@ fun StarProfileScreen(
                 }
             }
             Tab("Comments", modifier = Modifier.padding(horizontal = Pond.ruler.unitSpacing)) {
-
+                StarChatterView(galaxy.name, star.identifier)
             }
         }
     }

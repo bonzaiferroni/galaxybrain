@@ -1,0 +1,1 @@
+ALTER TABLE star ADD identifier TEXT NOT NULL;

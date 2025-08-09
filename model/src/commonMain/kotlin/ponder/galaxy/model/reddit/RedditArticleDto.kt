@@ -10,6 +10,7 @@ import kotlinx.serialization.json.booleanOrNull
 
 @Serializable
 data class RedditArticleDto(
+    val id: String,
     @SerialName("approved_at_utc") val approvedAtUtc: Double? = null,
     val subreddit: String,
     val selftext: String,
@@ -97,7 +98,6 @@ data class RedditArticleDto(
     @SerialName("mod_reason_by") val modReasonBy: String? = null,
     @SerialName("removal_reason") val removalReason: String? = null,
     @SerialName("link_flair_background_color") val linkFlairBackgroundColor: String? = null,
-    val id: String,
     @SerialName("is_robot_indexable") val isRobotIndexable: Boolean,
     // @SerialName("report_reasons") val reportReasons: List<Any>? = null,
     val author: String,

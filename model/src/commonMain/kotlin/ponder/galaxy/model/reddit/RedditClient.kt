@@ -11,7 +11,6 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.path
-import kotlinx.serialization.json.Json
 
 class RedditClient(
     private val auth: RedditAuth,
@@ -55,7 +54,7 @@ class RedditClient(
 //        return data.data.children.map { it.data }
 //    }
 
-    suspend fun getListing(subreddit: String, listingType: ListingType): List<RedditArticleDto> {
+    suspend fun getArticles(subreddit: String, listingType: ListingType): List<RedditArticleDto> {
         val response = request(buildRequest("r/$subreddit/${listingType.urlValue}").apply {
             parameter("count", 100)
         })
@@ -70,6 +69,8 @@ class RedditClient(
     ): List<RedditCommentDto> {
         val response = request(buildRequest("r/$subreddit/comments/$articleId").apply {
             parameter("sort", listingType.urlValue)
+            parameter("limit", 1000)
+            parameter("count", 100)
         })
         val boxes: List<RedditListingBox<RedditDtoBox>> = response.body()
         return boxes[1].data.children.map { it.data as RedditCommentDto }

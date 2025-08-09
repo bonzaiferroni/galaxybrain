@@ -63,3 +63,15 @@ object CommentRepliesSerializer : KSerializer<List<RedditCommentDto>> {
         encoder.encodeNull()
     }
 }
+
+fun List<RedditCommentDto>.flatten(): List<RedditCommentDto> {
+    val out = mutableListOf<RedditCommentDto>()
+    val stack = ArrayDeque<RedditCommentDto>()
+    for (c in this.asReversed()) stack.addLast(c)
+    while (stack.isNotEmpty()) {
+        val c = stack.removeLast()
+        out += c
+        for (child in c.replies.asReversed()) stack.addLast(child)
+    }
+    return out
+}

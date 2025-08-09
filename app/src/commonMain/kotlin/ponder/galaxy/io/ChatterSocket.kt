@@ -1,9 +1,5 @@
 package ponder.galaxy.io
 
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.cio.CIO
-import io.ktor.client.plugins.websocket.WebSockets
-import io.ktor.client.plugins.websocket.pingInterval
 import io.ktor.client.plugins.websocket.webSocket
 import io.ktor.http.HttpMethod
 import io.ktor.websocket.Frame
@@ -17,50 +13,47 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.decodeFromByteArray
-import ponder.galaxy.model.data.GalaxyProbe
-import kotlin.time.Duration.Companion.seconds
+import ponder.galaxy.model.data.ChatterProbe
 
-class ProbeSocket() {
+class ChatterSocket(
+    private val subredditName: String,
+    private val articleId: String,
+) {
 
-    val client = globalWebsocketClient
+    private val client = globalWebsocketClient
 
-    private val _probeFlow = MutableSharedFlow<GalaxyProbe>(replay = 1)
-    val probeFlow: SharedFlow<GalaxyProbe> = _probeFlow
+    private val _chatterFlow = MutableSharedFlow<ChatterProbe>(replay = 1)
+    val chatterFlow: SharedFlow<ChatterProbe> = _chatterFlow
 
     @OptIn(ExperimentalSerializationApi::class)
     fun start() {
         CoroutineScope(Dispatchers.IO).launch {
-            while(isActive) {
+            println("connecting chatter socket")
+            while (isActive) {
                 try {
-                    println("connecting to socket")
                     client.webSocket(
                         method = HttpMethod.Get,
                         host = "192.168.1.100",
                         port = 8080,
-                        path = "/probe_socket",
+                        path = "/chatter_probe?subreddit=$subredditName&article_id=$articleId",
                     ) {
                         for (frame in incoming) {
                             when (frame) {
                                 is Frame.Binary -> {
-                                    val galaxyProbe = Cbor.decodeFromByteArray<GalaxyProbe>(frame.data)
-                                    _probeFlow.emit(galaxyProbe)
+                                    val probe = Cbor.decodeFromByteArray<ChatterProbe>(frame.data)
+                                    println("probe received: ${probe.newChatters.size}")
+                                    _chatterFlow.emit(probe)
                                 }
-                                else -> {} // ignore Text/Ping/Pong
+                                else -> { /* ignore other frame types */ }
                             }
                         }
                     }
                 } finally {
-                    println("closing socket")
+                    // Match ProbeSocket behavior: close and retry after delay
                     client.close()
-                    delay(10000)
+                    delay(10_000)
                 }
             }
         }
-    }
-}
-
-val globalWebsocketClient = HttpClient(CIO) {
-    install(WebSockets) {
-        pingInterval = 15.seconds
     }
 }
