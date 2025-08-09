@@ -1,9 +1,12 @@
 package ponder.galaxy.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -33,6 +36,7 @@ import pondui.ui.charts.TimeChart
 import pondui.ui.controls.Column
 import pondui.ui.controls.FlowRow
 import pondui.ui.controls.H1
+import pondui.ui.controls.H3
 import pondui.ui.controls.LabeledValue
 import pondui.ui.controls.LazyScaffold
 import pondui.ui.controls.Scaffold
@@ -43,6 +47,8 @@ import pondui.ui.controls.Text
 import pondui.ui.controls.TopBarSpacer
 import pondui.ui.controls.actionable
 import pondui.ui.theme.Pond
+import pondui.utils.darken
+import pondui.utils.mixWith
 
 @Composable
 fun StarProfileScreen(
@@ -57,34 +63,40 @@ fun StarProfileScreen(
     val galaxy = state.galaxy ?: return
     val starLog = state.starLogs.lastOrNull() ?: return
 
-    Column(1) {
-        TopBarSpacer()
+    Column {
+        Column(
+            modifier = Modifier.background(Pond.colors.void.darken(.1f).mixWith(Pond.colors.background, .1f))
+                .padding(Pond.ruler.unitPadding)
+        ) {
+            TopBarSpacer()
 
-        H1(star.title, maxLines = 2)
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            LabeledValue("visibility", (star.visibility).toMetricString())
-            LabeledValue(
-                "rise",
-                starLog.getRise(star.createdAt, state.riseFactor).toMetricString()
-            )
+            H3(star.title, maxLines = 2)
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                LabeledValue("visibility", (star.visibility).toMetricString())
+                LabeledValue(
+                    "rise",
+                    starLog.getRise(star.createdAt, state.riseFactor).toMetricString()
+                )
+            }
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(galaxy.name, color = galaxy.toColor(colors))
+                LabeledValue(
+                    "comments",
+                    star.commentCount,
+                    modifier = Modifier.actionable { uriHandler.openUri(star.permalink) })
+            }
         }
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(galaxy.name, color = galaxy.toColor(colors))
-            LabeledValue(
-                "comments",
-                star.commentCount,
-                modifier = Modifier.actionable { uriHandler.openUri(star.permalink) })
-        }
-        Tabs() {
-            Tab("Content") {
+
+        Tabs(headerShape = Pond.ruler.shroomDown) {
+            Tab("Content", modifier = Modifier.padding(horizontal = Pond.ruler.unitSpacing)) {
                 Text(star.title)
                 star.thumbnailUrl?.let {
                     AsyncImage(
@@ -95,7 +107,7 @@ fun StarProfileScreen(
                     )
                 }
             }
-            Tab("Data") {
+            Tab("Data", modifier = Modifier.padding(horizontal = Pond.ruler.unitSpacing)) {
                 ChartBox("Chart") {
                     LineChart(
                         config = LineChartConfig(
@@ -104,28 +116,28 @@ fun StarProfileScreen(
                                     values = state.starLogs,
                                     color = Pond.colors.swatches[0],
                                     label = "Visibility",
-                                    axis = SideAxisAutoConfig(3, AxisSide.Left),
+                                    axis = SideAxisAutoConfig(5, AxisSide.Left),
                                     isBezier = false,
                                 ) { it.visibility.toDouble() },
                                 LineChartArray(
                                     values = state.starLogs,
                                     color = Pond.colors.swatches[1],
                                     label = "Comments",
-                                    axis = SideAxisAutoConfig(3, AxisSide.Right),
+                                    axis = SideAxisAutoConfig(5, AxisSide.Right),
                                     isBezier = false,
                                 ) { it.commentCount.toDouble() },
                                 LineChartArray(
                                     values = state.starLogs,
                                     color = Pond.colors.swatches[2],
                                     label = "Rise",
-                                    axis = SideAxisAutoConfig(3, AxisSide.Right),
+                                    axis = SideAxisAutoConfig(5, AxisSide.Right),
                                     isBezier = false,
                                 ) { it.getRise(star.createdAt, state.riseFactor).toDouble() },
                                 LineChartArray(
                                     values = state.starLogs,
                                     color = Pond.colors.swatches[3],
                                     label = "Votes",
-                                    axis = SideAxisAutoConfig(3, AxisSide.Left),
+                                    axis = SideAxisAutoConfig(5, AxisSide.Left),
                                     isBezier = false,
                                 ) { it.voteCount.toDouble() },
                             ),
@@ -146,7 +158,7 @@ fun StarProfileScreen(
                     }
                 }
             }
-            Tab("Comments") {
+            Tab("Comments", modifier = Modifier.padding(horizontal = Pond.ruler.unitSpacing)) {
 
             }
         }

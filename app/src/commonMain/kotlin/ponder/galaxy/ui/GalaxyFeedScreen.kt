@@ -61,7 +61,6 @@ import pondui.ui.controls.Drawer
 import pondui.ui.controls.FlowRow
 import pondui.ui.controls.Icon
 import pondui.ui.controls.IntegerWheel
-import pondui.ui.controls.Label
 import pondui.ui.controls.LabeledValue
 import pondui.ui.controls.LazyColumn
 import pondui.ui.controls.ProgressBar
@@ -69,7 +68,6 @@ import pondui.ui.controls.Row
 import pondui.ui.controls.Section
 import pondui.ui.controls.Text
 import pondui.ui.controls.TitleCloud
-import pondui.ui.controls.TopBarSpacer
 import pondui.ui.controls.actionable
 import pondui.ui.controls.bottomBarSpacerItem
 import pondui.ui.controls.toDpSize
@@ -77,8 +75,6 @@ import pondui.ui.nav.portalTopBarHeight
 import pondui.ui.theme.Pond
 import pondui.ui.theme.PondColors
 import pondui.utils.darken
-import pondui.utils.lighten
-import pondui.utils.mixWith
 
 @OptIn(ExperimentalHazeMaterialsApi::class)
 @Composable
@@ -138,7 +134,7 @@ fun GalaxyFeedScreen(
 
             items(state.stars, key = { it.starId }) { star ->
                 val starLogs = viewModel.getStarLogs(star.starId) ?: return@items
-                val latestStarLog = starLogs.lastOrNull() ?: return@items
+                val starLog = starLogs.lastOrNull() ?: return@items
                 val galaxy = state.galaxies.firstOrNull { it.galaxyId == star.galaxyId } ?: return@items
                 val now = Clock.System.now()
                 val scale =
@@ -165,10 +161,10 @@ fun GalaxyFeedScreen(
                                     true -> "visibility ${scale.toMetricString()}x"
                                     false -> "visibility"
                                 }
-                                LabeledValue(label, (star.visibility * scale).toMetricString())
+                                LabeledValue(label, (starLog.visibility * scale).toMetricString())
                                 LabeledValue(
                                     "rise",
-                                    latestStarLog.getRise(star.createdAt, state.riseFactor).toMetricString()
+                                    starLog.getRise(star.createdAt, state.riseFactor).toMetricString()
                                 )
                             }
                             Row(
@@ -179,7 +175,7 @@ fun GalaxyFeedScreen(
                                 Text(galaxy.name, color = galaxy.toColor(colors))
                                 LabeledValue(
                                     "comments",
-                                    star.commentCount,
+                                    starLog.commentCount,
                                     modifier = Modifier.actionable { uriHandler.openUri(star.permalink) })
                             }
                         }

@@ -24,7 +24,7 @@ val appConfig = PondConfig(
         RouteConfig(StartRoute::matchRoute) { defaultScreen<StartRoute> { StartScreen() } },
         RouteConfig(AppSettingsRoute::matchRoute) { defaultScreen<AppSettingsRoute> { AppConfigScreen() } },
         RouteConfig(GalaxyFeedRoute::matchRoute) { defaultScreen<GalaxyFeedRoute>(0.dp) { GalaxyFeedScreen() } },
-        RouteConfig(StarProfileRoute::matchRoute) { defaultScreen<StarProfileRoute> { StarProfileScreen(it) } }
+        RouteConfig(StarProfileRoute::matchRoute) { defaultScreen<StarProfileRoute>(0.dp) { StarProfileScreen(it) } }
     ),
     doors = persistentListOf(
         PortalDoor(TablerIcons.Home, StartRoute),

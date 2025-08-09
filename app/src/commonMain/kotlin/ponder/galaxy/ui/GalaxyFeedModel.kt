@@ -16,7 +16,7 @@ import kotlin.math.min
 class GalaxyFeedModel(
     private val probeService: ProbeService = globalProbeService,
     private val galaxySource: GalaxySource = GalaxySource(),
-    private val valueStore: LocalValueSource = LocalValueSource()
+    private val valueSource: LocalValueSource = LocalValueSource()
 ): StateModel<GalaxyFlowState>() {
     override val state = ModelState(GalaxyFlowState())
 
@@ -25,9 +25,10 @@ class GalaxyFeedModel(
     init {
         viewModelScope.launch {
             val galaxies = galaxySource.readAll()
-            val activeGalaxyNames = valueStore.readObjectOrNull<List<String>>(ACTIVE_GALAXY_NAMES_KEY) ?: galaxies.map { it.name }
+            val activeGalaxyNames = valueSource.readObjectOrNull<List<String>>(ACTIVE_GALAXY_NAMES_KEY) ?: galaxies.map { it.name }
             val filteredNames = activeGalaxyNames.filter { galaxyName -> galaxies.any { it.name == galaxyName} }
-            setState { it.copy(galaxies = galaxies, activeGalaxyNames = filteredNames) }
+            val riseFactor = valueSource.readInt(RISE_FACTOR_KEY, 1)
+            setState { it.copy(galaxies = galaxies, activeGalaxyNames = filteredNames, riseFactor = riseFactor) }
 
             probeService.stateFlow.collect { state ->
                 setStars(state.stars)
@@ -49,7 +50,7 @@ class GalaxyFeedModel(
     fun toggleGalaxy(galaxyName: String) {
         val activeGalaxyNames = if (stateNow.activeGalaxyNames.contains(galaxyName)) stateNow.activeGalaxyNames - galaxyName
         else stateNow.activeGalaxyNames + galaxyName
-        valueStore.writeObject(ACTIVE_GALAXY_NAMES_KEY, activeGalaxyNames)
+        valueSource.writeObject(ACTIVE_GALAXY_NAMES_KEY, activeGalaxyNames)
         setState { it.copy(activeGalaxyNames = activeGalaxyNames) }
         setStars(probeService.getStars())
     }
@@ -70,7 +71,7 @@ class GalaxyFeedModel(
     }
 
     fun setRiseFactor(value: Int) {
-        valueStore.writeInt(RISE_FACTOR_KEY, value)
+        valueSource.writeInt(RISE_FACTOR_KEY, value)
         setState { it.copy(riseFactor = value) }
         setStars(stateNow.stars)
     }

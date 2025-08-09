@@ -44,7 +44,7 @@ class RedditMonitor(
     private val subredditNames = listOf(
         "news", "politics", "worldnews",
         "Artificial", "science", "technology", "futurology",
-        "dataisbeautiful", "InternetIsBeautiful", "whatsthisbug", "outoftheloop", "philosophy",
+        "dataisbeautiful", "InternetIsBeautiful", "whatsthisbug", "outoftheloop", "philosophy", "MadeMeSmile",
         "gnome", "linuxmasterrace", "opensource", "linux",
         "programming", "Kotlin", "androiddev", "redditdev", "webdev", "programmerhumor",
     ) //
@@ -67,6 +67,7 @@ class RedditMonitor(
                     }
                     // val starLogs = galaxyDao.readLatestStarLogs(galaxy.galaxyId)
                     _galaxyProbeFlows[galaxy.galaxyId] = MutableStateFlow(GalaxyProbe(galaxy.galaxyId, emptyList()))
+                    delay(10)
 
                     while(isActive) {
                         val now = Clock.System.now()
