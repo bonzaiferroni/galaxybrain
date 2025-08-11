@@ -17,6 +17,7 @@ internal object StarTable: UUIDTable("star") {
     val galaxyId = reference("galaxy_id", GalaxyTable, onDelete = ReferenceOption.CASCADE)
     val identifier = text("identifier")
     val title = text("title")
+    val textContent = text("text_content").nullable()
     val link = text("link")
     val permalink = text("permalink")
     val thumbnailUrl = text("thumbnail_url").nullable()
@@ -33,6 +34,7 @@ internal fun ResultRow.toStar() = Star(
     galaxyId = GalaxyId(this[StarTable.galaxyId].value.toStringId()),
     identifier = this[StarTable.identifier],
     title = this[StarTable.title],
+    textContent = this[StarTable.textContent],
     link = this[StarTable.link],
     permalink = this[StarTable.permalink],
     thumbnailUrl = this[StarTable.thumbnailUrl],
@@ -55,6 +57,7 @@ internal fun UpdateBuilder<*>.writeFull(star: Star) {
 
 internal fun UpdateBuilder<*>.writeUpdate(star: Star) {
     this[StarTable.title] = star.title
+    this[StarTable.textContent] = star.textContent
     this[StarTable.link] = star.link
     this[StarTable.permalink] = star.permalink
     this[StarTable.thumbnailUrl] = star.thumbnailUrl

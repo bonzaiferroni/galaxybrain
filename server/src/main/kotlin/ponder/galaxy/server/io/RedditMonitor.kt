@@ -85,7 +85,7 @@ class RedditMonitor(
                             visibility = galaxyVisibility
                         ))
 
-                        articles.forEachIndexed { position, article ->
+                        articles.forEach { article ->
 
                             val visibility = article.deriveVisibility()
                             val visibilityRatio = galaxyVisibility.takeIf{ it > 0 }?.let { visibility / it } ?: 0f
@@ -99,6 +99,7 @@ class RedditMonitor(
                                     galaxyId = galaxy.galaxyId,
                                     identifier = article.id,
                                     title = article.title,
+                                    textContent = article.selftext,
                                     link = article.url,
                                     permalink = "https://www.reddit.com${article.permalink}",
                                     thumbnailUrl = thumbnail,

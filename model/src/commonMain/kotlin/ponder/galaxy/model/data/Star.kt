@@ -11,6 +11,7 @@ data class Star(
     val galaxyId: GalaxyId,
     val identifier: String,
     val title: String,
+    val textContent: String?,
     val link: String,
     val permalink: String,
     val thumbnailUrl: String?,
