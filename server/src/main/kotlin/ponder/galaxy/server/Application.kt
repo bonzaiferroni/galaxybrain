@@ -14,6 +14,7 @@ import ponder.galaxy.model.reddit.REDDIT_PASSWORD_KEY
 import ponder.galaxy.model.reddit.REDDIT_USERNAME_KEY
 import ponder.galaxy.model.reddit.RedditAuth
 import ponder.galaxy.model.reddit.RedditClient
+import ponder.galaxy.model.reddit.flatten
 import ponder.galaxy.server.io.RedditMonitor
 import ponder.galaxy.server.plugins.configureApiRoutes
 import ponder.galaxy.server.plugins.configureCors
@@ -49,6 +50,11 @@ fun Application.module() {
     configureLogging()
 
     redditMonitor.start()
+
+    CoroutineScope(Dispatchers.IO).launch {
+        // val comments = redditClient.getComments("Futurology", "1mgs91o").flatten()
+        // println(comments.size)
+    }
 }
 
 private val env = readEnvFromPath()

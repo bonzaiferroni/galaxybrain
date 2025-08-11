@@ -15,6 +15,7 @@ data class RedditCommentDto(
     @SerialName("link_id") val linkId: String? = null,
     val author: String,
     val body: String,
+    val permalink: String,
     @SerialName("body_html") val bodyHtml: String? = null,
     // JSON shows seconds as a float; keep Double to match the payload
     @SerialName("created_utc") val createdUtc: Double,

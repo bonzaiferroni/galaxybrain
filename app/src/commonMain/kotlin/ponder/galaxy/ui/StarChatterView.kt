@@ -1,11 +1,30 @@
 package ponder.galaxy.ui
 
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.UriHandler
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kabinet.utils.toMetricString
+import kabinet.utils.toShortDescription
+import kotlinx.datetime.Clock
 import pondui.ui.controls.Column
+import pondui.ui.controls.FlowRow
+import pondui.ui.controls.Label
+import pondui.ui.controls.LabeledValue
+import pondui.ui.controls.LazyColumn
+import pondui.ui.controls.ProgressBar
+import pondui.ui.controls.Row
+import pondui.ui.controls.Section
 import pondui.ui.controls.Text
+import pondui.ui.controls.actionable
+import kotlin.time.Duration.Companion.days
 
 @Composable
 fun StarChatterView(
@@ -14,9 +33,31 @@ fun StarChatterView(
     viewModel: StarChatterModel = viewModel(key = articleId) { StarChatterModel(subredditName, articleId) }
 ) {
     val state by viewModel.stateFlow.collectAsState()
-    Column(1) {
-        for (chatter in state.chatters) {
-            Text(chatter.body)
+    val uriHandler = LocalUriHandler.current
+    val now = Clock.System.now()
+    LazyColumn(1) {
+        items(state.chatters) { chatter ->
+            Section {
+                Column(1) {
+                    Row(1) {
+                        Text(chatter.visibility.toMetricString())
+                        Label(chatter.author, modifier = Modifier.weight(1f))
+                        val age = now - chatter.createdAt
+                        val ageRatio = (age / 1.days).toFloat()
+                        chatter.depth?.let {
+                            if (it > 0) LabeledValue("depth", it)
+                        }
+                        ProgressBar(
+                            progress = ageRatio,
+                            padding = PaddingValues(0.dp),
+                            modifier = Modifier.actionable { uriHandler.openUri(chatter.permalink) }
+                        ) {
+                            Text(age.toShortDescription())
+                        }
+                    }
+                    Text(chatter.body)
+                }
+            }
         }
     }
 }

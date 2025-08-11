@@ -6,6 +6,7 @@ import io.ktor.server.websocket.webSocket
 import io.ktor.websocket.CloseReason
 import io.ktor.websocket.Frame
 import io.ktor.websocket.close
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.merge
 import kotlinx.io.IOException
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -22,12 +23,15 @@ fun Route.serveProbeSocket(
         println("client connect")
 
         try {
-            val initialProbes = redditMonitor.probeFlows.values.map { it.value }
+            // snapshot + drop nulls
+            val flows: List<StateFlow<GalaxyProbe>> = redditMonitor.probeFlows.values.toList()
+
+            val initialProbes = flows.map { it.value }
             for (probe in initialProbes) {
                 sendGalaxyProbe(probe)
             }
 
-            merge(*redditMonitor.probeFlows.values.toTypedArray()).collect { galaxyProbe ->
+            merge(*flows.toTypedArray()).collect { galaxyProbe ->
                 sendGalaxyProbe(galaxyProbe)
             }
         } catch (ioe: IOException) {

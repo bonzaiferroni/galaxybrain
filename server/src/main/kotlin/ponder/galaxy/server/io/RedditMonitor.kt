@@ -41,7 +41,7 @@ class RedditMonitor(
     private val subredditNames = listOf(
         "news", "politics", "worldnews",
         "Artificial", "science", "technology", "futurology",
-        "dataisbeautiful", "InternetIsBeautiful", "whatsthisbug", "outoftheloop", "philosophy", "MadeMeSmile",
+        "dataisbeautiful", "InternetIsBeautiful", "whatisthisbug", "outoftheloop", "philosophy", "MadeMeSmile",
         "gnome", "linuxmasterrace", "opensource", "linux",
         "programming", "Kotlin", "androiddev", "redditdev", "webdev", "programmerhumor",
     ) //
@@ -71,6 +71,11 @@ class RedditMonitor(
 
                         val galaxy = galaxyDao.readByName(subredditName) ?: error("galaxy not found: $subredditName")
                         val articles = client.getArticles(subredditName, ListingType.Hot)
+                        if (articles == null) {
+                            println("RedditMonitor: articles not found")
+                            delay(1.minutes)
+                            continue
+                        }
                         val visibilitySum = articles.sumOf { it.deriveVisibility().toDouble() }.toFloat()
                         val currentVisibility = visibilitySum / articles.size
                         val prevVisibility = galaxy.visibility.takeIf { it > 0 } ?: currentVisibility

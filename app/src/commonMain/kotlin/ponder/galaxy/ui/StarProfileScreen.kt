@@ -3,6 +3,7 @@ package ponder.galaxy.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,7 +20,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import kabinet.utils.format
 import kabinet.utils.toMetricString
+import kabinet.utils.toShortDescription
 import kabinet.utils.toTimeFormat
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import ponder.galaxy.StarProfileRoute
 import ponder.galaxy.model.data.StarId
@@ -39,6 +42,7 @@ import pondui.ui.controls.H1
 import pondui.ui.controls.H3
 import pondui.ui.controls.LabeledValue
 import pondui.ui.controls.LazyScaffold
+import pondui.ui.controls.ProgressBar
 import pondui.ui.controls.Scaffold
 import pondui.ui.controls.Section
 import pondui.ui.controls.Tab
@@ -70,32 +74,29 @@ fun StarProfileScreen(
         ) {
             TopBarSpacer()
 
-            H3(star.title, maxLines = 2)
+            H3(star.title, maxLines = 2, modifier = Modifier.actionable { uriHandler.openUri(star.permalink) })
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                LabeledValue("visibility", (star.visibility).toMetricString())
-                LabeledValue(
-                    "rise",
-                    starLog.getRise(star.createdAt, state.riseFactor).toMetricString()
-                )
-            }
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(galaxy.name, color = galaxy.toColor(colors))
+                Text(galaxy.name, color = galaxy.toColor(colors), modifier = Modifier.actionable { uriHandler.openUri(galaxy.url)})
                 LabeledValue(
                     "comments",
                     star.commentCount,
                     modifier = Modifier.actionable { uriHandler.openUri(star.permalink) })
+                val now = Clock.System.now()
+                val age = now - star.createdAt
+                val ageRatio = age.inWholeSeconds / (60 * 60 * 24).toFloat()
+                ProgressBar(
+                    progress = ageRatio,
+                ) {
+                    Text(age.toShortDescription())
+                }
             }
         }
 
-        Tabs(headerShape = Pond.ruler.shroomDown) {
+        Tabs("Comments", headerShape = Pond.ruler.shroomDown) {
             Tab("Content", modifier = Modifier.padding(horizontal = Pond.ruler.unitSpacing)) {
                 Text(star.title)
                 star.thumbnailUrl?.let {

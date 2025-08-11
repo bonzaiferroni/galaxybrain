@@ -11,6 +11,7 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.path
+import kotlinx.coroutines.delay
 
 class RedditClient(
     private val auth: RedditAuth,
@@ -21,17 +22,22 @@ class RedditClient(
     private suspend fun provideToken() = cachedToken ?: auth.authorize().also { cachedToken = it }
     ?: error("unable to provide token")
 
-    private suspend fun request(request: HttpRequestBuilder): HttpResponse {
+    private suspend fun request(request: HttpRequestBuilder): HttpResponse? {
         repeat(3) {
-            val response = client.request(request)
-            if (response.status == HttpStatusCode.OK) {
-                return response
+            try {
+                val response = client.request(request)
+                if (response.status == HttpStatusCode.OK) {
+                    return response
+                }
+                if (response.status == HttpStatusCode.Unauthorized) {
+                    cachedToken = null
+                    return@repeat
+                }
+                println("REDDIT API ERROR > get ${request.url}: ${response.status}")
+            } catch (e: Exception) {
+                println("RedditClient: $e")
             }
-            if (response.status == HttpStatusCode.Unauthorized) {
-                cachedToken = null
-                return@repeat
-            }
-            error("REDDIT API ERROR > get ${request.url}: ${response.status}")
+            delay(1000)
         }
         error("REDDIT API ERROR > endpoint fail: ${request.url}")
     }
@@ -46,7 +52,7 @@ class RedditClient(
         parameter("raw_json", 1)
     }
 
-    suspend fun me(): RedditIdentityDto = request(buildRequest("api/v1/me")).body()
+    suspend fun me(): RedditIdentityDto? = request(buildRequest("api/v1/me"))?.body()
 
 //    suspend fun best(): List<RedditLinkDto> {
 //        val response = request(buildRequest("best"))
@@ -54,10 +60,10 @@ class RedditClient(
 //        return data.data.children.map { it.data }
 //    }
 
-    suspend fun getArticles(subreddit: String, listingType: ListingType): List<RedditArticleDto> {
+    suspend fun getArticles(subreddit: String, listingType: ListingType): List<RedditArticleDto>? {
         val response = request(buildRequest("r/$subreddit/${listingType.urlValue}").apply {
             parameter("count", 100)
-        })
+        }) ?: return null
         val box: RedditListingBox<RedditArticleBox> = response.body()
         return box.data.children.map { it.data }
     }
@@ -66,12 +72,16 @@ class RedditClient(
         subreddit: String,
         articleId: String,
         listingType: ListingType = ListingType.Top
-    ): List<RedditCommentDto> {
+    ): List<RedditCommentDto>? {
         val response = request(buildRequest("r/$subreddit/comments/$articleId").apply {
             parameter("sort", listingType.urlValue)
             parameter("limit", 1000)
-            parameter("count", 100)
-        })
+            parameter("depth", 20)
+            parameter("showmore", false)
+            // parameter("context", 8)
+
+            // parameter("count", 100)
+        }) ?: return null
         val boxes: List<RedditListingBox<RedditDtoBox>> = response.body()
         return boxes[1].data.children.map { it.data as RedditCommentDto }
     }

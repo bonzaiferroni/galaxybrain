@@ -6,6 +6,8 @@ import io.ktor.server.websocket.webSocket
 import io.ktor.websocket.Frame
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
+import kotlinx.datetime.Instant
+import kotlinx.html.Entities
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.cbor.Cbor
 import ponder.galaxy.model.data.Chatter
@@ -15,6 +17,7 @@ import ponder.galaxy.model.reddit.ListingType
 import ponder.galaxy.model.reddit.RedditClient
 import ponder.galaxy.model.reddit.RedditCommentDto
 import ponder.galaxy.model.reddit.flatten
+import kotlin.time.Duration.Companion.minutes
 
 fun Route.serveChatter(
     redditClient: RedditClient
@@ -27,7 +30,11 @@ fun Route.serveChatter(
 
         val sentCommentIds = mutableSetOf<String>()
         while (isActive) {
-            val comments = redditClient.getComments(subredditName, articleId, ListingType.Top).flatten()
+            val comments = redditClient.getComments(subredditName, articleId, ListingType.Top)?.flatten()
+            if (comments == null) {
+                delay(1.minutes)
+                continue
+            }
             println("found ${comments.size} comments")
             val visibilitySum = comments.sumOf { it.deriveVisibility().toDouble() }.toFloat()
             val averageVisibility = visibilitySum / comments.size
@@ -36,6 +43,7 @@ fun Route.serveChatter(
             for (comment in comments) {
                 val visibility = comment.deriveVisibility()
                 val visibilityRatio = visibility / averageVisibility
+                val createdAt = Instant.fromEpochSeconds(comment.createdUtc.toLong())
                 if (sentCommentIds.contains(comment.id)) {
                     deltas.add(ChatterDelta(
                         identifier = comment.id,
@@ -49,8 +57,11 @@ fun Route.serveChatter(
                         identifier = comment.id,
                         body = body,
                         author = comment.author,
+                        permalink = "https://www.reddit.com${comment.permalink}",
+                        depth = comment.depth,
                         visibility = visibility,
-                        visibilityRatio = visibilityRatio
+                        visibilityRatio = visibilityRatio,
+                        createdAt = createdAt
                     ))
                 }
             }

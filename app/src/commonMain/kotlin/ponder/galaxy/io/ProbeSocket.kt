@@ -6,7 +6,9 @@ import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.plugins.websocket.pingInterval
 import io.ktor.client.plugins.websocket.webSocket
 import io.ktor.http.HttpMethod
+import io.ktor.websocket.CloseReason
 import io.ktor.websocket.Frame
+import io.ktor.websocket.close
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -31,27 +33,34 @@ class ProbeSocket() {
     fun start() {
         CoroutineScope(Dispatchers.IO).launch {
             while(isActive) {
+                println("connecting to galaxy socket")
                 try {
-                    println("connecting to socket")
                     client.webSocket(
                         method = HttpMethod.Get,
                         host = "192.168.1.100",
                         port = 8080,
                         path = "/probe_socket",
                     ) {
-                        for (frame in incoming) {
-                            when (frame) {
-                                is Frame.Binary -> {
-                                    val galaxyProbe = Cbor.decodeFromByteArray<GalaxyProbe>(frame.data)
-                                    _probeFlow.emit(galaxyProbe)
+                        try {
+                            for (frame in incoming) {
+                                when (frame) {
+                                    is Frame.Binary -> {
+                                        val galaxyProbe = Cbor.decodeFromByteArray<GalaxyProbe>(frame.data)
+                                        _probeFlow.emit(galaxyProbe)
+                                    }
+                                    else -> {} // ignore Text/Ping/Pong
                                 }
-                                else -> {} // ignore Text/Ping/Pong
                             }
+                        } finally {
+                            println("closing galaxy socket")
+                            close(CloseReason(CloseReason.Codes.NORMAL, "Shoving off"))
                         }
                     }
-                } finally {
-                    println("closing socket")
-                    client.close()
+                } catch (e: Exception) {
+                    println("error connecting to galaxy socket: ${e.message}")
+                }
+                if (isActive) {
+                    println("reconnecting galaxy socket after delay")
                     delay(10000)
                 }
             }

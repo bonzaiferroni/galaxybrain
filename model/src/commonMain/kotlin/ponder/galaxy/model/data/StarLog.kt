@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmInline
 import kotlin.math.exp
 import kotlin.math.max
+import kotlin.time.Duration
 
 @Serializable
 data class StarLog(
@@ -17,11 +18,13 @@ data class StarLog(
     val voteCount: Int,
     val createdAt: Instant,
 ) {
-    fun getRise(startedAt: Instant, riseFactor: Int): Float {
-        val age = max((createdAt - startedAt).inWholeMinutes, 10) / (60 * 24).toFloat()
-        return visibilityRatio * exp(-riseFactor * (age * age))
-    }
+    fun getRise(startedAt: Instant, riseFactor: Int) = calculateRise(createdAt - startedAt, visibilityRatio, riseFactor)
 }
 
 @JvmInline @Serializable
 value class StarLogId(override val value: Long): TableId<Long>
+
+fun calculateRise(lifetime: Duration, visibilityRatio: Float, riseFactor: Int): Float {
+    val age = max(lifetime.inWholeMinutes, 10) / (60 * 24).toFloat()
+    return visibilityRatio * exp(-riseFactor * (age * age))
+}
