@@ -1,8 +1,13 @@
 package ponder.galaxy.server
 
 import io.ktor.server.application.*
+import kabinet.model.SpeechRequest
 import klutch.db.generateMigrationScript
 import klutch.environment.readEnvFromPath
+import klutch.gemini.GeminiClient
+import klutch.gemini.GeminiService
+import klutch.gemini.generateSpeech
+import klutch.gemini.message
 import klutch.server.configureSecurity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -54,6 +59,13 @@ fun Application.module() {
     CoroutineScope(Dispatchers.IO).launch {
         // val comments = redditClient.getComments("Futurology", "1mgs91o").flatten()
         // println(comments.size)
+//        val client = GeminiClient(
+//            token = env.read("GEMINI_KEY_RATE_LIMIT_A"),
+//            backupToken = env.read("GEMINI_KEY_RATE_LIMIT_B"),
+//            logMessage = log::message,
+//        )
+//        val responseText = client.generateSpeech("testing 123", null, null) ?: error("arr matey")
+//        File("gemini_speech_response.json").writeText(responseText)
     }
 }
 

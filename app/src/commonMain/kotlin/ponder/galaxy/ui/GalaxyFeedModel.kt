@@ -1,14 +1,20 @@
 package ponder.galaxy.ui
 
 import androidx.lifecycle.viewModelScope
+import kabinet.model.SpeechRequest
+import kabinet.utils.toAgoDescription
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import ponder.galaxy.globalProbeService
 import ponder.galaxy.io.GalaxySource
 import ponder.galaxy.io.ProbeService
+import ponder.galaxy.model.Api
 import ponder.galaxy.model.data.Galaxy
 import ponder.galaxy.model.data.Star
 import ponder.galaxy.model.data.StarId
 import pondui.LocalValueSource
+import pondui.io.GeminiApiClient
 import pondui.ui.core.StateModel
 import pondui.ui.core.ModelState
 import kotlin.math.min
@@ -16,11 +22,14 @@ import kotlin.math.min
 class GalaxyFeedModel(
     private val probeService: ProbeService = globalProbeService,
     private val galaxySource: GalaxySource = GalaxySource(),
-    private val valueSource: LocalValueSource = LocalValueSource()
+    private val valueSource: LocalValueSource = LocalValueSource(),
+    private val geminiClient: GeminiApiClient = GeminiApiClient(Api.Gemini)
 ): StateModel<GalaxyFlowState>() {
     override val state = ModelState(GalaxyFlowState())
 
     // val messenger = MessengerModel()
+
+    private val generatedSpeech = mutableMapOf<StarId, Instant>()
 
     init {
         viewModelScope.launch {
@@ -43,8 +52,22 @@ class GalaxyFeedModel(
         }
             .sortedByDescending { probeService.getRise(it.starId, stateNow.riseFactor) }.take(100)
 
+        val topStar = filteredStars.firstOrNull()
+        if (topStar != null && !generatedSpeech.contains(topStar.starId)) {
+            val now = Clock.System.now()
+            generatedSpeech[topStar.starId] = now
+            val topGalaxy = stateNow.galaxies.first { it.galaxyId == topStar.galaxyId }
+            val age = now - topStar.createdAt
+            viewModelScope.launch {
+                val url = geminiClient.generateSpeech(SpeechRequest(
+                    text = "From ${topGalaxy.name}, posted ${age.toAgoDescription()}.\n\n${topStar.title}"
+                ))
+                println("added speech url: ${url}")
+                setState { it.copy(speechUrls = it.speechUrls + url)}
+            }
+        }
 
-        setState { it -> it.copy(stars = filteredStars) }
+        setState { it.copy(stars = filteredStars) }
     }
 
     fun toggleGalaxy(galaxyName: String) {
@@ -75,6 +98,10 @@ class GalaxyFeedModel(
         setState { it.copy(riseFactor = value) }
         setStars(stateNow.stars)
     }
+
+    fun markAsPlayed(speechUrl: String) {
+        setState { it.copy(speechUrls = it.speechUrls - speechUrl)}
+    }
 }
 
 data class GalaxyFlowState(
@@ -84,6 +111,7 @@ data class GalaxyFlowState(
     val isGalaxyCloudVisible: Boolean = false,
     val isNormalized: Boolean = true,
     val riseFactor: Int = 1,
+    val speechUrls: List<String> = emptyList(),
 )
 
 const val ACTIVE_GALAXY_NAMES_KEY = "active_galaxies"

@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -42,10 +43,13 @@ import dev.chrisbanes.haze.materials.HazeMaterials
 import kabinet.utils.toMetricString
 import kabinet.utils.toShortDescription
 import kabinet.utils.toTimeFormat
+import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import ponder.galaxy.StarProfileRoute
 import ponder.galaxy.model.data.Galaxy
+import pondui.APP_API_URL
+import pondui.WavePlayer
 import pondui.ui.behavior.padBottom
 import pondui.ui.charts.AxisSide
 import pondui.ui.charts.BottomAxisAutoConfig
@@ -75,6 +79,7 @@ import pondui.ui.nav.portalTopBarHeight
 import pondui.ui.theme.Pond
 import pondui.ui.theme.PondColors
 import pondui.utils.darken
+import kotlin.time.Duration.Companion.minutes
 
 @OptIn(ExperimentalHazeMaterialsApi::class)
 @Composable
@@ -90,6 +95,14 @@ fun GalaxyFeedScreen(
     val hazeState = remember { HazeState() }
     var headerSize by remember { mutableStateOf(DpSize.Zero)}
     val density = LocalDensity.current
+    val speechUrl = state.speechUrls.firstOrNull()
+    val wavePlayer = remember { WavePlayer() }
+    LaunchedEffect(speechUrl) {
+        if (speechUrl == null) return@LaunchedEffect
+        wavePlayer.play("$APP_API_URL/$speechUrl")
+        delay(1.minutes)
+        viewModel.markAsPlayed(speechUrl)
+    }
 
     TitleCloud("Active Galaxies", state.isGalaxyCloudVisible, viewModel::toggleGalaxyCloud) {
         Column(1) {
