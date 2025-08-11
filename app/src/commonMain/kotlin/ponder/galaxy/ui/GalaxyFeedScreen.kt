@@ -95,13 +95,11 @@ fun GalaxyFeedScreen(
     val hazeState = remember { HazeState() }
     var headerSize by remember { mutableStateOf(DpSize.Zero)}
     val density = LocalDensity.current
-    val speechUrl = state.speechUrls.firstOrNull()
     val wavePlayer = remember { WavePlayer() }
+    val speechUrl = state.speechUrl
     LaunchedEffect(speechUrl) {
         if (speechUrl == null) return@LaunchedEffect
         wavePlayer.play("$APP_API_URL/$speechUrl")
-        delay(1.minutes)
-        viewModel.markAsPlayed(speechUrl)
     }
 
     TitleCloud("Active Galaxies", state.isGalaxyCloudVisible, viewModel::toggleGalaxyCloud) {
