@@ -25,6 +25,6 @@ captures
 **/appcache.json
 **/users.json
 **/my_room.db*
-**/wav/*
-**/json/*
-**/img/*
+server/wav/*
+server/json/*
+server/img/*
