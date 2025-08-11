@@ -64,7 +64,7 @@ class GalaxyFeedModel(
                     val now = Clock.System.now()
                     val age = now - star.createdAt
                     val speechText = "From ${galaxy.name}, posted ${age.toAgoDescription()}.\n\n${star.title}"
-                    val voice = SpeechVoice.entries[galaxy.name.length % SpeechVoice.entries.size]
+                    val voice = SpeechVoice.entries[galaxy.intrinsicIndex % SpeechVoice.entries.size]
                     println("using voice: ${voice.apiName}")
                     val url = geminiClient.generateSpeech(SpeechRequest(
                         text = speechText,

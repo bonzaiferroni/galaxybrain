@@ -10,7 +10,9 @@ data class Galaxy(
     val name: String,
     val url: String,
     val visibility: Float,
-)
+) {
+    val intrinsicIndex get() = name.length
+}
 
 @JvmInline @Serializable
 value class GalaxyId(override val value: String): TableId<String>
