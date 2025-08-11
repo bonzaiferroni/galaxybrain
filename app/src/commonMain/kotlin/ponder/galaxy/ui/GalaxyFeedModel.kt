@@ -2,6 +2,7 @@ package ponder.galaxy.ui
 
 import androidx.lifecycle.viewModelScope
 import kabinet.model.SpeechRequest
+import kabinet.model.SpeechVoice
 import kabinet.utils.toAgoDescription
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -63,9 +64,12 @@ class GalaxyFeedModel(
                     val now = Clock.System.now()
                     val age = now - star.createdAt
                     val speechText = "From ${galaxy.name}, posted ${age.toAgoDescription()}.\n\n${star.title}"
+                    val voice = SpeechVoice.entries[galaxy.name.length % SpeechVoice.entries.size]
+                    println("using voice: ${voice.apiName}")
                     val url = geminiClient.generateSpeech(SpeechRequest(
                         text = speechText,
-                        filename = star.title
+                        filename = star.title,
+                        voice = voice
                     ))
                     queuedSpeech.remove(star)
                     setState { it.copy(speechUrl = url)}
