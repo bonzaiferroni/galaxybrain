@@ -39,7 +39,8 @@ class RedditClient(
             }
             delay(1000)
         }
-        error("REDDIT API ERROR > endpoint fail: ${request.url}")
+        println("REDDIT API ERROR > endpoint fail: ${request.url}")
+        return null
     }
 
     private suspend fun buildRequest(endpoint: String, method: HttpMethod = HttpMethod.Get) = HttpRequestBuilder().apply {

@@ -8,11 +8,11 @@ import kabinet.model.SpeechRequest
 import ponder.galaxy.model.data.Example
 import ponder.galaxy.model.data.Galaxy
 import ponder.galaxy.model.data.GalaxyId
+import ponder.galaxy.model.data.Idea
 import ponder.galaxy.model.data.NewExample
 import ponder.galaxy.model.data.Star
 import ponder.galaxy.model.data.StarId
 import ponder.galaxy.model.data.StarLog
-import ponder.galaxy.model.data.StarLogId
 
 object Api: ParentEndpoint(null, apiPrefix) {
     object Examples : GetByIdEndpoint<Example>(this, "/example") {
@@ -42,6 +42,10 @@ object Api: ParentEndpoint(null, apiPrefix) {
         override val chat = Chat
         override val image = Image
         override val speech = GenerateSpeech
+    }
+
+    object Ideas : ParentEndpoint(this, "/idea") {
+        object ByStar : GetByTableIdEndpoint<StarId, List<Idea>>(this, "/by_star")
     }
 }
 

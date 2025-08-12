@@ -26,6 +26,7 @@ fun Application.configureApiRoutes() {
         serveStars()
         serveStarLogs()
         serveGalaxies()
+        serveIdeas()
         serveGemini(Api.Gemini)
     }
 }

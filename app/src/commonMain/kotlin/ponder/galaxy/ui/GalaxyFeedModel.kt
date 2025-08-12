@@ -35,10 +35,6 @@ class GalaxyFeedModel(
 
     // val messenger = MessengerModel()
 
-    private val generatedSpeech = mutableMapOf<StarId, Instant>()
-
-    private val queuedSpeech = mutableListOf<Star>()
-
     init {
         viewModelScope.launch(Dispatchers.IO) {
             val galaxies = galaxySource.readAll()
@@ -55,28 +51,6 @@ class GalaxyFeedModel(
                 }
             }
         }
-
-        viewModelScope.launch(Dispatchers.IO) {
-            while (isActive) {
-                val star = queuedSpeech.firstOrNull()
-                if (star != null) {
-                    val galaxy = stateNow.galaxies.first { it.galaxyId == star.galaxyId }
-                    val now = Clock.System.now()
-                    val age = now - star.createdAt
-                    val speechText = "From ${galaxy.name}, posted ${age.toAgoDescription()}.\n\n${star.title}"
-                    val voice = SpeechVoice.entries[galaxy.intrinsicIndex % SpeechVoice.entries.size]
-                    println("using voice: ${voice.apiName}")
-                    val url = geminiClient.generateSpeech(SpeechRequest(
-                        text = speechText,
-                        filename = star.title,
-                        voice = voice
-                    ))
-                    queuedSpeech.remove(star)
-                    setState { it.copy(speechUrl = url)}
-                }
-                delay(1.minutes)
-            }
-        }
     }
 
     private fun setStars(stars: List<Star>) {
@@ -85,16 +59,6 @@ class GalaxyFeedModel(
             stateNow.activeGalaxyNames.contains(galaxy.name)
         }
             .sortedByDescending { probeService.getRise(it.starId, stateNow.riseFactor) }.take(100)
-
-        for (galaxy in stateNow.galaxies) {
-            val star = filteredStars.firstOrNull { it.galaxyId == galaxy.galaxyId } ?: continue
-            if (generatedSpeech.contains(star.starId)) continue
-            val now = Clock.System.now()
-            generatedSpeech[star.starId] = now
-            println("queuing speech: ${galaxy.name}")
-
-            queuedSpeech.add(star)
-        }
 
         setState { it.copy(stars = filteredStars) }
     }
@@ -136,7 +100,6 @@ data class GalaxyFlowState(
     val isGalaxyCloudVisible: Boolean = false,
     val isNormalized: Boolean = true,
     val riseFactor: Int = 1,
-    val speechUrl: String? = null,
 )
 
 const val ACTIVE_GALAXY_NAMES_KEY = "active_galaxies"
