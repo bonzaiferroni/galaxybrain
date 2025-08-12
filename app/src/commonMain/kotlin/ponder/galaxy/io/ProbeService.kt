@@ -8,6 +8,8 @@ import ponder.galaxy.model.Api
 import ponder.galaxy.model.data.Star
 import ponder.galaxy.model.data.StarId
 import ponder.galaxy.model.data.StarLog
+import ponder.galaxy.ui.RISE_FACTOR_KEY
+import pondui.LocalValueSource
 import pondui.io.ApiClient
 import pondui.io.globalApiClient
 import pondui.ui.core.ModelState
@@ -21,6 +23,7 @@ class ProbeService(
     private val probeSocket: ProbeSocket = ProbeSocket(),
     private val starSource: StarSource = StarSource(),
     private val apiClient: ApiClient = globalApiClient,
+    private val valueSource: LocalValueSource = LocalValueSource(),
 ) {
     private val state = ModelState(ProbeServiceState())
     val stateFlow: StateFlow<ProbeServiceState> = state
@@ -30,6 +33,11 @@ class ProbeService(
 
     private var isStarted = false
 
+    init {
+        val rise = valueSource.readInt(RISE_FACTOR_KEY, 1)
+        state.setValue { it.copy(riseFactor = rise) }
+    }
+
     fun start() {
         println("starting probe service")
         if (isStarted) return
@@ -38,8 +46,10 @@ class ProbeService(
 
         CoroutineScope(Dispatchers.IO).launch {
             probeSocket.probeFlow.collect { galaxyProbe ->
-                val galaxyId = galaxyProbe.galaxyId; val starLogs = galaxyProbe.starLogs
-                val missingStarIds = starLogs.filter { starLog -> !allStars.containsKey(starLog.starId) }.map {it.starId}
+                val galaxyId = galaxyProbe.galaxyId;
+                val starLogs = galaxyProbe.starLogs
+                val missingStarIds =
+                    starLogs.filter { starLog -> !allStars.containsKey(starLog.starId) }.map { it.starId }
                 starSource.readStars(missingStarIds).forEach { allStars[it.starId] = it }
 
                 val missingStarLogs = starSource.readStarLogs(missingStarIds)
@@ -51,15 +61,20 @@ class ProbeService(
                     allStarLogs[starLog.starId] = currentList + starLog
                 }
 
-                state.setValue { it.copy(stars = allStars.values.toList(), starLogs = allStarLogs) }
+                state.setValue { state ->
+                    state.copy(
+                        stars = allStars.values.sortedByDescending { getRise(it.starId) },
+                        starLogs = allStarLogs
+                    )
+                }
             }
         }
     }
 
     fun getStars() = allStars.values.toList()
 
-    fun getRise(starId: StarId, riseFactor: Int) =
-        allStars[starId]?.let{ allStarLogs[starId]?.lastOrNull()?.getRise(it.createdAt, riseFactor) }
+    fun getRise(starId: StarId) =
+        allStars[starId]?.let { allStarLogs[starId]?.lastOrNull()?.getRise(it.createdAt, state.value.riseFactor) }
 
     fun getStarLogs(starId: StarId) = allStarLogs[starId]
 
@@ -73,5 +88,6 @@ class ProbeService(
 
 data class ProbeServiceState(
     val stars: List<Star> = emptyList(),
-    val starLogs: Map<StarId, List<StarLog>> = emptyMap()
+    val starLogs: Map<StarId, List<StarLog>> = emptyMap(),
+    val riseFactor: Int = 1,
 )

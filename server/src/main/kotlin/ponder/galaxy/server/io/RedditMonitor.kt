@@ -11,6 +11,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import ponder.galaxy.model.data.Galaxy
@@ -47,7 +49,12 @@ class RedditMonitor(
     ) //
 
     private val _galaxyProbeFlows = mutableMapOf<GalaxyId, MutableStateFlow<GalaxyProbe>>()
-    val probeFlows: Map<GalaxyId, StateFlow<GalaxyProbe>> = _galaxyProbeFlows
+    private val lock = Mutex()
+    suspend fun getFlows(): List<StateFlow<GalaxyProbe>> = lock.withLock { _galaxyProbeFlows.values.toList() }
+    private suspend fun initializeFlow(galaxyId: GalaxyId, flow: MutableStateFlow<GalaxyProbe>) =
+        lock.withLock { _galaxyProbeFlows[galaxyId] = flow }
+    private suspend fun setFlowState(galaxyId: GalaxyId, probe: GalaxyProbe) =
+        lock.withLock { _galaxyProbeFlows[galaxyId]?.value = probe }
 
     fun start() {
         job = CoroutineScope(Dispatchers.IO).launch {
@@ -63,7 +70,7 @@ class RedditMonitor(
                         )
                     }
                     // val starLogs = galaxyDao.readLatestStarLogs(galaxy.galaxyId)
-                    _galaxyProbeFlows[galaxy.galaxyId] = MutableStateFlow(GalaxyProbe(galaxy.galaxyId, emptyList()))
+                    initializeFlow(galaxy.galaxyId, MutableStateFlow(GalaxyProbe(galaxy.galaxyId, emptyList())))
 
                     while(isActive) {
                         val now = Clock.System.now()
@@ -125,11 +132,7 @@ class RedditMonitor(
                             starLogs.add(starLog)
                         }
 
-                        if (_galaxyProbeFlows.contains(galaxy.galaxyId)) {
-                            _galaxyProbeFlows.getValue(galaxy.galaxyId).value = GalaxyProbe(galaxy.galaxyId, starLogs)
-                        } else {
-                            println("galaxy error: ${galaxy.name}")
-                        }
+                        setFlowState(galaxy.galaxyId, GalaxyProbe(galaxy.galaxyId, starLogs))
 
                         val delayMinutes = min(20000 / galaxyVisibility, 10f).toDouble().minutes
                         println ("$subredditName, $delayMinutes")

@@ -1,6 +1,7 @@
 package ponder.galaxy.server.plugins
 
 import io.ktor.server.application.Application
+import io.ktor.server.application.install
 import io.ktor.server.http.content.staticFiles
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get

@@ -24,7 +24,7 @@ fun Route.serveProbeSocket(
 
         try {
             // snapshot + drop nulls
-            val flows: List<StateFlow<GalaxyProbe>> = redditMonitor.probeFlows.values.toList()
+            val flows = redditMonitor.getFlows()
 
             val initialProbes = flows.map { it.value }
             for (probe in initialProbes) {

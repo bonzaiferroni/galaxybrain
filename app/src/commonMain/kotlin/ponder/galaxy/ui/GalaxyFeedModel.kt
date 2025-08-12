@@ -29,7 +29,6 @@ class GalaxyFeedModel(
     private val probeService: ProbeService = globalProbeService,
     private val galaxySource: GalaxySource = GalaxySource(),
     private val valueSource: LocalValueSource = LocalValueSource(),
-    private val geminiClient: GeminiApiClient = GeminiApiClient(Api.Gemini)
 ): StateModel<GalaxyFlowState>() {
     override val state = ModelState(GalaxyFlowState())
 
@@ -58,7 +57,7 @@ class GalaxyFeedModel(
             val galaxy = stateNow.galaxies.firstOrNull { it.galaxyId == star.galaxyId } ?: return@filter false
             stateNow.activeGalaxyNames.contains(galaxy.name)
         }
-            .sortedByDescending { probeService.getRise(it.starId, stateNow.riseFactor) }.take(100)
+            .take(100)
 
         setState { it.copy(stars = filteredStars) }
     }

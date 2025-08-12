@@ -15,10 +15,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -43,13 +43,10 @@ import dev.chrisbanes.haze.materials.HazeMaterials
 import kabinet.utils.toMetricString
 import kabinet.utils.toShortDescription
 import kabinet.utils.toTimeFormat
-import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import ponder.galaxy.StarProfileRoute
 import ponder.galaxy.model.data.Galaxy
-import pondui.APP_API_URL
-import pondui.WavePlayer
 import pondui.ui.behavior.padBottom
 import pondui.ui.charts.AxisSide
 import pondui.ui.charts.BottomAxisAutoConfig
@@ -62,6 +59,7 @@ import pondui.ui.controls.Button
 import pondui.ui.controls.ButtonToggle
 import pondui.ui.controls.Column
 import pondui.ui.controls.Drawer
+import pondui.ui.controls.Expando
 import pondui.ui.controls.FlowRow
 import pondui.ui.controls.Icon
 import pondui.ui.controls.IntegerWheel
@@ -79,7 +77,6 @@ import pondui.ui.nav.portalTopBarHeight
 import pondui.ui.theme.Pond
 import pondui.ui.theme.PondColors
 import pondui.utils.darken
-import kotlin.time.Duration.Companion.minutes
 
 @OptIn(ExperimentalHazeMaterialsApi::class)
 @Composable
@@ -90,13 +87,12 @@ fun GalaxyFeedScreen(
     val uriHandler = LocalUriHandler.current
     val colors = Pond.colors
     var isChartVisible by remember { mutableStateOf(false) }
-    var topY by remember (isChartVisible) { mutableStateOf(1.0) }
+    var isIdeaVisible by remember { mutableStateOf(true) }
+    var topY by remember (isChartVisible) { mutableDoubleStateOf(1.0) }
     val topGalaxy = state.galaxies.maxByOrNull { it.visibility }
     val hazeState = remember { HazeState() }
     var headerSize by remember { mutableStateOf(DpSize.Zero)}
     val density = LocalDensity.current
-
-    IdeaFeedView()
 
     TitleCloud("Active Galaxies", state.isGalaxyCloudVisible, viewModel::toggleGalaxyCloud) {
         Column(1) {
@@ -253,9 +249,10 @@ fun GalaxyFeedScreen(
                 modifier = Modifier.fillMaxWidth()
                     .padding(Pond.ruler.unitPadding)
             ) {
+                IdeaFeedView(isIdeaVisible)
                 Drawer(
                     isOpen = isChartVisible,
-                    height = 200.dp,
+                    openHeight = 200.dp,
                 ) {
                     val firstVisibleStarId = state.stars.takeIf { it.size > firstVisibleIndex }
                         ?.let { it[firstVisibleIndex].starId }
@@ -284,7 +281,7 @@ fun GalaxyFeedScreen(
                         ) { it.createdAt.epochSeconds.toDouble() }
                     }
 
-                    ChartBox("Chart", modifier = Modifier.padBottom(1)) {
+                    ChartBox("Chart") {
                         LineChart(
                             config = chartConfig,
                             modifier = Modifier.fillMaxWidth()
@@ -293,9 +290,18 @@ fun GalaxyFeedScreen(
                     }
                 }
 
+                Expando(1)
+
                 Row(1) {
                     Button("Set Galaxies", onClick = viewModel::toggleGalaxyCloud)
-                    ButtonToggle(isChartVisible, "Chart") { isChartVisible = !isChartVisible }
+                    ButtonToggle(isChartVisible, "Chart") {
+                        isChartVisible = !isChartVisible
+                        if (isChartVisible) isIdeaVisible = false
+                    }
+                    ButtonToggle(isIdeaVisible, "Idea") {
+                        isIdeaVisible = !isIdeaVisible
+                        if (isIdeaVisible) isChartVisible = false
+                    }
                     ButtonToggle(state.isNormalized, "Normalize", onToggle = viewModel::setNormalized)
                 }
             }

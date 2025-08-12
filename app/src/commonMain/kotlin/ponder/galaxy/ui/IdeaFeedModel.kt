@@ -17,6 +17,7 @@ import ponder.galaxy.io.IdeaApiClient
 import ponder.galaxy.io.ProbeService
 import ponder.galaxy.model.Api
 import ponder.galaxy.model.data.Galaxy
+import ponder.galaxy.model.data.Idea
 import ponder.galaxy.model.data.Star
 import ponder.galaxy.model.data.StarId
 import pondui.io.GeminiApiClient
@@ -53,7 +54,7 @@ class IdeaFeedModel(
                 while (isActive) {
                     val star = queuedSpeech.firstOrNull()
                     if (star != null) {
-                        generateSpeech(star)
+                        generateSpeech(star, galaxies.first { it.galaxyId == star.galaxyId })
                         queuedSpeech.remove(star)
                     }
                     delay(1.minutes)
@@ -74,12 +75,14 @@ class IdeaFeedModel(
         }
     }
 
-    private suspend fun generateSpeech(star: Star) {
+    private suspend fun generateSpeech(star: Star, galaxy: Galaxy) {
         val idea = ideaClient.readIdeasByStarId(star.starId).firstOrNull() ?: return
-        setState { it.copy(speechUrl = idea.audioUrl)}
+        setState { it.copy(idea = idea, star = star, galaxy = galaxy)}
     }
 }
 
 data class IdeaFeedState(
-    val speechUrl: String? = null,
+    val star: Star? = null,
+    val idea: Idea? = null,
+    val galaxy: Galaxy? = null,
 )
