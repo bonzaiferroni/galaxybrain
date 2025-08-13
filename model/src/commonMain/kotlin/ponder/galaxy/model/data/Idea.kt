@@ -1,6 +1,7 @@
 package ponder.galaxy.model.data
 
 import kabinet.db.TableId
+import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmInline
 
@@ -11,6 +12,7 @@ data class Idea(
     val text: String?,
     val imageUrl: String?,
     val thumbUrl: String?,
+    val createdAt: Instant,
 )
 
 @JvmInline

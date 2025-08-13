@@ -9,6 +9,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
@@ -20,36 +21,36 @@ import pondui.ui.behavior.MagicItem
 import pondui.ui.controls.Column
 import pondui.ui.controls.Drawer
 import pondui.ui.controls.ProgressBar
-import pondui.ui.controls.Row
 import pondui.ui.controls.Text
+import pondui.ui.controls.actionable
 import pondui.ui.theme.Pond
 import kotlin.time.Duration.Companion.days
 
 @Composable
-fun IdeaFeedView(
+fun IdeaFocusView(
     isIdeaVisible: Boolean,
-    viewModel: IdeaFeedModel = viewModel { IdeaFeedModel() }
+    viewModel: IdeaFocusModel = viewModel { IdeaFocusModel() }
 ) {
     val state by viewModel.stateFlow.collectAsState()
     val audioUrl = state.idea?.audioUrl
     val wavePlayer = remember { WavePlayer() }
+    val uriHandle = LocalUriHandler.current
     LaunchedEffect(audioUrl) {
         if (audioUrl == null) return@LaunchedEffect
         wavePlayer.play("$APP_API_URL/$audioUrl")
     }
 
-    Drawer(
-        isIdeaVisible
-    ) {
+    Drawer(isIdeaVisible, openHeight = 400.dp) {
         MagicItem(state, offsetY = 100.dp) { currentState ->
             val star = currentState.star ?: return@MagicItem
             val galaxy = currentState.galaxy ?: return@MagicItem
             val idea = currentState.idea ?: return@MagicItem
             Column(1) {
                 idea.imageUrl?.let { imageUrl ->
-                    AsyncImage(model = "$APP_API_URL/$imageUrl", contentDescription = null)
+                    val url = if (imageUrl.startsWith("http")) imageUrl else "$APP_API_URL/$imageUrl"
+                    AsyncImage(model = url, contentDescription = null, modifier = Modifier.weight(1f, fill = false))
                 }
-                Text(star.title)
+                Text(star.title, modifier = Modifier.actionable { uriHandle.openUri(star.permalink) } )
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()

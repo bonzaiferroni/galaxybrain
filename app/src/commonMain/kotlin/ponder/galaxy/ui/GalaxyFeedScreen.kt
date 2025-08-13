@@ -47,7 +47,6 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import ponder.galaxy.StarProfileRoute
 import ponder.galaxy.model.data.Galaxy
-import pondui.ui.behavior.padBottom
 import pondui.ui.charts.AxisSide
 import pondui.ui.charts.BottomAxisAutoConfig
 import pondui.ui.charts.ChartBox
@@ -189,7 +188,7 @@ fun GalaxyFeedScreen(
                                 .actionable(StarProfileRoute(star.starId.value))
                         ) {
                             Box() {
-                                when (star.thumbnailUrl) {
+                                when (star.thumbUrl) {
                                     null -> {
                                         Box(
                                             contentAlignment = Alignment.Center,
@@ -204,7 +203,7 @@ fun GalaxyFeedScreen(
 
                                     else -> {
                                         AsyncImage(
-                                            model = star.thumbnailUrl,
+                                            model = star.thumbUrl,
                                             contentDescription = null,
                                             modifier = Modifier.fillMaxWidth()
                                                 .clip(Pond.ruler.unitCorners)
@@ -249,7 +248,7 @@ fun GalaxyFeedScreen(
                 modifier = Modifier.fillMaxWidth()
                     .padding(Pond.ruler.unitPadding)
             ) {
-                IdeaFeedView(isIdeaVisible)
+                IdeaFocusView(isIdeaVisible)
                 Drawer(
                     isOpen = isChartVisible,
                     openHeight = 200.dp,

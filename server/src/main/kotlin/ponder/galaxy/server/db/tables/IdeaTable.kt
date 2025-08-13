@@ -1,11 +1,14 @@
 package ponder.galaxy.server.db.tables
 
+import kabinet.utils.toInstantFromUtc
+import kabinet.utils.toLocalDateTimeUtc
 import klutch.utils.toStringId
 import klutch.utils.toUUID
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import ponder.galaxy.model.data.Idea
 import ponder.galaxy.model.data.IdeaId
@@ -16,6 +19,7 @@ internal object IdeaTable: UUIDTable("idea") {
     val textContent = text("text").nullable()
     val imageUrl = text("image_url").nullable()
     val thumbUrl = text("thumb_url").nullable()
+    val createdAt = datetime("created_at")
 }
 
 internal object StarIdeaTable: Table("star_idea") {
@@ -36,6 +40,7 @@ internal fun ResultRow.toIdea() = Idea(
     text = this[IdeaTable.textContent],
     imageUrl = this[IdeaTable.imageUrl],
     thumbUrl = this[IdeaTable.thumbUrl],
+    createdAt = this[IdeaTable.createdAt].toInstantFromUtc()
 )
 
 internal fun UpdateBuilder<*>.writeFull(idea: Idea) {
@@ -48,4 +53,5 @@ internal fun UpdateBuilder<*>.writeUpdate(idea: Idea) {
     this[IdeaTable.textContent] = idea.text
     this[IdeaTable.imageUrl] = idea.imageUrl
     this[IdeaTable.thumbUrl] = idea.thumbUrl
+    this[IdeaTable.createdAt] = idea.createdAt.toLocalDateTimeUtc()
 }

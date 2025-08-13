@@ -1,25 +1,18 @@
 package ponder.galaxy.server
 
 import io.ktor.server.application.*
-import kabinet.model.SpeechRequest
 import klutch.db.generateMigrationScript
 import klutch.environment.readEnvFromPath
-import klutch.gemini.GeminiClient
-import klutch.gemini.GeminiService
-import klutch.gemini.generateSpeech
-import klutch.gemini.message
 import klutch.server.configureSecurity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import ponder.galaxy.model.reddit.ListingType
 import ponder.galaxy.model.reddit.REDDIT_APP_ID_KEY
 import ponder.galaxy.model.reddit.REDDIT_APP_SECRET_KEY
 import ponder.galaxy.model.reddit.REDDIT_PASSWORD_KEY
 import ponder.galaxy.model.reddit.REDDIT_USERNAME_KEY
 import ponder.galaxy.model.reddit.RedditAuth
 import ponder.galaxy.model.reddit.RedditClient
-import ponder.galaxy.model.reddit.flatten
 import ponder.galaxy.server.io.RedditMonitor
 import ponder.galaxy.server.plugins.configureApiRoutes
 import ponder.galaxy.server.plugins.configureCors
@@ -28,7 +21,6 @@ import ponder.galaxy.server.plugins.configureLogging
 import ponder.galaxy.server.plugins.configureSerialization
 import ponder.galaxy.server.plugins.configureWebSockets
 import ponder.galaxy.server.plugins.dbTables
-import java.io.File
 
 fun main(args: Array<String>) {
     if ("migrate" in args) generateMigrationScript(readEnvFromPath(), dbTables)

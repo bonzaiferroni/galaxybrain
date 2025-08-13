@@ -1,29 +1,19 @@
 package ponder.galaxy.ui
 
 import androidx.lifecycle.viewModelScope
-import kabinet.model.SpeechRequest
-import kabinet.model.SpeechVoice
-import kabinet.utils.toAgoDescription
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import ponder.galaxy.globalProbeService
 import ponder.galaxy.io.GalaxySource
 import ponder.galaxy.io.ProbeService
-import ponder.galaxy.model.Api
 import ponder.galaxy.model.data.Galaxy
 import ponder.galaxy.model.data.Star
 import ponder.galaxy.model.data.StarId
 import pondui.LocalValueSource
-import pondui.io.GeminiApiClient
 import pondui.ui.core.StateModel
 import pondui.ui.core.ModelState
 import kotlin.math.min
-import kotlin.time.Duration.Companion.minutes
 
 class GalaxyFeedModel(
     private val probeService: ProbeService = globalProbeService,

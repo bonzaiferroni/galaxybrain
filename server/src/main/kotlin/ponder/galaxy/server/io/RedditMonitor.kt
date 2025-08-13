@@ -98,7 +98,8 @@ class RedditMonitor(
                             val visibilityRatio = galaxyVisibility.takeIf{ it > 0 }?.let { visibility / it } ?: 0f
                             val createdAt = Instant.fromEpochSeconds(article.createdUtc.toLong())
 
-                            val thumbnail = article.preview?.images?.firstOrNull()?.source?.url
+                            val thumbUrl = article.preview?.images?.minBy { it.source.width }?.source?.url
+                            val imageUrl = article.preview?.images?.maxBy { it.source.width }?.source?.url
 
                             val starId = starDao.updateByUrlOrInsert(article.url, galaxy.galaxyId) {
                                 Star(
@@ -109,7 +110,8 @@ class RedditMonitor(
                                     textContent = article.selftext,
                                     link = article.url,
                                     permalink = "https://www.reddit.com${article.permalink}",
-                                    thumbnailUrl = thumbnail,
+                                    thumbUrl = thumbUrl,
+                                    imageUrl = imageUrl,
                                     visibility = visibility,
                                     voteCount = article.ups,
                                     commentCount = article.numComments,

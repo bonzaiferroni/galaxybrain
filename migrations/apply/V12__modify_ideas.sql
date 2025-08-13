@@ -1,0 +1,4 @@
+ALTER TABLE star ADD thumb_url TEXT NULL;
+ALTER TABLE star ADD image_url TEXT NULL;
+ALTER TABLE idea ADD created_at TIMESTAMP NOT NULL;
+ALTER TABLE star DROP COLUMN thumbnail_url;

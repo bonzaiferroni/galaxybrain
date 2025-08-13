@@ -3,7 +3,6 @@ package ponder.galaxy.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,7 +17,6 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
-import kabinet.utils.format
 import kabinet.utils.toMetricString
 import kabinet.utils.toShortDescription
 import kabinet.utils.toTimeFormat
@@ -26,8 +24,6 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import ponder.galaxy.StarProfileRoute
 import ponder.galaxy.model.data.StarId
-import ponder.galaxy.ui.toColor
-import pondui.ui.charts.AxisConfig
 import pondui.ui.charts.AxisSide
 import pondui.ui.charts.BottomAxisAutoConfig
 import pondui.ui.charts.ChartBox
@@ -35,15 +31,10 @@ import pondui.ui.charts.LineChart
 import pondui.ui.charts.LineChartArray
 import pondui.ui.charts.LineChartConfig
 import pondui.ui.charts.SideAxisAutoConfig
-import pondui.ui.charts.TimeChart
-import pondui.ui.controls.Column
 import pondui.ui.controls.FlowRow
-import pondui.ui.controls.H1
 import pondui.ui.controls.H3
 import pondui.ui.controls.LabeledValue
-import pondui.ui.controls.LazyScaffold
 import pondui.ui.controls.ProgressBar
-import pondui.ui.controls.Scaffold
 import pondui.ui.controls.Section
 import pondui.ui.controls.Tab
 import pondui.ui.controls.Tabs
@@ -99,7 +90,7 @@ fun StarProfileScreen(
         Tabs("Comments", headerShape = Pond.ruler.shroomDown) {
             Tab("Content", modifier = Modifier.padding(horizontal = Pond.ruler.unitSpacing)) {
                 Text(star.title)
-                star.thumbnailUrl?.let {
+                star.imageUrl?.let {
                     AsyncImage(
                         model = it,
                         contentDescription = null,

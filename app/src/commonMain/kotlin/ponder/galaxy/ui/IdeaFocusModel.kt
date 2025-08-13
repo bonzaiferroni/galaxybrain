@@ -1,51 +1,52 @@
 package ponder.galaxy.ui
 
 import androidx.lifecycle.viewModelScope
-import kabinet.model.SpeechRequest
-import kabinet.model.SpeechVoice
-import kabinet.utils.toAgoDescription
+import kabinet.utils.startOfDay
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import ponder.galaxy.globalProbeService
 import ponder.galaxy.io.GalaxySource
 import ponder.galaxy.io.IdeaApiClient
 import ponder.galaxy.io.ProbeService
-import ponder.galaxy.model.Api
 import ponder.galaxy.model.data.Galaxy
 import ponder.galaxy.model.data.Idea
 import ponder.galaxy.model.data.Star
 import ponder.galaxy.model.data.StarId
-import pondui.io.GeminiApiClient
 import pondui.ui.core.ModelState
 import pondui.ui.core.StateModel
-import kotlin.collections.remove
-import kotlin.rem
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
-class IdeaFeedModel(
+class IdeaFocusModel(
     private val probeService: ProbeService = globalProbeService,
     private val galaxySource: GalaxySource = GalaxySource(),
     // private val geminiClient: GeminiApiClient = GeminiApiClient(Api.Gemini)
     private val ideaClient: IdeaApiClient = IdeaApiClient()
-): StateModel<IdeaFeedState>() {
-    override val state = ModelState(IdeaFeedState())
+): StateModel<IdeaFocusState>() {
+    override val state = ModelState(IdeaFocusState())
 
     private val generatedSpeech = mutableMapOf<StarId, Instant>()
     private val queuedSpeech = mutableListOf<Star>()
 
     init {
+        val startOfDay = Clock.startOfDay()
         viewModelScope.launch(Dispatchers.IO) {
             val galaxies = galaxySource.readAll()
+            val ideaMap = ideaClient.readIdeas(Clock.startOfDay())
+            for ((starId, ideas) in ideaMap) {
+                generatedSpeech[starId] = ideas.firstOrNull()?.createdAt ?: Clock.System.now()
+            }
 
             launch {
                 probeService.stateFlow.collect { state ->
-                    takeStars(state.stars, galaxies)
+                    takeStars(
+                        stars = state.stars.filter { it.createdAt > startOfDay },
+                        galaxies = galaxies
+                    )
                 }
             }
 
@@ -81,7 +82,7 @@ class IdeaFeedModel(
     }
 }
 
-data class IdeaFeedState(
+data class IdeaFocusState(
     val star: Star? = null,
     val idea: Idea? = null,
     val galaxy: Galaxy? = null,

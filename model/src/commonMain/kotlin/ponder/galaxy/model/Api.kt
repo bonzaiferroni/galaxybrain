@@ -3,8 +3,9 @@ package ponder.galaxy.model
 import kabinet.api.*
 import kabinet.clients.GeminiMessage
 import kabinet.gemini.GeminiApi
+import kabinet.model.ImageGenRequest
 import kabinet.model.ImageUrls
-import kabinet.model.SpeechRequest
+import kabinet.model.SpeechGenRequest
 import ponder.galaxy.model.data.Example
 import ponder.galaxy.model.data.Galaxy
 import ponder.galaxy.model.data.GalaxyId
@@ -36,15 +37,17 @@ object Api: ParentEndpoint(null, apiPrefix) {
 
     object Gemini : ParentEndpoint(this, "/gemini"), GeminiApi {
         object Chat : PostEndpoint<List<GeminiMessage>, String>(this, "/chat")
-        object Image : PostEndpoint<String, ImageUrls>(this, "/image")
-        object GenerateSpeech: PostEndpoint<SpeechRequest, String>(this, "/generate-speech")
+        object Image : PostEndpoint<ImageGenRequest, ImageUrls>(this, "/image")
+        object GenerateSpeech: PostEndpoint<SpeechGenRequest, String>(this, "/generate-speech")
 
         override val chat = Chat
         override val image = Image
         override val speech = GenerateSpeech
     }
 
-    object Ideas : ParentEndpoint(this, "/idea") {
+    object Ideas : GetEndpoint<Map<StarId, List<Idea>>>(this, "/idea") {
+        val since = addInstantParam("since")
+
         object ByStar : GetByTableIdEndpoint<StarId, List<Idea>>(this, "/by_star")
     }
 }
