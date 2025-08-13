@@ -12,7 +12,6 @@ import org.jetbrains.exposed.sql.batchUpsert
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.update
 import ponder.galaxy.model.data.Galaxy
 import ponder.galaxy.model.data.GalaxyId
 import ponder.galaxy.server.db.tables.GalaxyTable

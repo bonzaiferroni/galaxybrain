@@ -8,6 +8,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
@@ -41,11 +42,11 @@ fun IdeaFocusView(
     }
 
     Drawer(isIdeaVisible, openHeight = 400.dp) {
-        MagicItem(state, offsetY = 100.dp) { currentState ->
+        MagicItem(state, offsetX = 100.dp) { currentState ->
             val star = currentState.star ?: return@MagicItem
             val galaxy = currentState.galaxy ?: return@MagicItem
             val idea = currentState.idea ?: return@MagicItem
-            Column(1) {
+            Column(1, horizontalAlignment = Alignment.CenterHorizontally) {
                 idea.imageUrl?.let { imageUrl ->
                     val url = if (imageUrl.startsWith("http")) imageUrl else "$APP_API_URL/$imageUrl"
                     AsyncImage(model = url, contentDescription = null, modifier = Modifier.weight(1f, fill = false))

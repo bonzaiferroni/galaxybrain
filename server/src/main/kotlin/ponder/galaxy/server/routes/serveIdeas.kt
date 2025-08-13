@@ -12,12 +12,15 @@ fun Routing.serveIdeas(
     service: IdeaService = IdeaService(),
     dao: IdeaTableDao = IdeaTableDao()
 ) {
-    // GET a single Idea by StarId, creating it if missing
-    get(Api.Ideas.ByStar, { StarId(it) }) { starId, endpoint ->
-        service.readOrCreateByStarId(starId)
+    get(Api.Ideas.Headline, { StarId(it) }) { starId, _ ->
+        service.readOrCreateFromHeadline(starId)
     }
 
-    get(Api.Ideas) { endpoint ->
+    get(Api.Ideas.Content, { StarId(it)}) { starId, _ ->
+        service.readOrCreateFromContent(starId)
+    }
+
+    get(Api.Ideas) { _ ->
         val since = Api.Ideas.since.readParamOrNull(call)
         dao.readIdeas(since)
     }

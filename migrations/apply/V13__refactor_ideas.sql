@@ -1,0 +1,3 @@
+ALTER TABLE idea ADD star_id uuid NULL;
+ALTER TABLE idea ADD description TEXT NOT NULL;
+ALTER TABLE idea ADD CONSTRAINT fk_idea_star_id__id FOREIGN KEY (star_id) REFERENCES star(id) ON DELETE CASCADE ON UPDATE RESTRICT;

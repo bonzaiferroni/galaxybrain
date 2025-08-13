@@ -7,7 +7,6 @@ import klutch.db.tables.UserTable
 import klutch.environment.readEnvFromPath
 import ponder.galaxy.server.db.tables.GalaxyTable
 import ponder.galaxy.server.db.tables.IdeaTable
-import ponder.galaxy.server.db.tables.StarIdeaTable
 import ponder.galaxy.server.db.tables.StarLogTable
 import ponder.galaxy.server.db.tables.StarTable
 
@@ -24,7 +23,6 @@ val dbTables = listOf(
     StarLogTable,
     GalaxyTable,
     IdeaTable,
-    StarIdeaTable,
 )
 
 //CREATE DATABASE example_db;

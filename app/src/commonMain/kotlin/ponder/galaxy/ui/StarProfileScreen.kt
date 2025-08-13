@@ -85,11 +85,11 @@ fun StarProfileScreen(
                     Text(age.toShortDescription())
                 }
             }
+
         }
 
-        Tabs("Comments", headerShape = Pond.ruler.shroomDown) {
+        Tabs(headerShape = Pond.ruler.shroomDown) {
             Tab("Content", modifier = Modifier.padding(horizontal = Pond.ruler.unitSpacing)) {
-                Text(star.title)
                 star.imageUrl?.let {
                     AsyncImage(
                         model = it,
@@ -97,6 +97,10 @@ fun StarProfileScreen(
                         modifier = Modifier.fillMaxWidth()
                             .clip(Pond.ruler.unitCorners)
                     )
+                }
+                H3(star.title)
+                star.textContent?.let {
+                    Text(it)
                 }
             }
             Tab("Data", modifier = Modifier.padding(horizontal = Pond.ruler.unitSpacing)) {

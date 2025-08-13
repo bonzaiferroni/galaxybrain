@@ -36,9 +36,10 @@ class IdeaFocusModel(
         val startOfDay = Clock.startOfDay()
         viewModelScope.launch(Dispatchers.IO) {
             val galaxies = galaxySource.readAll()
-            val ideaMap = ideaClient.readIdeas(Clock.startOfDay())
-            for ((starId, ideas) in ideaMap) {
-                generatedSpeech[starId] = ideas.firstOrNull()?.createdAt ?: Clock.System.now()
+            val ideas = ideaClient.readIdeas(Clock.startOfDay())
+            for (idea in ideas) {
+                val starId = idea.starId ?: continue
+                generatedSpeech[starId] = idea.createdAt
             }
 
             launch {
@@ -77,7 +78,7 @@ class IdeaFocusModel(
     }
 
     private suspend fun generateSpeech(star: Star, galaxy: Galaxy) {
-        val idea = ideaClient.readIdeasByStarId(star.starId).firstOrNull() ?: return
+        val idea = ideaClient.readOrCreateFromHeadline(star.starId)
         setState { it.copy(idea = idea, star = star, galaxy = galaxy)}
     }
 }

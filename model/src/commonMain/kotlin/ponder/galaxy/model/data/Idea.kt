@@ -8,6 +8,8 @@ import kotlin.jvm.JvmInline
 @Serializable
 data class Idea(
     val ideaId: IdeaId,
+    val starId: StarId?,
+    val description: String,
     val audioUrl: String?,
     val text: String?,
     val imageUrl: String?,

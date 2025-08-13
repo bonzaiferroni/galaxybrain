@@ -6,8 +6,6 @@ import kabinet.model.SpeechGenRequest
 import kabinet.model.SpeechVoice
 import kabinet.utils.generateUuidString
 import kabinet.utils.toAgoDescription
-import kabinet.utils.toDayDescription
-import kabinet.utils.toTimeDescription
 import klutch.gemini.GeminiService
 import kotlinx.datetime.Clock
 import ponder.galaxy.model.data.Idea
@@ -20,10 +18,10 @@ class IdeaService(
     val galaxyDao: GalaxyTableDao = GalaxyTableDao(),
     val geminiClient: GeminiService = GeminiService(),
 ) {
-    suspend fun readOrCreateByStarId(starId: StarId) = ideaDao.readByStarId(starId).takeIf { it.isNotEmpty() }
-        ?: listOf(createFromTitleByStarId(starId))
+    suspend fun readOrCreateFromHeadline(starId: StarId) = ideaDao.readIdeas(starId, IDEA_HEADLINE_DESCRIPTION).firstOrNull()
+        ?: createFromHeadline(starId)
 
-    suspend fun createFromTitleByStarId(starId: StarId): Idea {
+    suspend fun createFromHeadline(starId: StarId): Idea {
         val star = starDao.readByIdOrNull(starId) ?: error("star not found: $starId")
         val galaxy = galaxyDao.readById(star.galaxyId)
         val speechText = "From ${galaxy.name}, posted ${(Clock.System.now() - star.createdAt).toAgoDescription()}.\n\n${star.title}"
@@ -31,23 +29,58 @@ class IdeaService(
         val audioUrl = geminiClient.generateSpeech(SpeechGenRequest(
             text = speechText,
             filename = star.title,
+            theme = "Say the following like you are a news reporter:",
             voice = voice
-        ))
-        val imageUrls = star.imageUrl?.let { ImageUrls(it, star.thumbUrl ?: it) } ?: geminiClient.generateImage(ImageGenRequest(
-            text = "Create an image that captures the essence of the following headline which was found in the subreddit ${galaxy.name}: ${star.title}",
-            theme = "Create the image in the style of a cinematic lego scene. Do not include any text.",
-            filename = star.title
         ))
         println("IdeaService: $audioUrl")
         val idea = Idea(
             ideaId = IdeaId(generateUuidString()),
+            starId = starId,
+            description = IDEA_HEADLINE_DESCRIPTION,
+            audioUrl = audioUrl,
+            text = star.title,
+            imageUrl = null,
+            thumbUrl = null,
+            createdAt = Clock.System.now()
+        )
+        ideaDao.insert(idea)
+        return idea
+    }
+
+    suspend fun readOrCreateFromContent(starId: StarId) = ideaDao.readIdeas(starId, IDEA_CONTENT_DESCRIPTION).firstOrNull()
+        ?: createFromContent(starId)
+
+    suspend fun createFromContent(starId: StarId): Idea? {
+        val star = starDao.readByIdOrNull(starId) ?: error("star not found: $starId")
+        val textContent = star.textContent ?: return null
+        val galaxy = galaxyDao.readById(star.galaxyId)
+        val voice = SpeechVoice.entries[galaxy.intrinsicIndex % SpeechVoice.entries.size]
+        val audioUrl = geminiClient.generateSpeech(SpeechGenRequest(
+            text = textContent,
+            filename = star.title,
+            theme = "Say the following in a style that matches with the content:",
+            voice = voice
+        ))
+        val imageUrls = star.imageUrl?.let { ImageUrls(it, star.thumbUrl ?: it) } ?: geminiClient.generateImage(ImageGenRequest(
+            text = "Create an image based on the following content. " +
+                    "The image can capture the general essence of the content or focusing on one particular aspect.\n\n${textContent}",
+            theme = "Create the following image in the style of a cinematic lego scene. Do not include any text.",
+            filename = star.title
+        ))
+        val idea = Idea(
+            ideaId = IdeaId(generateUuidString()),
+            starId = starId,
+            description = IDEA_HEADLINE_DESCRIPTION,
             audioUrl = audioUrl,
             text = star.title,
             imageUrl = imageUrls.url,
             thumbUrl = imageUrls.thumbUrl,
             createdAt = Clock.System.now()
         )
-        ideaDao.insert(idea, starId)
+        ideaDao.insert(idea)
         return idea
     }
 }
+
+const val IDEA_HEADLINE_DESCRIPTION = "headline"
+const val IDEA_CONTENT_DESCRIPTION = "content"

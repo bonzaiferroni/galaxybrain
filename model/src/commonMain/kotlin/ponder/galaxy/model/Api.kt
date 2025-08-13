@@ -45,10 +45,11 @@ object Api: ParentEndpoint(null, apiPrefix) {
         override val speech = GenerateSpeech
     }
 
-    object Ideas : GetEndpoint<Map<StarId, List<Idea>>>(this, "/idea") {
+    object Ideas : GetEndpoint<List<Idea>>(this, "/idea") {
         val since = addInstantParam("since")
 
-        object ByStar : GetByTableIdEndpoint<StarId, List<Idea>>(this, "/by_star")
+        object Headline : GetByTableIdEndpoint<StarId, Idea>(this, "/headline")
+        object Content : GetByTableIdEndpoint<StarId, Idea>(this, "/content")
     }
 }
 
