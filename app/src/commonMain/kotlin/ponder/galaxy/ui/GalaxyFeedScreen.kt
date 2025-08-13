@@ -58,6 +58,7 @@ import pondui.ui.controls.Button
 import pondui.ui.controls.ButtonToggle
 import pondui.ui.controls.Column
 import pondui.ui.controls.Drawer
+import pondui.ui.controls.DrawerScaffold
 import pondui.ui.controls.Expando
 import pondui.ui.controls.FlowRow
 import pondui.ui.controls.Icon
@@ -71,6 +72,8 @@ import pondui.ui.controls.Text
 import pondui.ui.controls.TitleCloud
 import pondui.ui.controls.actionable
 import pondui.ui.controls.bottomBarSpacerItem
+import pondui.ui.controls.provideBottomPadding
+import pondui.ui.controls.provideTopPadding
 import pondui.ui.controls.toDpSize
 import pondui.ui.nav.portalTopBarHeight
 import pondui.ui.theme.Pond
@@ -89,9 +92,6 @@ fun GalaxyFeedScreen(
     var isIdeaVisible by remember { mutableStateOf(true) }
     var topY by remember (isChartVisible) { mutableDoubleStateOf(1.0) }
     val topGalaxy = state.galaxies.maxByOrNull { it.visibility }
-    val hazeState = remember { HazeState() }
-    var headerSize by remember { mutableStateOf(DpSize.Zero)}
-    val density = LocalDensity.current
 
     TitleCloud("Active Galaxies", state.isGalaxyCloudVisible, viewModel::toggleGalaxyCloud) {
         Column(1) {
@@ -121,18 +121,74 @@ fun GalaxyFeedScreen(
         derivedStateOf { lazyListState.firstVisibleItemIndex }
     }
 
-    Box {
+    DrawerScaffold(
+        drawerContent = {
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                IdeaFocusView(isIdeaVisible)
+                Drawer(
+                    isOpen = isChartVisible,
+                    openHeight = 200.dp,
+                ) {
+                    val firstVisibleStarId = state.stars.takeIf { it.size > firstVisibleIndex }
+                        ?.let { it[firstVisibleIndex].starId }
+                    val chartConfig = remember(firstVisibleStarId, state.isNormalized) {
+                        val stars = viewModel.getStarsAfterIndex(firstVisibleIndex)
+                        val arrays = stars.mapNotNull { star ->
+                            val galaxy = state.galaxies.firstOrNull { it.galaxyId == star.galaxyId } ?: return@mapNotNull null
+                            val starLogs = viewModel.getStarLogs(star.starId) ?: return@mapNotNull null
+                            val scale =
+                                if (state.isNormalized && topGalaxy != null) topGalaxy.visibility / galaxy.visibility else 1f
+                            LineChartArray(
+                                values = starLogs,
+                                color = galaxy.toColor(colors),
+                                isBezier = false,
+                                axis = SideAxisAutoConfig(5, AxisSide.Left, colors.contentSky),
+                                floor = 0.0,
+                                // key = star.starId,
+                                // ceiling = topY
+                            ) { (it.visibility * scale).toDouble().also { rise -> if (rise > topY) topY = rise } }
+                        }
+                        LineChartConfig(
+                            arrays = arrays,
+                            contentColor = colors.contentSky,
+                            provideLabelX = { Instant.fromEpochSeconds(it.toLong()).toTimeFormat(false) },
+                            bottomAxis = BottomAxisAutoConfig(5),
+                        ) { it.createdAt.epochSeconds.toDouble() }
+                    }
+
+                    ChartBox("Chart") {
+                        LineChart(
+                            config = chartConfig,
+                            modifier = Modifier.fillMaxWidth()
+                                .height(200.dp)
+                        )
+                    }
+                }
+
+                Expando(1)
+
+                Row(1) {
+                    Button("Set Galaxies", onClick = viewModel::toggleGalaxyCloud)
+                    ButtonToggle(isChartVisible, "Chart") {
+                        isChartVisible = !isChartVisible
+                        if (isChartVisible) isIdeaVisible = false
+                    }
+                    ButtonToggle(isIdeaVisible, "Idea") {
+                        isIdeaVisible = !isIdeaVisible
+                        if (isIdeaVisible) isChartVisible = false
+                    }
+                    ButtonToggle(state.isNormalized, "Normalize", onToggle = viewModel::setNormalized)
+                }
+            }
+        }
+    ) { padding ->
         LazyColumn(
             gap = 1,
             state = lazyListState,
-            modifier = Modifier.hazeSource(state = hazeState)
-                .padding(horizontal = Pond.ruler.unitSpacing)
         ) {
-            item("header") {
-                Column(1) {
-                    Box(modifier = Modifier.height(headerSize.height))
-                }
-            }
+            provideTopPadding(padding)
 
             items(state.stars, key = { it.starId }) { star ->
                 val starLogs = viewModel.getStarLogs(star.starId) ?: return@items
@@ -224,86 +280,7 @@ fun GalaxyFeedScreen(
                 }
             }
 
-            bottomBarSpacerItem()
-        }
-
-        Column(
-            gap = 1,
-            modifier = Modifier.onGloballyPositioned { headerSize = it.size.toDpSize(density) }
-                .clip(RoundedCornerShape(
-                    topStart = 0.dp,
-                    topEnd = 0.dp,
-                    bottomStart = Pond.ruler.defaultCorner,
-                    bottomEnd = Pond.ruler.defaultCorner
-                ))
-                .hazeEffect(state = hazeState, style = HazeMaterials.thin(Pond.colors.void.darken(.1f)))
-                .padding(
-                    top = portalTopBarHeight,
-                    start = 0.dp,
-                    end = 0.dp,
-                    bottom = 0.dp,
-                )
-        ) {
-            Column(
-                modifier = Modifier.fillMaxWidth()
-                    .padding(Pond.ruler.unitPadding)
-            ) {
-                IdeaFocusView(isIdeaVisible)
-                Drawer(
-                    isOpen = isChartVisible,
-                    openHeight = 200.dp,
-                ) {
-                    val firstVisibleStarId = state.stars.takeIf { it.size > firstVisibleIndex }
-                        ?.let { it[firstVisibleIndex].starId }
-                    val chartConfig = remember(firstVisibleStarId, state.isNormalized) {
-                        val stars = viewModel.getStarsAfterIndex(firstVisibleIndex)
-                        val arrays = stars.mapNotNull { star ->
-                            val galaxy = state.galaxies.firstOrNull { it.galaxyId == star.galaxyId } ?: return@mapNotNull null
-                            val starLogs = viewModel.getStarLogs(star.starId) ?: return@mapNotNull null
-                            val scale =
-                                if (state.isNormalized && topGalaxy != null) topGalaxy.visibility / galaxy.visibility else 1f
-                            LineChartArray(
-                                values = starLogs,
-                                color = galaxy.toColor(colors),
-                                isBezier = false,
-                                axis = SideAxisAutoConfig(5, AxisSide.Left, colors.contentSky),
-                                floor = 0.0,
-                                // key = star.starId,
-                                // ceiling = topY
-                            ) { (it.visibility * scale).toDouble().also { rise -> if (rise > topY) topY = rise } }
-                        }
-                        LineChartConfig(
-                            arrays = arrays,
-                            contentColor = colors.contentSky,
-                            provideLabelX = { Instant.fromEpochSeconds(it.toLong()).toTimeFormat(false) },
-                            bottomAxis = BottomAxisAutoConfig(5),
-                        ) { it.createdAt.epochSeconds.toDouble() }
-                    }
-
-                    ChartBox("Chart") {
-                        LineChart(
-                            config = chartConfig,
-                            modifier = Modifier.fillMaxWidth()
-                                .height(200.dp)
-                        )
-                    }
-                }
-
-                Expando(1)
-
-                Row(1) {
-                    Button("Set Galaxies", onClick = viewModel::toggleGalaxyCloud)
-                    ButtonToggle(isChartVisible, "Chart") {
-                        isChartVisible = !isChartVisible
-                        if (isChartVisible) isIdeaVisible = false
-                    }
-                    ButtonToggle(isIdeaVisible, "Idea") {
-                        isIdeaVisible = !isIdeaVisible
-                        if (isIdeaVisible) isChartVisible = false
-                    }
-                    ButtonToggle(state.isNormalized, "Normalize", onToggle = viewModel::setNormalized)
-                }
-            }
+            provideBottomPadding(padding)
         }
     }
 }

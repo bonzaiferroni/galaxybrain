@@ -22,6 +22,7 @@ import pondui.ui.behavior.MagicItem
 import pondui.ui.controls.Column
 import pondui.ui.controls.Drawer
 import pondui.ui.controls.ProgressBar
+import pondui.ui.controls.Row
 import pondui.ui.controls.Text
 import pondui.ui.controls.actionable
 import pondui.ui.theme.Pond
@@ -52,10 +53,7 @@ fun IdeaFocusView(
                     AsyncImage(model = url, contentDescription = null, modifier = Modifier.weight(1f, fill = false))
                 }
                 Text(star.title, modifier = Modifier.actionable { uriHandle.openUri(star.permalink) } )
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
+                Row(1) {
                     Text(galaxy.name, color = Pond.colors.getSwatchFromIndex(galaxy.intrinsicIndex))
                     val now = Clock.System.now()
                     val age = now - star.createdAt

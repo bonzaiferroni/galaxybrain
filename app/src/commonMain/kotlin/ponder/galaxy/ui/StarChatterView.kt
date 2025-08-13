@@ -24,10 +24,13 @@ import pondui.ui.controls.Row
 import pondui.ui.controls.Section
 import pondui.ui.controls.Text
 import pondui.ui.controls.actionable
+import pondui.ui.controls.provideBottomPadding
+import pondui.ui.controls.provideTopPadding
 import kotlin.time.Duration.Companion.days
 
 @Composable
 fun StarChatterView(
+    padding: PaddingValues,
     subredditName: String,
     articleId: String,
     viewModel: StarChatterModel = viewModel(key = articleId) { StarChatterModel(subredditName, articleId) }
@@ -36,6 +39,8 @@ fun StarChatterView(
     val uriHandler = LocalUriHandler.current
     val now = Clock.System.now()
     LazyColumn(1) {
+        provideTopPadding(padding)
+
         items(state.chatters) { chatter ->
             Section {
                 Column(1) {
@@ -59,5 +64,7 @@ fun StarChatterView(
                 }
             }
         }
+
+        provideBottomPadding(padding)
     }
 }

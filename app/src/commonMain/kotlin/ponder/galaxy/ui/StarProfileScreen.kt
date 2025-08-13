@@ -7,9 +7,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,16 +33,21 @@ import pondui.ui.charts.LineChart
 import pondui.ui.charts.LineChartArray
 import pondui.ui.charts.LineChartConfig
 import pondui.ui.charts.SideAxisAutoConfig
+import pondui.ui.controls.DrawerScaffold
 import pondui.ui.controls.FlowRow
 import pondui.ui.controls.H3
 import pondui.ui.controls.LabeledValue
 import pondui.ui.controls.ProgressBar
 import pondui.ui.controls.Section
 import pondui.ui.controls.Tab
+import pondui.ui.controls.TabContent
+import pondui.ui.controls.TabHeader
+import pondui.ui.controls.TabScope
 import pondui.ui.controls.Tabs
 import pondui.ui.controls.Text
 import pondui.ui.controls.TopBarSpacer
 import pondui.ui.controls.actionable
+import pondui.ui.controls.scaffoldPadding
 import pondui.ui.theme.Pond
 import pondui.utils.darken
 import pondui.utils.mixWith
@@ -53,18 +60,14 @@ fun StarProfileScreen(
     val state by viewModel.stateFlow.collectAsState()
     val uriHandler = LocalUriHandler.current
     val colors = Pond.colors
+    val tabScope = remember { TabScope() }
 
     val star = state.star ?: return
     val galaxy = state.galaxy ?: return
     val starLog = state.starLogs.lastOrNull() ?: return
 
-    Column {
-        Column(
-            modifier = Modifier.background(Pond.colors.void.darken(.1f).mixWith(Pond.colors.background, .1f))
-                .padding(Pond.ruler.unitPadding)
-        ) {
-            TopBarSpacer()
-
+    DrawerScaffold(
+        drawerContent = {
             H3(star.title, maxLines = 2, modifier = Modifier.actionable { uriHandler.openUri(star.permalink) })
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -85,11 +88,19 @@ fun StarProfileScreen(
                     Text(age.toShortDescription())
                 }
             }
-
+            TabHeader(
+                scope = tabScope,
+                headerShape = RoundedCornerShape(
+                    topStart = Pond.ruler.unitSpacing,
+                    topEnd = Pond.ruler.unitSpacing,
+                    bottomStart = Pond.ruler.defaultCorner,
+                    bottomEnd = Pond.ruler.defaultCorner
+                )
+            )
         }
-
-        Tabs(headerShape = Pond.ruler.shroomDown) {
-            Tab("Content", modifier = Modifier.padding(horizontal = Pond.ruler.unitSpacing)) {
+    ) { padding ->
+        TabContent(tabScope) {
+            Tab("Content", modifier = Modifier.scaffoldPadding(padding)) {
                 star.imageUrl?.let {
                     AsyncImage(
                         model = it,
@@ -103,7 +114,7 @@ fun StarProfileScreen(
                     Text(it)
                 }
             }
-            Tab("Data", modifier = Modifier.padding(horizontal = Pond.ruler.unitSpacing)) {
+            Tab("Data", modifier = Modifier.scaffoldPadding(padding)) {
                 ChartBox("Chart") {
                     LineChart(
                         config = LineChartConfig(
@@ -154,8 +165,8 @@ fun StarProfileScreen(
                     }
                 }
             }
-            Tab("Comments", modifier = Modifier.padding(horizontal = Pond.ruler.unitSpacing)) {
-                StarChatterView(galaxy.name, star.identifier)
+            Tab("Comments") {
+                StarChatterView(padding, galaxy.name, star.identifier)
             }
         }
     }
