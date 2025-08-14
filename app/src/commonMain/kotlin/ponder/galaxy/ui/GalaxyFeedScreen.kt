@@ -225,6 +225,9 @@ fun GalaxyFeedScreen(
                                     starLog.getRise(star.createdAt, state.riseFactor).toMetricString()
                                 )
                             }
+                            star.textContent?.let {
+                                LabeledValue("content", it.length.toFloat().toMetricString())
+                            }
                             Row(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically,

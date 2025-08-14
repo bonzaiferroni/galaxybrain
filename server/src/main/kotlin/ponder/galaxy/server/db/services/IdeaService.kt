@@ -18,9 +18,6 @@ class IdeaService(
     val galaxyDao: GalaxyTableDao = GalaxyTableDao(),
     val geminiClient: GeminiService = GeminiService(),
 ) {
-    suspend fun readOrCreateFromHeadline(starId: StarId) = ideaDao.readIdeas(starId, IDEA_HEADLINE_DESCRIPTION).firstOrNull()
-        ?: createFromHeadline(starId)
-
     suspend fun createFromHeadline(starId: StarId): Idea {
         val star = starDao.readByIdOrNull(starId) ?: error("star not found: $starId")
         val galaxy = galaxyDao.readById(star.galaxyId)
@@ -47,9 +44,6 @@ class IdeaService(
         return idea
     }
 
-    suspend fun readOrCreateFromContent(starId: StarId) = ideaDao.readIdeas(starId, IDEA_CONTENT_DESCRIPTION).firstOrNull()
-        ?: createFromContent(starId)
-
     suspend fun createFromContent(starId: StarId): Idea? {
         val star = starDao.readByIdOrNull(starId) ?: error("star not found: $starId")
         val textContent = star.textContent ?: return null
@@ -57,8 +51,8 @@ class IdeaService(
         val voice = SpeechVoice.entries[galaxy.intrinsicIndex % SpeechVoice.entries.size]
         val audioUrl = geminiClient.generateSpeech(SpeechGenRequest(
             text = textContent,
-            filename = star.title,
-            theme = "Say the following in a style that matches with the content:",
+            filename = "${star.identifier}_content",
+            theme = "Say the following in a conversational voice, don't be overly enthusiastic:",
             voice = voice
         ))
         val imageUrls = star.imageUrl?.let { ImageUrls(it, star.thumbUrl ?: it) } ?: geminiClient.generateImage(ImageGenRequest(
@@ -70,7 +64,7 @@ class IdeaService(
         val idea = Idea(
             ideaId = IdeaId(generateUuidString()),
             starId = starId,
-            description = IDEA_HEADLINE_DESCRIPTION,
+            description = IDEA_CONTENT_DESCRIPTION,
             audioUrl = audioUrl,
             text = star.title,
             imageUrl = imageUrls.url,

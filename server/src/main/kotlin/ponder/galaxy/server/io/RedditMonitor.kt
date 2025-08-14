@@ -107,7 +107,7 @@ class RedditMonitor(
                                     galaxyId = galaxy.galaxyId,
                                     identifier = article.id,
                                     title = article.title,
-                                    textContent = article.selftext,
+                                    textContent = article.selftext.takeIf { it.isNotEmpty() },
                                     link = article.url,
                                     permalink = "https://www.reddit.com${article.permalink}",
                                     thumbUrl = thumbUrl,

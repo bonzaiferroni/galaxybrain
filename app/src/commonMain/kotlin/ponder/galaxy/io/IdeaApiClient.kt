@@ -11,7 +11,9 @@ class IdeaApiClient(
 ) {
     suspend fun readIdeas(since: Instant) = client.get(Api.Ideas, Api.Ideas.since.write(since))
 
-    suspend fun readOrCreateFromHeadline(starId: StarId) = client.get(Api.Ideas.Headline, starId)
+    suspend fun readHeadlineIdea(starId: StarId, create: Boolean = false) =
+        client.getOrNull(Api.Ideas.Headline, starId, Api.Ideas.Headline.create.write(create))
 
-    suspend fun readOrCreateFromContent(starId: StarId) = client.get(Api.Ideas.Content, starId)
+    suspend fun readContentIdea(starId: StarId, create: Boolean = false) =
+        client.getOrNull(Api.Ideas.Content, starId, Api.Ideas.Content.create.write(create))
 }

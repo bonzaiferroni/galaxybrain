@@ -66,6 +66,7 @@ class IdeaFocusModel(
     }
 
     private fun takeStars(stars: List<Star>, galaxies: List<Galaxy>) {
+        println("looking through ${stars.size} stars")
         for (galaxy in galaxies) {
             val star = stars.firstOrNull { it.galaxyId == galaxy.galaxyId } ?: continue
             if (generatedSpeech.contains(star.starId)) continue
@@ -78,7 +79,7 @@ class IdeaFocusModel(
     }
 
     private suspend fun generateSpeech(star: Star, galaxy: Galaxy) {
-        val idea = ideaClient.readOrCreateFromHeadline(star.starId)
+        val idea = ideaClient.readHeadlineIdea(star.starId, true)
         setState { it.copy(idea = idea, star = star, galaxy = galaxy)}
     }
 }

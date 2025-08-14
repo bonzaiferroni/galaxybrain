@@ -7,8 +7,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -19,6 +22,9 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
+import compose.icons.TablerIcons
+import compose.icons.tablericons.PlayerPause
+import compose.icons.tablericons.PlayerPlay
 import kabinet.utils.toMetricString
 import kabinet.utils.toShortDescription
 import kabinet.utils.toTimeFormat
@@ -26,6 +32,8 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import ponder.galaxy.StarProfileRoute
 import ponder.galaxy.model.data.StarId
+import pondui.APP_API_URL
+import pondui.WavePlayer
 import pondui.ui.charts.AxisSide
 import pondui.ui.charts.BottomAxisAutoConfig
 import pondui.ui.charts.ChartBox
@@ -33,11 +41,14 @@ import pondui.ui.charts.LineChart
 import pondui.ui.charts.LineChartArray
 import pondui.ui.charts.LineChartConfig
 import pondui.ui.charts.SideAxisAutoConfig
+import pondui.ui.controls.Button
+import pondui.ui.controls.Column
 import pondui.ui.controls.DrawerScaffold
 import pondui.ui.controls.FlowRow
 import pondui.ui.controls.H3
 import pondui.ui.controls.LabeledValue
 import pondui.ui.controls.ProgressBar
+import pondui.ui.controls.Row
 import pondui.ui.controls.Section
 import pondui.ui.controls.Tab
 import pondui.ui.controls.TabContent
@@ -65,6 +76,15 @@ fun StarProfileScreen(
     val star = state.star ?: return
     val galaxy = state.galaxy ?: return
     val starLog = state.starLogs.lastOrNull() ?: return
+    val wavePlayer = remember { WavePlayer() }
+
+    LaunchedEffect(state.isPlaying) {
+        if (state.isPlaying) {
+            state.contentIdea?.let {
+                wavePlayer.play("$APP_API_URL/${it.audioUrl}")
+            }
+        }
+    }
 
     DrawerScaffold(
         drawerContent = {
@@ -100,18 +120,32 @@ fun StarProfileScreen(
         }
     ) { padding ->
         TabContent(tabScope) {
-            Tab("Content", modifier = Modifier.scaffoldPadding(padding)) {
-                star.imageUrl?.let {
-                    AsyncImage(
-                        model = it,
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxWidth()
-                            .clip(Pond.ruler.unitCorners)
-                    )
-                }
-                H3(star.title)
-                star.textContent?.let {
-                    Text(it)
+            Tab("Content", modifier = Modifier.verticalScroll(rememberScrollState())) {
+                Column(1, modifier = Modifier.scaffoldPadding(padding)) {
+                    Row(1) {
+                        if (state.contentIdea == null) {
+                            Button("Generate Audio", onClick = viewModel::generateAudio)
+                        } else {
+                            val icon = when (state.isPlaying) {
+                                true -> TablerIcons.PlayerPause
+                                false -> TablerIcons.PlayerPlay
+                            }
+                            Button(icon, onClick = viewModel::toggleIsPlaying)
+                        }
+                    }
+                    val imgUrl = star.imageUrl ?: state.contentIdea?.imageUrl?.let { "$APP_API_URL/$it"}
+                    imgUrl?.let {
+                        AsyncImage(
+                            model = it,
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxWidth()
+                                .clip(Pond.ruler.unitCorners)
+                        )
+                    }
+                    H3(star.title)
+                    star.textContent?.let {
+                        Text(it)
+                    }
                 }
             }
             Tab("Data", modifier = Modifier.scaffoldPadding(padding)) {

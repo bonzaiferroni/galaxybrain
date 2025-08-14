@@ -48,8 +48,12 @@ object Api: ParentEndpoint(null, apiPrefix) {
     object Ideas : GetEndpoint<List<Idea>>(this, "/idea") {
         val since = addInstantParam("since")
 
-        object Headline : GetByTableIdEndpoint<StarId, Idea>(this, "/headline")
-        object Content : GetByTableIdEndpoint<StarId, Idea>(this, "/content")
+        object Headline : GetByTableIdEndpoint<StarId, Idea?>(this, "/headline") {
+            val create = addBooleanParam("create")
+        }
+        object Content : GetByTableIdEndpoint<StarId, Idea?>(this, "/content") {
+            val create = addBooleanParam("create")
+        }
     }
 }
 
