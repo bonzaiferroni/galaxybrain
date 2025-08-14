@@ -200,7 +200,7 @@ fun StarProfileScreen(
                 }
             }
             Tab("Comments") {
-                StarChatterView(padding, galaxy.name, star.identifier)
+                StarChatterView(padding, galaxy.galaxyId, star.starId)
             }
         }
     }

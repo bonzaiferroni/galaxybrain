@@ -74,6 +74,10 @@ class IdeaService(
         ideaDao.insert(idea)
         return idea
     }
+
+//    suspend fun createFromComments(starId: StarId): Idea {
+//
+//    }
 }
 
 const val IDEA_HEADLINE_DESCRIPTION = "headline"

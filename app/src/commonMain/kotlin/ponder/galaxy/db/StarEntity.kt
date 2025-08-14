@@ -34,5 +34,5 @@ fun Star.toEntity() = StarEntity(
     visibility = visibility,
     updatedAt = updatedAt,
     createdAt = createdAt,
-    discoveredAt = discoveredAt
+    discoveredAt = accessedAt
 )

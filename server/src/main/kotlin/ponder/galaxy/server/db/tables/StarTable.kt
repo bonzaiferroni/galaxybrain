@@ -27,7 +27,7 @@ internal object StarTable: UUIDTable("star") {
     val voteCount = integer("vote_count")
     val updatedAt = datetime("updated_at")
     val createdAt = datetime("created_at")
-    val discoveredAt = datetime("discovered_at")
+    val accessedAt = datetime("accessed_at")
 }
 
 internal fun ResultRow.toStar() = Star(
@@ -45,7 +45,7 @@ internal fun ResultRow.toStar() = Star(
     voteCount = this[StarTable.voteCount],
     updatedAt = this[StarTable.updatedAt].toInstantFromUtc(),
     createdAt = this[StarTable.createdAt].toInstantFromUtc(),
-    discoveredAt = this[StarTable.discoveredAt].toInstantFromUtc()
+    accessedAt = this[StarTable.accessedAt].toInstantFromUtc()
 )
 
 internal fun UpdateBuilder<*>.writeFull(star: Star) {
@@ -53,7 +53,7 @@ internal fun UpdateBuilder<*>.writeFull(star: Star) {
     this[StarTable.galaxyId] = star.galaxyId.toUUID()
     this[StarTable.identifier] = star.identifier
     this[StarTable.createdAt] = star.createdAt.toLocalDateTimeUtc()
-    this[StarTable.discoveredAt] = star.discoveredAt.toLocalDateTimeUtc()
+    this[StarTable.accessedAt] = star.accessedAt.toLocalDateTimeUtc()
     writeUpdate(star)
 }
 

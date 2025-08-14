@@ -21,7 +21,7 @@ data class Star(
     val voteCount: Int,
     val updatedAt: Instant,
     val createdAt: Instant,
-    val discoveredAt: Instant,
+    val accessedAt: Instant,
 )
 
 @JvmInline @Serializable

@@ -11,7 +11,7 @@ import kotlinx.serialization.json.*
 @Serializable
 data class RedditCommentDto(
     val id: String,
-    @SerialName("parent_id") val parentId: String,
+    @SerialName("parent_id") val parentIdAndType: String,
     @SerialName("link_id") val linkId: String? = null,
     val author: String,
     val body: String,
@@ -23,7 +23,9 @@ data class RedditCommentDto(
     val depth: Int? = null,
     @Serializable(with = CommentRepliesSerializer::class)
     val replies: List<RedditCommentDto> = emptyList()
-): RedditDto
+): RedditDto {
+    val parentId = parentIdAndType.split('_').takeIf { it.size == 2 && it[0] == "t1" }?.let { it[1] }
+}
 
 object CommentRepliesSerializer : KSerializer<List<RedditCommentDto>> {
     private val delegate = JsonArray.serializer()

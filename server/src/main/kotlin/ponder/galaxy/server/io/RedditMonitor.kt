@@ -117,7 +117,7 @@ class RedditMonitor(
                                     commentCount = article.numComments,
                                     updatedAt = now,
                                     createdAt = createdAt,
-                                    discoveredAt = now
+                                    accessedAt = now
                                 )
                             }.let { StarId(it.toStringId()) }
 
