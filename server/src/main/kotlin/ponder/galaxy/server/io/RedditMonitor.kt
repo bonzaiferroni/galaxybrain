@@ -20,6 +20,8 @@ import ponder.galaxy.model.data.GalaxyId
 import ponder.galaxy.model.data.GalaxyProbe
 import ponder.galaxy.model.data.Star
 import ponder.galaxy.model.data.StarId
+import ponder.galaxy.model.data.StarLink
+import ponder.galaxy.model.data.StarLinkId
 import ponder.galaxy.model.data.StarLog
 import ponder.galaxy.model.data.StarLogId
 import ponder.galaxy.model.reddit.ListingType
@@ -27,6 +29,7 @@ import ponder.galaxy.model.reddit.REDDIT_URL_BASE
 import ponder.galaxy.model.reddit.RedditClient
 import ponder.galaxy.model.reddit.RedditArticleDto
 import ponder.galaxy.server.db.services.GalaxyTableDao
+import ponder.galaxy.server.db.services.StarLinkTableDao
 import ponder.galaxy.server.db.services.StarLogTableDao
 import ponder.galaxy.server.db.services.StarTableDao
 import kotlin.math.min
@@ -36,6 +39,7 @@ class RedditMonitor(
     private val client: RedditClient,
     private val starDao: StarTableDao = StarTableDao(),
     private val starLogDao: StarLogTableDao = StarLogTableDao(),
+    private val starLinkDao: StarLinkTableDao = StarLinkTableDao(),
     private val galaxyDao: GalaxyTableDao = GalaxyTableDao()
 ) {
 
@@ -109,7 +113,7 @@ class RedditMonitor(
                                     title = article.title,
                                     textContent = article.selftext.takeIf { it.isNotEmpty() },
                                     link = article.url,
-                                    permalink = "https://www.reddit.com${article.permalink}",
+                                    url = "https://www.reddit.com${article.permalink}",
                                     thumbUrl = thumbUrl,
                                     imageUrl = imageUrl,
                                     visibility = visibility,
@@ -120,6 +124,19 @@ class RedditMonitor(
                                     accessedAt = now
                                 )
                             }.let { StarId(it.toStringId()) }
+
+                            article.url.takeIf { it.isNotEmpty() && !it.contains("reddit.com") && !it.contains("redd.it") }?.let { url ->
+                                val starLink = starLinkDao.readByUrl(url)
+                                if (starLink != null) return@let
+                                val toStar = starDao.readByUrl(url)
+                                starLinkDao.insert(StarLink(
+                                    starLinkId = StarLinkId(generateUuidString()),
+                                    fromStarId = starId,
+                                    toStarId = toStar?.starId,
+                                    url = url,
+                                    createdAt = now,
+                                ))
+                            }
 
                             val starLogId = starLogDao.insert(StarLog(
                                 starLogId = StarLogId(0L),

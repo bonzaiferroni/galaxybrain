@@ -1,8 +1,10 @@
 package ponder.galaxy.server.db.services
 
 import klutch.db.DbService
+import klutch.db.batchUpdate
 import klutch.db.read
 import klutch.db.readByIdOrNull
+import klutch.db.readSingleOrNull
 import klutch.db.updateSingleWhere
 import klutch.utils.eq
 import klutch.utils.greaterEq
@@ -15,7 +17,6 @@ import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.batchUpsert
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insertAndGetId
-import org.jetbrains.exposed.sql.update
 import ponder.galaxy.model.data.GalaxyId
 import ponder.galaxy.model.data.Star
 import ponder.galaxy.model.data.StarId
@@ -35,7 +36,7 @@ class StarTableDao: DbService() {
     }
 
     suspend fun update(vararg stars: Star) = dbQuery {
-        stars.forEach { star -> StarTable.update { it.writeUpdate(star) } }
+        StarTable.batchUpdate(stars.toList(), { it.starId.toUUID()}) { writeUpdate(it) }
     }
 
     suspend fun delete(vararg stars: Star) = dbQuery {
@@ -62,5 +63,9 @@ class StarTableDao: DbService() {
 
     suspend fun readByIds(starIds: List<StarId>) = dbQuery {
         StarTable.read { it.id.inList(starIds.map { starId -> starId.toUUID()}) }.map { it.toStar() }
+    }
+
+    suspend fun readByUrl(url: String) = dbQuery {
+        StarTable.readSingleOrNull { it.url.eq(url) }?.toStar()
     }
 }

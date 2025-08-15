@@ -1,8 +1,5 @@
 package ponder.galaxy.ui
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -53,7 +50,7 @@ fun IdeaFocusView(
                     val url = if (imageUrl.startsWith("http")) imageUrl else "$APP_API_URL/$imageUrl"
                     AsyncImage(model = url, contentDescription = null, modifier = Modifier.weight(1f, fill = false))
                 }
-                Text(star.title, modifier = Modifier.actionable { uriHandle.openUri(star.permalink) } )
+                Text(star.title, modifier = Modifier.actionable { uriHandle.openUri(star.url) } )
                 Row(1) {
                     Text(galaxy.name, color = Pond.colors.getSwatchFromIndex(galaxy.intrinsicIndex))
                     val now = Clock.System.now()

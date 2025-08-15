@@ -24,7 +24,7 @@ import ponder.galaxy.server.db.services.ExampleApiService
 //            service.createExample(userId, newExample)
 //        }
 //
-//        update(Api.Examples.Update) { example, endpoint ->
+//        updateOld(Api.Examples.Update) { example, endpoint ->
 //            val userId = call.getUserId()
 //            if (userId != example.userId) {
 //                call.respond(HttpStatusCode.Forbidden)

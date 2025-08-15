@@ -28,7 +28,7 @@ class ExampleApiService : DbService() {
 //    }
 //
 //    suspend fun updateExample(example: Example) = dbQuery {
-//        ExampleTable.update(
+//        ExampleTable.updateOld(
 //            where = { ExampleTable.id.eq(example.id) and ExampleTable.userId.eq(example.userId) }
 //        ) {
 //            it[this.label] = example.label

@@ -13,7 +13,7 @@ data class Star(
     val title: String,
     val textContent: String?,
     val link: String,
-    val permalink: String,
+    val url: String,
     val thumbUrl: String?,
     val imageUrl: String?,
     val visibility: Float,

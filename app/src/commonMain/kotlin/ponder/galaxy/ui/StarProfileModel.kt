@@ -7,10 +7,12 @@ import ponder.galaxy.globalProbeService
 import ponder.galaxy.io.GalaxySource
 import ponder.galaxy.io.IdeaApiClient
 import ponder.galaxy.io.ProbeService
+import ponder.galaxy.io.StarLinkApiClient
 import ponder.galaxy.model.data.Galaxy
 import ponder.galaxy.model.data.Idea
 import ponder.galaxy.model.data.Star
 import ponder.galaxy.model.data.StarId
+import ponder.galaxy.model.data.StarLink
 import ponder.galaxy.model.data.StarLog
 import pondui.LocalValueSource
 import pondui.ui.core.ModelState
@@ -22,6 +24,7 @@ class StarProfileModel(
     private val galaxySource: GalaxySource = GalaxySource(),
     private val valueSource: LocalValueSource = LocalValueSource(),
     private val ideaApiClient: IdeaApiClient = IdeaApiClient(),
+    private val starLinkApiClient: StarLinkApiClient = StarLinkApiClient(),
 ): StateModel<StarProfileState>() {
 
     override val state = ModelState(StarProfileState())
@@ -33,12 +36,14 @@ class StarProfileModel(
             val riseFactor = valueSource.readInt(RISE_FACTOR_KEY, 1)
             val galaxy = galaxySource.readGalaxyById(star.galaxyId)
             val idea = ideaApiClient.readContentIdea(starId, false)
+            val outgoingLinks = starLinkApiClient.readOutgoingLinks(starId) ?: emptyList()
             setState { it.copy(
                 star = star,
                 starLogs = starLogs,
                 riseFactor = riseFactor,
                 galaxy = galaxy,
                 contentIdea = idea,
+                outgoingLinks = outgoingLinks
             ) }
 
             probeService.stateFlow.collect { state ->
@@ -67,4 +72,5 @@ data class StarProfileState(
     val riseFactor: Int = 1,
     val contentIdea: Idea? = null,
     val isPlaying: Boolean = false,
+    val outgoingLinks: List<StarLink> = emptyList()
 )

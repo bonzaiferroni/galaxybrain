@@ -1,10 +1,10 @@
 package ponder.galaxy.server.db.services
 
 import klutch.db.DbService
+import klutch.db.batchUpdate
 import klutch.db.read
 import klutch.db.readByIdOrNull
 import klutch.db.readSingleOrNull
-import klutch.utils.eq
 import klutch.utils.toUUID
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
@@ -36,6 +36,10 @@ class CommentTableDao : DbService() {
     }
 
     suspend fun update(comments: List<Comment>) = dbQuery {
+        CommentTable.batchUpdate(comments, { it.commentId.toUUID() }) { writeUpdate(it) }
+    }
+
+    suspend fun updateOld(comments: List<Comment>) = dbQuery {
         if (comments.isEmpty()) return@dbQuery 0
         var total = 0
         BatchUpdateStatement(CommentTable).apply {

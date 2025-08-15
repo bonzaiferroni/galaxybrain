@@ -15,6 +15,7 @@ import ponder.galaxy.model.data.Idea
 import ponder.galaxy.model.data.NewExample
 import ponder.galaxy.model.data.Star
 import ponder.galaxy.model.data.StarId
+import ponder.galaxy.model.data.StarLink
 import ponder.galaxy.model.data.StarLog
 
 object Api: ApiNode(ApiNode(null, "api"), "v1") {
@@ -27,6 +28,10 @@ object Api: ApiNode(ApiNode(null, "api"), "v1") {
 
     object Stars: GetByTableIdEndpoint<StarId, Star>(this, "star") {
         object Multi : PostEndpoint<List<StarId>, List<Star>>(this, "multi")
+    }
+
+    object StarLinks: ApiNode(this, "star_link") {
+        object Outgoing : GetByTableIdEndpoint<StarId, List<StarLink>>(this, "links")
     }
 
     object StarLogs: GetByTableIdEndpoint<StarId, List<StarLog>>(this, "star_log") {

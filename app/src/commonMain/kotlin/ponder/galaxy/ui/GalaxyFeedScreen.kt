@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -26,20 +25,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import compose.icons.TablerIcons
 import compose.icons.tablericons.BrandReddit
-import dev.chrisbanes.haze.HazeState
-import dev.chrisbanes.haze.hazeEffect
-import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
-import dev.chrisbanes.haze.materials.HazeMaterials
 import kabinet.utils.toMetricString
 import kabinet.utils.toShortDescription
 import kabinet.utils.toTimeFormat
@@ -71,14 +63,10 @@ import pondui.ui.controls.Section
 import pondui.ui.controls.Text
 import pondui.ui.controls.TitleCloud
 import pondui.ui.controls.actionable
-import pondui.ui.controls.bottomBarSpacerItem
 import pondui.ui.controls.provideBottomPadding
 import pondui.ui.controls.provideTopPadding
-import pondui.ui.controls.toDpSize
-import pondui.ui.nav.portalTopBarHeight
 import pondui.ui.theme.Pond
 import pondui.ui.theme.PondColors
-import pondui.utils.darken
 
 @OptIn(ExperimentalHazeMaterialsApi::class)
 @Composable
@@ -237,7 +225,7 @@ fun GalaxyFeedScreen(
                                 LabeledValue(
                                     "comments",
                                     starLog.commentCount,
-                                    modifier = Modifier.actionable { uriHandler.openUri(star.permalink) })
+                                    modifier = Modifier.actionable { uriHandler.openUri(star.url) })
                             }
                         }
                         Column(

@@ -1,12 +1,9 @@
 package ponder.galaxy.ui
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -54,14 +51,10 @@ import pondui.ui.controls.Tab
 import pondui.ui.controls.TabContent
 import pondui.ui.controls.TabHeader
 import pondui.ui.controls.TabScope
-import pondui.ui.controls.Tabs
 import pondui.ui.controls.Text
-import pondui.ui.controls.TopBarSpacer
 import pondui.ui.controls.actionable
 import pondui.ui.controls.scaffoldPadding
 import pondui.ui.theme.Pond
-import pondui.utils.darken
-import pondui.utils.mixWith
 
 @Composable
 fun StarProfileScreen(
@@ -88,7 +81,7 @@ fun StarProfileScreen(
 
     DrawerScaffold(
         drawerContent = {
-            H3(star.title, maxLines = 2, modifier = Modifier.actionable { uriHandler.openUri(star.permalink) })
+            H3(star.title, maxLines = 2, modifier = Modifier.actionable { uriHandler.openUri(star.url) })
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
@@ -98,7 +91,7 @@ fun StarProfileScreen(
                 LabeledValue(
                     "comments",
                     star.commentCount,
-                    modifier = Modifier.actionable { uriHandler.openUri(star.permalink) })
+                    modifier = Modifier.actionable { uriHandler.openUri(star.url) })
                 val now = Clock.System.now()
                 val age = now - star.createdAt
                 val ageRatio = age.inWholeSeconds / (60 * 60 * 24).toFloat()
@@ -146,6 +139,11 @@ fun StarProfileScreen(
                     star.textContent?.let {
                         Text(it)
                     }
+                }
+            }
+            Tab("Links", modifier = Modifier.scaffoldPadding(padding)) {
+                for (starLink in state.outgoingLinks) {
+                    Text(starLink.url)
                 }
             }
             Tab("Data", modifier = Modifier.scaffoldPadding(padding)) {

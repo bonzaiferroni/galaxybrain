@@ -19,7 +19,7 @@ internal object StarTable: UUIDTable("star") {
     val title = text("title")
     val textContent = text("text_content").nullable()
     val link = text("link")
-    val permalink = text("permalink")
+    val url = text("permalink")
     val thumbUrl = text("thumb_url").nullable()
     val imageUrl = text("image_url").nullable()
     val visibility = float("visibility")
@@ -37,7 +37,7 @@ internal fun ResultRow.toStar() = Star(
     title = this[StarTable.title],
     textContent = this[StarTable.textContent],
     link = this[StarTable.link],
-    permalink = this[StarTable.permalink],
+    url = this[StarTable.url],
     thumbUrl = this[StarTable.thumbUrl],
     imageUrl = this[StarTable.imageUrl],
     visibility = this[StarTable.visibility],
@@ -61,7 +61,7 @@ internal fun UpdateBuilder<*>.writeUpdate(star: Star) {
     this[StarTable.title] = star.title
     this[StarTable.textContent] = star.textContent
     this[StarTable.link] = star.link
-    this[StarTable.permalink] = star.permalink
+    this[StarTable.url] = star.url
     this[StarTable.thumbUrl] = star.thumbUrl
     this[StarTable.imageUrl] = star.imageUrl
     this[StarTable.visibility] = star.visibility
