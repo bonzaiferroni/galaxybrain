@@ -1,19 +1,24 @@
 package ponder.galaxy.io
 
+import kabinet.api.write
 import kotlinx.datetime.Instant
 import ponder.galaxy.model.Api
+import ponder.galaxy.model.data.CommentId
 import ponder.galaxy.model.data.StarId
-import pondui.io.ApiClient
-import pondui.io.globalApiClient
+import pondui.io.NeoApiClient
+import pondui.io.globalNeoApiClient
 
 class IdeaApiClient(
-    private val client: ApiClient = globalApiClient
+    private val client: NeoApiClient = globalNeoApiClient
 ) {
-    suspend fun readIdeas(since: Instant) = client.get(Api.Ideas, Api.Ideas.since.write(since))
+    suspend fun readIdeas(since: Instant) = client.request(Api.Ideas) { write(it.since, since) }
 
     suspend fun readHeadlineIdea(starId: StarId, create: Boolean = false) =
-        client.getOrNull(Api.Ideas.Headline, starId, Api.Ideas.Headline.create.write(create))
+        client.getById(Api.Ideas.Headline, starId) { write(it.create, create) }
 
     suspend fun readContentIdea(starId: StarId, create: Boolean = false) =
-        client.getOrNull(Api.Ideas.Content, starId, Api.Ideas.Content.create.write(create))
+        client.getById(Api.Ideas.Content, starId) { write(it.create, create) }
+
+    suspend fun readCommentIdea(commentId: CommentId, create: Boolean = false) =
+        client.getById(Api.Ideas.Comment, commentId) { write(it.create, create) }
 }

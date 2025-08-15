@@ -9,11 +9,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import compose.icons.TablerIcons
+import compose.icons.tablericons.PlayerPause
+import compose.icons.tablericons.PlayerPlay
 import kabinet.utils.toMetricString
 import kabinet.utils.toShortDescription
 import kotlinx.datetime.Clock
 import ponder.galaxy.model.data.GalaxyId
 import ponder.galaxy.model.data.StarId
+import pondui.ui.behavior.selected
+import pondui.ui.controls.Button
 import pondui.ui.controls.Column
 import pondui.ui.controls.Label
 import pondui.ui.controls.LabeledValue
@@ -40,26 +45,38 @@ fun StarChatterView(
     LazyColumn(1) {
         provideTopPadding(padding)
 
-        items(state.comments) { chatter ->
-            Section {
+        item("idea") {
+            Column(1) {
+                val icon = when (state.isPlaying) {
+                    true -> TablerIcons.PlayerPause
+                    false -> TablerIcons.PlayerPlay
+                }
+                Button(icon, onClick = viewModel::toggleIsPlaying)
+                IdeaView(state.currentIdea) { if (state.isPlaying) viewModel.startNextIdea() }
+            }
+        }
+
+        items(state.comments) { comment ->
+            val isSelected = comment.commentId == state.currentIdea?.commentId
+            Section(modifier = Modifier.selected(isSelected)) {
                 Column(1) {
                     Row(1) {
-                        Text(chatter.visibility.toMetricString())
-                        Label(chatter.author, modifier = Modifier.weight(1f))
-                        val age = now - chatter.createdAt
+                        Text(comment.visibility.toMetricString())
+                        Label(comment.author, modifier = Modifier.weight(1f))
+                        val age = now - comment.createdAt
                         val ageRatio = (age / 1.days).toFloat()
-                        chatter.depth?.let {
+                        comment.depth?.let {
                             if (it > 0) LabeledValue("depth", it)
                         }
                         ProgressBar(
                             progress = ageRatio,
                             padding = PaddingValues(0.dp),
-                            modifier = Modifier.actionable { uriHandler.openUri(chatter.permalink) }
+                            modifier = Modifier.actionable { uriHandler.openUri(comment.permalink) }
                         ) {
                             Text(age.toShortDescription())
                         }
                     }
-                    Text(chatter.text)
+                    Text(comment.text)
                 }
             }
         }

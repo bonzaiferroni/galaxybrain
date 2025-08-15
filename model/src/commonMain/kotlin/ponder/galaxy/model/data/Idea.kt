@@ -9,6 +9,7 @@ import kotlin.jvm.JvmInline
 data class Idea(
     val ideaId: IdeaId,
     val starId: StarId?,
+    val commentId: CommentId?,
     val description: String,
     val audioUrl: String?,
     val text: String?,

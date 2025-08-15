@@ -44,29 +44,24 @@ fun Route.serveChatter(
 
         val sentCommentIds = mutableSetOf<CommentId>()
         while (isActive) {
-            val commentDtos = redditClient.getComments(subredditName, articleId, ListingType.Top)?.flatten()
+            val commentDtos = redditClient.getComments(subredditName, articleId, ListingType.Top)
             if (commentDtos == null) {
                 delay(1.minutes)
                 continue
             }
 
-            val visibilitySum = commentDtos.sumOf { it.deriveVisibility().toDouble() }.toFloat()
+            val commentsFlat = commentDtos.flatten()
+            val visibilitySum = commentsFlat.sumOf { it.deriveVisibility().toDouble() }.toFloat()
             val averageVisibility = visibilitySum / commentDtos.size
 
             println("found ${commentDtos.size} comments")
 
             val comments = mutableListOf<Comment>()
-            val deltas = mutableListOf<CommentDelta>()
             val now = Clock.System.now()
-            for (commentDto in commentDtos) {
-                val comment = commentService.insertOrUpdateComment(
-                    commentDto = commentDto,
-                    comments = commentDtos,
-                    starId = starId,
-                    visibilitySum = visibilitySum,
-                    averageVisibility = averageVisibility,
-                    now = now
-                )
+            commentService.gatherComments(null, commentDtos, comments, starId, averageVisibility, now)
+            val newComments = mutableListOf<Comment>()
+            val deltas = mutableListOf<CommentDelta>()
+            for (comment in comments) {
                 if (sentCommentIds.contains(comment.commentId)) {
                     deltas.add(CommentDelta(
                         commentId = comment.commentId,
@@ -77,11 +72,11 @@ fun Route.serveChatter(
                     ))
                 } else {
                     sentCommentIds.add(comment.commentId)
-                    comments.add(comment)
+                    newComments.add(comment)
                 }
             }
             sendChatterProbe(CommentProbe(
-                newComments = comments,
+                newComments = newComments,
                 deltas = deltas
             ))
             delay(1000 * 60)

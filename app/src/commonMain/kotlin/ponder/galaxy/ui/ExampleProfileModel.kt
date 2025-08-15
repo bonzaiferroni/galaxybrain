@@ -5,6 +5,7 @@ import kotlinx.coroutines.launch
 import ponder.galaxy.ExampleProfileRoute
 import ponder.galaxy.io.ExampleStore
 import ponder.galaxy.model.data.Example
+import ponder.galaxy.model.data.ExampleId
 import pondui.ui.core.StateModel
 import pondui.ui.core.ModelState
 
@@ -17,7 +18,7 @@ class ExampleProfileModel(
 
     init {
         viewModelScope.launch {
-            val example = store.readExample(route.exampleId)
+            val example = store.readExample(ExampleId(route.exampleId)) ?: error("Example not found: ${route.exampleId}")
             setState { it.copy(example = example, symtrix = example.label) }
         }
     }
@@ -33,7 +34,7 @@ class ExampleProfileModel(
     fun finalizeEdit() {
         val example = stateNow.example?.copy(label = stateNow.symtrix) ?: return
         viewModelScope.launch {
-            val isSuccess = store.updateExample(example)
+            val isSuccess = store.updateExample(example) ?: error("could not update example")
             if (isSuccess) {
                 setState { it.copy(example = example) }
                 toggleEdit()

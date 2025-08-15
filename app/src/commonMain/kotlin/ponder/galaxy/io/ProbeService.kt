@@ -10,19 +10,14 @@ import ponder.galaxy.model.data.StarId
 import ponder.galaxy.model.data.StarLog
 import ponder.galaxy.ui.RISE_FACTOR_KEY
 import pondui.LocalValueSource
-import pondui.io.ApiClient
-import pondui.io.globalApiClient
+import pondui.io.NeoApiClient
+import pondui.io.globalNeoApiClient
 import pondui.ui.core.ModelState
-import kotlin.collections.containsKey
-import kotlin.collections.get
-import kotlin.collections.putAll
-import kotlin.text.get
-import kotlin.text.set
 
 class ProbeService(
     private val probeSocket: ProbeSocket = ProbeSocket(),
     private val starSource: StarSource = StarSource(),
-    private val apiClient: ApiClient = globalApiClient,
+    private val apiClient: NeoApiClient = globalNeoApiClient,
     private val valueSource: LocalValueSource = LocalValueSource(),
 ) {
     private val state = ModelState(ProbeServiceState())
@@ -50,10 +45,10 @@ class ProbeService(
                 val starLogs = galaxyProbe.starLogs
                 val missingStarIds =
                     starLogs.filter { starLog -> !allStars.containsKey(starLog.starId) }.map { it.starId }
-                starSource.readStars(missingStarIds).forEach { allStars[it.starId] = it }
+                starSource.readStars(missingStarIds)?.forEach { allStars[it.starId] = it }
 
-                val missingStarLogs = starSource.readStarLogs(missingStarIds)
-                allStarLogs.putAll(missingStarLogs)
+                starSource.readStarLogs(missingStarIds)?.let { allStarLogs.putAll(it) }
+
 
                 for (starLog in starLogs) {
                     if (missingStarIds.any { starLog.starId == it }) continue
@@ -78,10 +73,10 @@ class ProbeService(
 
     fun getStarLogs(starId: StarId) = allStarLogs[starId]
 
-    suspend fun readStarLogs(starId: StarId) = allStarLogs[starId] ?: apiClient.getOrNull(Api.StarLogs, starId)
+    suspend fun readStarLogs(starId: StarId) = allStarLogs[starId] ?: apiClient.getById(Api.StarLogs, starId)
         ?.also { allStarLogs[starId] = it }
 
-    suspend fun getStar(starId: StarId) = allStars[starId] ?: apiClient.getOrNull(Api.Stars, starId)
+    suspend fun getStar(starId: StarId) = allStars[starId] ?: apiClient.getById(Api.Stars, starId)
         ?.also { allStars[starId] = it }
 
 }

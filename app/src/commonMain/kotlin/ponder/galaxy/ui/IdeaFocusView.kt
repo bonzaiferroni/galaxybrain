@@ -16,6 +16,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import kabinet.utils.toShortDescription
 import kotlinx.datetime.Clock
+import ponder.galaxy.model.data.Idea
 import pondui.APP_API_URL
 import pondui.WavePlayer
 import pondui.ui.behavior.MagicItem
@@ -62,6 +63,33 @@ fun IdeaFocusView(
                         Text(age.toShortDescription())
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun IdeaView(
+    idea: Idea?,
+    onFinished: () -> Unit
+) {
+    val audioUrl = idea?.audioUrl
+    val wavePlayer = remember { WavePlayer() }
+
+    LaunchedEffect(audioUrl) {
+        if (audioUrl == null) return@LaunchedEffect
+        wavePlayer.play("$APP_API_URL/$audioUrl")
+        onFinished()
+    }
+
+    MagicItem(idea) { idea ->
+        Column(1, horizontalAlignment = Alignment.CenterHorizontally) {
+            idea?.imageUrl?.let { imageUrl ->
+                val url = if (imageUrl.startsWith("http")) imageUrl else "$APP_API_URL/$imageUrl"
+                AsyncImage(model = url, contentDescription = null, modifier = Modifier.weight(1f, fill = false))
+            }
+            idea?.text?.let {
+                Text(it)
             }
         }
     }

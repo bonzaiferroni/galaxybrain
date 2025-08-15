@@ -19,7 +19,7 @@ class ExampleListModel(
 
     fun refreshItems() {
         viewModelScope.launch {
-            val examples = store.readUserExamples()
+            val examples = store.readUserExamples() ?: error("examples not found")
             setState { it.copy(examples = examples) }
         }
     }
@@ -29,7 +29,7 @@ class ExampleListModel(
         viewModelScope.launch {
             val exampleId = store.createExample(NewExample(
                 label = stateNow.newSymtrix
-            ))
+            )) ?: error("could not create example")
             if (exampleId > 0) {
                 refreshItems()
                 setState { it.copy(newSymtrix = "") }
@@ -39,7 +39,7 @@ class ExampleListModel(
 
     fun deleteItem(example: Example) {
         viewModelScope.launch {
-            val isSuccess = store.deleteExample(example.id)
+            val isSuccess = store.deleteExample(example.id) ?: error("could not delete example")
             if (isSuccess) {
                 refreshItems()
             }

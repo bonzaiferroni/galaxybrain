@@ -26,7 +26,7 @@ class GalaxyFeedModel(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            val galaxies = galaxySource.readAll()
+            val galaxies = galaxySource.readAll() ?: error("galaxies not found")
             val activeGalaxyNames = valueSource.readObjectOrNull<List<String>>(ACTIVE_GALAXY_NAMES_KEY) ?: galaxies.map { it.name }
             val filteredNames = activeGalaxyNames.filter { galaxyName -> galaxies.any { it.name == galaxyName} }
             val riseFactor = valueSource.readInt(RISE_FACTOR_KEY, 1)

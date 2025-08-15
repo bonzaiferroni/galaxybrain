@@ -9,13 +9,12 @@ import io.ktor.server.routing.routing
 import klutch.gemini.serveGemini
 import klutch.server.*
 import ponder.galaxy.model.Api
-import ponder.galaxy.model.apiPrefix
 import ponder.galaxy.server.routes.*
 import java.io.File
 
 fun Application.configureApiRoutes() {
     routing {
-        get(apiPrefix) {
+        get(Api.path) {
             call.respondText("Hello World!")
         }
 

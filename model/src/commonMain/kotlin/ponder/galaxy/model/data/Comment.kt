@@ -1,6 +1,7 @@
 package ponder.galaxy.model.data
 
 import kabinet.db.TableId
+import kabinet.model.SpeechVoice
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmInline
@@ -24,6 +25,8 @@ data class Comment(
     val accessedAt: Instant,
 ) {
     fun getRise(now: Instant, riseFactor: Int) = calculateRise(now - createdAt, visibilityRatio, riseFactor)
+    val intrinsicIndex get() = author.length
+    fun getVoice() = SpeechVoice.getByIntrinsicIndex(intrinsicIndex)
 }
 
 @JvmInline

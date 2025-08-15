@@ -12,62 +12,66 @@ import ponder.galaxy.server.routes.deriveVisibility
 class CommentService(
     val dao: CommentTableDao = CommentTableDao()
 ) {
-    suspend fun insertOrUpdateComment(
-        commentDto: RedditCommentDto,
-        comments: List<RedditCommentDto>,
+    suspend fun gatherComments(
+        parentId: CommentId? = null,
+        commentDtos: List<RedditCommentDto>,
+        comments: MutableList<Comment>,
         starId: StarId,
-        visibilitySum: Float,
         averageVisibility: Float,
         now: Instant,
-    ): Comment {
-        val visibility = commentDto.deriveVisibility()
-        val visibilityRatio = visibility / averageVisibility
-
-        var comment = dao.readByIdentifier(commentDto.id)
-        if (comment != null) {
-            if (comment.updatedAt != now) {
-                comment = comment.copy(
-                    text = commentDto.body.takeIf { it.isNotEmpty() } ?: comment.text,
-                    voteCount = commentDto.score,
-                    replyCount = commentDto.replies.size,
-                    visibility = visibility,
-                    visibilityRatio = visibilityRatio,
-                    updatedAt = now
-                )
-                dao.update(comment)
-            }
-            return comment
+    ) {
+        val dbComments = dao.readByIdentifiers(commentDtos.map { it.id }).map { dbComment ->
+            val commentDto = commentDtos.first { it.id == dbComment.identifier }
+            val visibility = commentDto.deriveVisibility()
+            val visibilityRatio = visibility / averageVisibility
+            dbComment.copy(
+                text = commentDto.body.takeIf { it.isNotEmpty() } ?: dbComment.text,
+                voteCount = commentDto.score,
+                replyCount = commentDto.replies.size,
+                visibility = visibility,
+                visibilityRatio = visibilityRatio,
+                updatedAt = now
+            )
         }
+        dao.update(dbComments)
+        comments.addAll(dbComments)
 
-        val parent = commentDto.parentId
-            ?.let { parentId -> comments.firstOrNull { it.id == parentId } }
-            ?.let { parentDto -> insertOrUpdateComment(
-                commentDto = parentDto,
+        val newComments = commentDtos.mapNotNull { commentDto ->
+            if (dbComments.any { it.identifier == commentDto.id }) return@mapNotNull null
+            val visibility = commentDto.deriveVisibility()
+            val visibilityRatio = visibility / averageVisibility
+            Comment(
+                commentId = CommentId(generateUuidString()),
+                parentId = parentId,
+                starId = starId,
+                identifier = commentDto.id,
+                author = commentDto.author,
+                text = commentDto.body,
+                depth = commentDto.depth,
+                voteCount = commentDto.score,
+                replyCount = commentDto.replies.size,
+                visibility = visibility,
+                visibilityRatio = visibilityRatio,
+                permalink = "https://www.reddit.com${commentDto.permalink}",
+                createdAt = Instant.fromEpochSecondsDouble(commentDto.createdUtc),
+                updatedAt = now,
+                accessedAt = now
+            )
+        }
+        dao.insert(newComments)
+        comments.addAll(newComments)
+
+        for (commentDto in commentDtos) {
+            if (commentDto.replies.isEmpty()) continue
+            val comment = comments.first { it.identifier == commentDto.id }
+            gatherComments(
+                parentId = comment.commentId,
+                commentDtos = commentDto.replies,
                 comments = comments,
                 starId = starId,
-                visibilitySum = visibilitySum,
                 averageVisibility = averageVisibility,
                 now = now
-            ) }
-
-        comment = Comment(
-            commentId = CommentId(generateUuidString()),
-            parentId = parent?.commentId,
-            starId = starId,
-            identifier = commentDto.id,
-            author = commentDto.author,
-            text = commentDto.body,
-            depth = commentDto.depth,
-            voteCount = commentDto.score,
-            replyCount = commentDto.replies.size,
-            visibility = visibility,
-            visibilityRatio = visibilityRatio,
-            permalink = "https://www.reddit.com${commentDto.permalink}",
-            createdAt = Instant.fromEpochSecondsDouble(commentDto.createdUtc),
-            updatedAt = now,
-            accessedAt = now
-        )
-        dao.insert(comment)
-        return comment
+            )
+        }
     }
 }

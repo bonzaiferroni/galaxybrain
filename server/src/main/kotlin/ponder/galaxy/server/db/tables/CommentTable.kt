@@ -55,17 +55,17 @@ internal fun UpdateBuilder<*>.writeFull(comment: Comment) {
     this[CommentTable.identifier] = comment.identifier
     this[CommentTable.createdAt] = comment.createdAt.toLocalDateTimeUtc()
     this[CommentTable.accessedAt] = comment.accessedAt.toLocalDateTimeUtc()
+    this[CommentTable.author] = comment.author
+    this[CommentTable.depth] = comment.depth
+    this[CommentTable.permalink] = comment.permalink
     writeUpdate(comment)
 }
 
 internal fun UpdateBuilder<*>.writeUpdate(comment: Comment) {
-    this[CommentTable.author] = comment.author
     this[CommentTable.text] = comment.text
-    this[CommentTable.depth] = comment.depth
     this[CommentTable.visibility] = comment.visibility
     this[CommentTable.visibilityRatio] = comment.visibilityRatio
     this[CommentTable.voteCount] = comment.voteCount
     this[CommentTable.replyCount] = comment.replyCount
-    this[CommentTable.permalink] = comment.permalink
     this[CommentTable.updatedAt] = comment.updatedAt.toLocalDateTimeUtc()
 }

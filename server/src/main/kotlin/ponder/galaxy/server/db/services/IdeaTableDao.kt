@@ -21,6 +21,7 @@ import ponder.galaxy.server.db.tables.writeFull
 import ponder.galaxy.server.db.tables.writeUpdate
 import klutch.utils.eq
 import org.jetbrains.exposed.sql.and
+import ponder.galaxy.model.data.CommentId
 
 class IdeaTableDao: DbService() {
 
@@ -54,5 +55,9 @@ class IdeaTableDao: DbService() {
 
     suspend fun readIdeas(starId: StarId, description: String) = dbQuery {
         IdeaTable.read { it.starId.eq(starId) and it.description.eq(description) }.map { it.toIdea() }
+    }
+
+    suspend fun readIdeas(commentId: CommentId) = dbQuery {
+        IdeaTable.read { it.commentId.eq(commentId) }.map { it.toIdea() }
     }
 }

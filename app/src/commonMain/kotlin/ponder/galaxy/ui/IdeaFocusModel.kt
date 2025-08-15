@@ -35,8 +35,8 @@ class IdeaFocusModel(
     init {
         val startOfDay = Clock.startOfDay()
         viewModelScope.launch(Dispatchers.IO) {
-            val galaxies = galaxySource.readAll()
-            val ideas = ideaClient.readIdeas(Clock.startOfDay())
+            val galaxies = galaxySource.readAll() ?: error("galaxies not found")
+            val ideas = ideaClient.readIdeas(Clock.startOfDay()) ?: error("ideas not found")
             for (idea in ideas) {
                 val starId = idea.starId ?: continue
                 generatedSpeech[starId] = idea.createdAt
