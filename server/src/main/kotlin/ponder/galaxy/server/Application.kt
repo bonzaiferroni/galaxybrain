@@ -3,6 +3,7 @@ package ponder.galaxy.server
 import io.ktor.server.application.*
 import klutch.db.generateMigrationScript
 import klutch.environment.readEnvFromPath
+import klutch.html.HtmlClient
 import klutch.server.configureSecurity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,6 +22,7 @@ import ponder.galaxy.server.plugins.configureLogging
 import ponder.galaxy.server.plugins.configureSerialization
 import ponder.galaxy.server.plugins.configureWebSockets
 import ponder.galaxy.server.plugins.dbTables
+import java.io.File
 
 fun main(args: Array<String>) {
     if ("migrate" in args) generateMigrationScript(readEnvFromPath(), dbTables)
@@ -46,18 +48,14 @@ fun Application.module() {
     configureWebSockets(redditMonitor, redditClient)
     configureLogging()
 
-    redditMonitor.start()
+     redditMonitor.start()
 
     CoroutineScope(Dispatchers.IO).launch {
-        // val comments = redditClient.getComments("Futurology", "1mgs91o").flatten()
-        // println(comments.size)
-//        val client = GeminiClient(
-//            token = env.read("GEMINI_KEY_RATE_LIMIT_A"),
-//            backupToken = env.read("GEMINI_KEY_RATE_LIMIT_B"),
-//            logMessage = log::message,
-//        )
-//        val responseText = client.generateSpeech("testing 123", null, null) ?: error("arr matey")
-//        File("gemini_speech_response.json").writeText(responseText)
+        val htmlClient = HtmlClient()
+//        val content = htmlClient.readUrl("https://colton.dev/blog/curing-your-ai-10x-engineer-imposter-syndrome/") ?: return@launch
+//        File("content/colton.md").writeText(content.toMarkdown())
+//        val content = htmlClient.readUrl("https://www.theverge.com/ai-artificial-intelligence/759965/sam-altman-openai-ai-bubble-interview") ?: return@launch
+//        File("content/theverge.md").writeText(content.toMarkdown())
     }
 }
 

@@ -19,4 +19,8 @@ fun Routing.serveStars(
     get(Api.Stars, { StarId(it) }) { starId, endpoint ->
         dao.readByIdOrNull(starId)
     }
+
+//    post(Api.Stars.ByUrl) { url, endpoint ->
+//
+//    }
 }

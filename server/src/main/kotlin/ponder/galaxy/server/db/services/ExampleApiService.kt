@@ -13,11 +13,11 @@ import ponder.galaxy.model.data.NewExample
 class ExampleApiService : DbService() {
 
 //    suspend fun readExample(exampleId: Long) = dbQuery {
-//        ExampleTable.read { it.id.eq(exampleId) }.firstOrNull()?.toExample()
+//        ExampleTable.readHtml { it.id.eq(exampleId) }.firstOrNull()?.toExample()
 //    }
 //
 //    suspend fun readUserExamples(userId: Long) = dbQuery {
-//        ExampleTable.read { it.userId.eq(userId) }.map { it.toExample() }
+//        ExampleTable.readHtml { it.userId.eq(userId) }.map { it.toExample() }
 //    }
 //
 //    suspend fun createExample(userId: Long, newExample: NewExample) = dbQuery {
