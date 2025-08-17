@@ -1,5 +1,6 @@
 package ponder.galaxy.ui
 
+import androidx.compose.runtime.Stable
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -7,9 +8,11 @@ import ponder.galaxy.globalProbeService
 import ponder.galaxy.io.GalaxySource
 import ponder.galaxy.io.IdeaApiClient
 import ponder.galaxy.io.ProbeService
+import ponder.galaxy.io.SnippetApiClient
 import ponder.galaxy.io.StarLinkApiClient
 import ponder.galaxy.model.data.Galaxy
 import ponder.galaxy.model.data.Idea
+import ponder.galaxy.model.data.Snippet
 import ponder.galaxy.model.data.Star
 import ponder.galaxy.model.data.StarId
 import ponder.galaxy.model.data.StarLink
@@ -25,6 +28,7 @@ class StarProfileModel(
     private val valueSource: LocalValueSource = LocalValueSource(),
     private val ideaApiClient: IdeaApiClient = IdeaApiClient(),
     private val starLinkApiClient: StarLinkApiClient = StarLinkApiClient(),
+    private val snippetApiClient: SnippetApiClient = SnippetApiClient(),
 ): StateModel<StarProfileState>() {
 
     override val state = ModelState(StarProfileState())
@@ -37,13 +41,15 @@ class StarProfileModel(
             val galaxy = galaxySource.readGalaxyById(star.galaxyId)
             val idea = ideaApiClient.readContentIdea(starId, false)
             val outgoingLinks = starLinkApiClient.readOutgoingLinks(starId) ?: emptyList()
+            val snippets = snippetApiClient.readByStarId(starId) ?: emptyList()
             setState { it.copy(
                 star = star,
                 starLogs = starLogs,
                 riseFactor = riseFactor,
                 galaxy = galaxy,
                 contentIdea = idea,
-                outgoingLinks = outgoingLinks
+                outgoingLinks = outgoingLinks,
+                snippets = snippets,
             ) }
 
             probeService.stateFlow.collect { state ->
@@ -65,6 +71,7 @@ class StarProfileModel(
     }
 }
 
+@Stable
 data class StarProfileState(
     val star: Star? = null,
     val galaxy: Galaxy? = null,
@@ -72,5 +79,6 @@ data class StarProfileState(
     val riseFactor: Int = 1,
     val contentIdea: Idea? = null,
     val isPlaying: Boolean = false,
-    val outgoingLinks: List<StarLink> = emptyList()
+    val outgoingLinks: List<StarLink> = emptyList(),
+    val snippets: List<Snippet> = emptyList(),
 )

@@ -5,19 +5,17 @@ import klutch.server.get
 import klutch.server.post
 import ponder.galaxy.model.Api
 import ponder.galaxy.model.data.StarId
-import ponder.galaxy.server.db.services.StarLinkTableDao
-import ponder.galaxy.server.db.services.StarTableDao
+import ponder.galaxy.server.db.services.StarTableService
 
 fun Routing.serveStars(
-    dao: StarTableDao = StarTableDao(),
-
+    service: StarTableService = StarTableService(),
 ) {
     post(Api.Stars.Multi) { starIds, endpoint ->
-        dao.readByIds(starIds)
+        service.dao.readByIds(starIds)
     }
 
     get(Api.Stars, { StarId(it) }) { starId, endpoint ->
-        dao.readByIdOrNull(starId)
+        service.dao.readByIdOrNull(starId)
     }
 
 //    post(Api.Stars.ByUrl) { url, endpoint ->

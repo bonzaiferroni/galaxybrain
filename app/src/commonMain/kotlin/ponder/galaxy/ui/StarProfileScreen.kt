@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -44,6 +45,7 @@ import pondui.ui.controls.DrawerScaffold
 import pondui.ui.controls.FlowRow
 import pondui.ui.controls.H3
 import pondui.ui.controls.LabeledValue
+import pondui.ui.controls.LazyColumn
 import pondui.ui.controls.ProgressBar
 import pondui.ui.controls.Row
 import pondui.ui.controls.Section
@@ -136,9 +138,12 @@ fun StarProfileScreen(
                         )
                     }
                     H3(star.displayTitle)
-//                    star.textContent?.let {
-//                        Text(it)
-//                    }
+                    Column(1) {
+                        state.snippets.forEach { snippet ->
+                            val links = state.outgoingLinks.filter { it.snippetId == snippet.snippetId }
+                            SnippetText(snippet.text, links) { println("ey") }
+                        }
+                    }
                 }
             }
             Tab("Links", modifier = Modifier.scaffoldPadding(padding)) {

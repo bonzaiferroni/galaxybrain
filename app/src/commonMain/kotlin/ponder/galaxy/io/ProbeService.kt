@@ -16,7 +16,7 @@ import pondui.ui.core.ModelState
 
 class ProbeService(
     private val probeSocket: ProbeSocket = ProbeSocket(),
-    private val starSource: StarSource = StarSource(),
+    private val starApiClient: StarApiClient = StarApiClient(),
     private val apiClient: NeoApiClient = globalNeoApiClient,
     private val valueSource: LocalValueSource = LocalValueSource(),
 ) {
@@ -45,9 +45,9 @@ class ProbeService(
                 val starLogs = galaxyProbe.starLogs
                 val missingStarIds =
                     starLogs.filter { starLog -> !allStars.containsKey(starLog.starId) }.map { it.starId }
-                starSource.readStars(missingStarIds)?.forEach { allStars[it.starId] = it }
+                starApiClient.readStars(missingStarIds)?.forEach { allStars[it.starId] = it }
 
-                starSource.readStarLogs(missingStarIds)?.let { allStarLogs.putAll(it) }
+                starApiClient.readStarLogs(missingStarIds)?.let { allStarLogs.putAll(it) }
 
 
                 for (starLog in starLogs) {

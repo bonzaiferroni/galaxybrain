@@ -29,5 +29,6 @@ fun Application.configureApiRoutes() {
         serveIdeas()
         serveStarLinks()
         serveGemini(Api.Gemini)
+        serveSnippets()
     }
 }

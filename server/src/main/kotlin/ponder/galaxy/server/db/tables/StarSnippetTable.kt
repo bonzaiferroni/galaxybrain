@@ -14,12 +14,14 @@ import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import ponder.galaxy.model.data.CommentId
+import ponder.galaxy.model.data.SnippetId
 import ponder.galaxy.model.data.StarId
 import ponder.galaxy.model.data.StarSnippet
 import ponder.galaxy.model.data.StarSnippetId
 
 internal object StarSnippetTable : UUIDTable("star_snippet") {
     val starId = reference("star_id", StarTable, onDelete = ReferenceOption.CASCADE)
+    val snippetId = reference("snippet_id", SnippetTable, onDelete = ReferenceOption.CASCADE)
     val commentId = reference("comment_id", CommentTable, onDelete = ReferenceOption.SET_NULL).nullable()
     val index = integer("text_index")
     val createdAt = datetime("created_at")
@@ -27,6 +29,7 @@ internal object StarSnippetTable : UUIDTable("star_snippet") {
 
 internal fun ResultRow.toStarSnippet() = StarSnippet(
     starSnippetId = StarSnippetId(this[StarSnippetTable.id].value.toUuid()),
+    snippetId = SnippetId(this[StarSnippetTable.snippetId].value.toUuid()),
     starId = StarId(this[StarSnippetTable.starId].value.toStringId()),
     commentId = this[StarSnippetTable.commentId]?.value?.toStringId()?.let(::CommentId),
     index = this[StarSnippetTable.index],
@@ -35,6 +38,7 @@ internal fun ResultRow.toStarSnippet() = StarSnippet(
 
 internal fun UpdateBuilder<*>.writeFull(starSnippet: StarSnippet) {
     this[StarSnippetTable.id] = starSnippet.starSnippetId.value.toUUID()
+    this[StarSnippetTable.snippetId] = starSnippet.snippetId.value.toUUID()
     this[StarSnippetTable.starId] = starSnippet.starId.toUUID()
     this[StarSnippetTable.commentId] = starSnippet.commentId?.toUUID()
     this[StarSnippetTable.createdAt] = starSnippet.createdAt.toLocalDateTimeUtc()

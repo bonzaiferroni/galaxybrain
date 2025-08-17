@@ -13,6 +13,7 @@ import ponder.galaxy.model.data.Galaxy
 import ponder.galaxy.model.data.GalaxyId
 import ponder.galaxy.model.data.Idea
 import ponder.galaxy.model.data.NewExample
+import ponder.galaxy.model.data.Snippet
 import ponder.galaxy.model.data.Star
 import ponder.galaxy.model.data.StarId
 import ponder.galaxy.model.data.StarLink
@@ -65,5 +66,9 @@ object Api: ApiNode(ApiNode(null, "api"), "v1") {
         object Comment : GetByTableIdEndpoint<CommentId, Idea?>(this, "comment") {
             val create = addBooleanParam("create")
         }
+    }
+
+    object Snippets : ApiNode(this, "snippet") {
+        object Stars : GetByTableIdEndpoint<StarId, List<Snippet>>(this, "star")
     }
 }

@@ -8,7 +8,7 @@ import kabinet.utils.generateUuidString
 import ponder.galaxy.model.data.Star
 import ponder.galaxy.model.data.StarId
 
-class StarService(
+class StarTableService(
     val dao: StarTableDao = StarTableDao(),
     private val galaxyService: GalaxyService = GalaxyService(),
     private val hostService: HostTableService = HostTableService(),
@@ -49,7 +49,7 @@ class StarService(
         )
 
         if (document != null && document.contents.isNotEmpty()) {
-            snippetService.createFromStarDocument(star.starId, document)
+            snippetService.createOrUpdateFromStarDocument(star.starId, document)
         }
         
         star.starId

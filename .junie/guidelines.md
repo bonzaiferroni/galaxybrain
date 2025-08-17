@@ -56,6 +56,10 @@ CreateTableDao(Foo): Create a class FooTableDao in the package `ponder.galaxy.se
 
 CreateTableService(Foo): Create `class FooTableService(val dao: FooTableDao = FooTableDao()): DbService { }` in the package `ponder.galaxy.server.db.services` that extends DbService and takes a FooTableDao as an argument. Create the content of this file only. Do not add any functions to the body of the class unless specifically asked.
 
+CreateServeFunction(Foo): Create the function `Routing.serveFoos(service: FooTableService = FooTableService()) { }` in the package `ponder.galaxy.server.routes` that provides endpoints, most typically found at `Api.Foo`. You may use serveStars() as an example. Create the content of this file only.
+
+CreateApiClient(Foo): Create the class `FooApiClient` that consumes an API endpoint, most typically found at Api.Foo. You may use StarApiClient as an example. Create the content of this file only.
+
 ## Junie's notes to self
 
 This is where you can create notes to yourself, information that you know you'll need later on.

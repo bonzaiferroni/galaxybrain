@@ -6,8 +6,7 @@ import kabinet.web.Url
 import kabinet.web.fromHref
 import kabinet.web.fromHrefOrNull
 import klutch.utils.toStringId
-import klutch.web.WebContent
-import klutch.web.WebDocument
+import klutch.web.TextReader
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -51,6 +50,7 @@ class RedditMonitor(
     private val galaxyDao: GalaxyTableDao = GalaxyTableDao(),
     private val hostService: HostTableService = HostTableService(),
     private val snippetService: SnippetTableService = SnippetTableService(),
+    private val textReader: TextReader = TextReader()
 ) {
 
     private var job: Job? = null
@@ -125,8 +125,13 @@ class RedditMonitor(
                             val starUrl =
                                 Url.fromHrefOrNull("https://www.reddit.com${article.permalink}") ?: return@forEach
 
-                            val wordCount = article.selftext.takeIf {it.isNotEmpty()}
-                                ?.split(" ")?.filter { it.isNotBlank() }?.size
+                            val document = article.selftext.takeIf { it.isNotEmpty() }?.let {
+                                textReader.read(
+                                    title = article.title,
+                                    url = starUrl,
+                                    text = it
+                                )
+                            }
 
                             val starId = starDao.updateByUrlOrInsert(article.url, galaxy.galaxyId) {
                                 Star(
@@ -140,7 +145,7 @@ class RedditMonitor(
                                     imageUrl = imageUrl,
                                     visibility = visibility,
                                     voteCount = article.ups,
-                                    wordCount = wordCount,
+                                    wordCount = document?.wordCount,
                                     commentCount = article.numComments,
                                     updatedAt = now,
                                     createdAt = createdAt,
@@ -159,21 +164,17 @@ class RedditMonitor(
                                             starLinkId = StarLinkId.generate(),
                                             fromStarId = starId,
                                             toStarId = toStar?.starId,
+                                            snippetId = null,
                                             url = url,
+                                            text = null,
+                                            startIndex = null,
                                             createdAt = now,
                                         )
                                     )
                                 }
 
-                            article.selftext.takeIf { it.isNotEmpty() }?.let { selfText ->
-                                val document = WebDocument(
-                                    title = article.title,
-                                    url = starUrl,
-                                    wordCount = wordCount ?: 0,
-                                    contents = selfText.split("\n").filter { it.isNotEmpty() }
-                                        .map { WebContent(it, emptyList()) }
-                                )
-                                snippetService.createFromStarDocument(starId, document)
+                            document?.let {
+                                snippetService.createOrUpdateFromStarDocument(starId, document)
                             }
 
                             val starLogId = starLogDao.insert(

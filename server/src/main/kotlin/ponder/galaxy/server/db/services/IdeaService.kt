@@ -1,7 +1,5 @@
 package ponder.galaxy.server.db.services
 
-import kabinet.model.ImageGenRequest
-import kabinet.model.ImageUrls
 import kabinet.model.SpeechGenRequest
 import kabinet.model.SpeechVoice
 import kabinet.utils.generateUuidString
@@ -50,7 +48,7 @@ class IdeaService(
 
     suspend fun createFromContent(starId: StarId): Idea? {
         val star = starDao.readByIdOrNull(starId) ?: error("star not found: $starId")
-        val textContent = snippetService.dao.readTextByStarId(starId).joinToString("\n")
+        val textContent = snippetService.dao.readByStarId(starId).joinToString("\n") { it.text }
         val galaxy = galaxyDao.readById(star.galaxyId)
         val voice = SpeechVoice.entries[galaxy.intrinsicIndex % SpeechVoice.entries.size]
         val audioUrl = geminiService.generateSpeech(SpeechGenRequest(

@@ -19,21 +19,22 @@ class SnippetTableService(
     val dao: SnippetTableDao = SnippetTableDao(),
     private val starSnippetDao: StarSnippetTableDao = StarSnippetTableDao(),
     private val starLinkDao: StarLinkTableDao = StarLinkTableDao(),
-    private val starDao: StarTableDao = StarTableDao()
+    private val starDao: StarTableDao = StarTableDao(),
+    private val snippetDao: SnippetTableDao = SnippetTableDao()
 ) : DbService() {
 
-    suspend fun createFromStarDocument(starId: StarId, document: WebDocument) = dbQuery {
+    suspend fun createOrUpdateFromStarDocument(starId: StarId, document: WebDocument) = dbQuery {
+        val starSnippets = snippetDao.readByStarId(starId)
+        if (starSnippets.isNotEmpty()) return@dbQuery // todo: update snippets
+
         val now = Clock.System.now()
         document.contents.forEachIndexed { index, content ->
-            val snippetId = SnippetId(Uuid.random())
-            dao.insert(Snippet(
-                snippetId = snippetId,
-                text = content.text
-            ))
+            val snippet = readOrCreateByText(content.text)
 
             val starSnippetId = StarSnippetId(Uuid.random())
             starSnippetDao.insert(StarSnippet(
                 starSnippetId = starSnippetId,
+                snippetId = snippet.snippetId,
                 starId = starId,
                 commentId = null,
                 index = index,
@@ -47,10 +48,26 @@ class SnippetTableService(
                     starLinkId = starLinkId,
                     fromStarId = starId,
                     toStarId = toStar?.starId,
+                    snippetId = snippet.snippetId,
                     url = link.url,
+                    text = link.text,
+                    startIndex = link.startIndex,
                     createdAt = now
                 ))
             }
         }
+    }
+
+    suspend fun readOrCreateByText(text: String) = dbQuery {
+        var snippet = dao.readByText(text)
+        if (snippet != null) return@dbQuery snippet
+
+        val snippetId = SnippetId(Uuid.random())
+        snippet = Snippet(
+            snippetId = snippetId,
+            text = text
+        )
+        dao.insert(snippet)
+        snippet
     }
 }

@@ -15,7 +15,10 @@ data class StarLink(
     val starLinkId: StarLinkId,
     val fromStarId: StarId?,
     val toStarId: StarId?,
+    val snippetId: SnippetId?,
     val url: Url,
+    val text: String?,
+    val startIndex: Int?,
     val createdAt: Instant,
 )
 

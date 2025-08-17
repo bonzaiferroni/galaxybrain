@@ -12,6 +12,7 @@ import kotlin.uuid.Uuid
 @Serializable
 data class StarSnippet(
     val starSnippetId: StarSnippetId,
+    val snippetId: SnippetId,
     val starId: StarId,
     val commentId: CommentId?,
     val index: Int,
