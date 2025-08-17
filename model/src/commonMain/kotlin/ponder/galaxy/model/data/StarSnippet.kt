@@ -3,7 +3,6 @@
 package ponder.galaxy.model.data
 
 import kabinet.db.TableId
-import kabinet.web.Url
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmInline
@@ -11,15 +10,13 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @Serializable
-data class StarLink(
-    val starLinkId: StarLinkId,
-    val fromStarId: StarId?,
-    val toStarId: StarId?,
-    val url: Url,
+data class StarSnippet(
+    val starSnippetId: StarSnippetId,
+    val starId: StarId,
+    val commentId: CommentId?,
+    val index: Int,
     val createdAt: Instant,
 )
 
 @JvmInline @Serializable
-value class StarLinkId(override val value: Uuid): TableId<Uuid>
-
-fun StarLinkId.Companion.generate() = StarLinkId(Uuid.random())
+value class StarSnippetId(override val value: Uuid): TableId<Uuid>

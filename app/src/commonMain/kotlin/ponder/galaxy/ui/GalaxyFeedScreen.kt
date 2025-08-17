@@ -39,6 +39,7 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import ponder.galaxy.StarProfileRoute
 import ponder.galaxy.model.data.Galaxy
+import pondui.ui.behavior.ifNotNull
 import pondui.ui.charts.AxisSide
 import pondui.ui.charts.BottomAxisAutoConfig
 import pondui.ui.charts.ChartBox
@@ -194,8 +195,10 @@ fun GalaxyFeedScreen(
                         Column(1, modifier = Modifier.weight(1f)) {
                             Box(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = star.title,
-                                    modifier = Modifier.actionable { uriHandler.openUri(star.link) }
+                                    text = star.displayTitle,
+                                    modifier = Modifier.ifNotNull(star.link) {
+                                        actionable { uriHandler.openUri(it) }
+                                    }
                                 )
                             }
                             Row(
@@ -213,8 +216,8 @@ fun GalaxyFeedScreen(
                                     starLog.getRise(star.createdAt, state.riseFactor).toMetricString()
                                 )
                             }
-                            star.textContent?.let {
-                                LabeledValue("content", it.length.toFloat().toMetricString())
+                            star.wordCount?.let {
+                                LabeledValue("words", it.toFloat().toMetricString())
                             }
                             Row(
                                 horizontalArrangement = Arrangement.SpaceBetween,

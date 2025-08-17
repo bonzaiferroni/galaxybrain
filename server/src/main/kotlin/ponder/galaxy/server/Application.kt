@@ -3,7 +3,7 @@ package ponder.galaxy.server
 import io.ktor.server.application.*
 import klutch.db.generateMigrationScript
 import klutch.environment.readEnvFromPath
-import klutch.html.HtmlClient
+import klutch.web.HtmlClient
 import klutch.server.configureSecurity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,7 +22,6 @@ import ponder.galaxy.server.plugins.configureLogging
 import ponder.galaxy.server.plugins.configureSerialization
 import ponder.galaxy.server.plugins.configureWebSockets
 import ponder.galaxy.server.plugins.dbTables
-import java.io.File
 
 fun main(args: Array<String>) {
     if ("migrate" in args) generateMigrationScript(readEnvFromPath(), dbTables)

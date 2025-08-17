@@ -11,6 +11,9 @@ import ponder.galaxy.server.db.tables.IdeaTable
 import ponder.galaxy.server.db.tables.StarLinkTable
 import ponder.galaxy.server.db.tables.StarLogTable
 import ponder.galaxy.server.db.tables.StarTable
+import ponder.galaxy.server.db.tables.StarSnippetTable
+import ponder.galaxy.server.db.tables.HostTable
+import ponder.galaxy.server.db.tables.SnippetTable
 
 fun Application.configureDatabases() {
     initDb(env, dbTables)
@@ -27,6 +30,9 @@ val dbTables = listOf(
     IdeaTable,
     CommentTable,
     StarLinkTable,
+    SnippetTable,
+    StarSnippetTable,
+    HostTable,
 )
 
 //CREATE DATABASE example_db;

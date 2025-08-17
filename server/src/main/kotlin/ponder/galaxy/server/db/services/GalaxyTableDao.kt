@@ -1,6 +1,8 @@
+@file:OptIn(kotlin.uuid.ExperimentalUuidApi::class)
 package ponder.galaxy.server.db.services
 
 import klutch.db.DbService
+import klutch.db.read
 import klutch.db.readById
 import klutch.db.readSingleOrNull
 import klutch.db.updateSingleWhere
@@ -14,10 +16,12 @@ import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.selectAll
 import ponder.galaxy.model.data.Galaxy
 import ponder.galaxy.model.data.GalaxyId
+import ponder.galaxy.model.data.HostId
 import ponder.galaxy.server.db.tables.GalaxyTable
 import ponder.galaxy.server.db.tables.toGalaxy
 import ponder.galaxy.server.db.tables.writeFull
 import ponder.galaxy.server.db.tables.writeUpdate
+import org.jetbrains.exposed.sql.and
 
 class GalaxyTableDao : DbService() {
 
@@ -56,5 +60,9 @@ class GalaxyTableDao : DbService() {
 
     suspend fun readById(galaxyId: GalaxyId) = dbQuery {
         GalaxyTable.readById(galaxyId.toUUID()).toGalaxy()
+    }
+
+    suspend fun readByHostId(hostId: HostId) = dbQuery {
+        GalaxyTable.read { it.hostId.eq(hostId) }.map { it.toGalaxy() }
     }
 }

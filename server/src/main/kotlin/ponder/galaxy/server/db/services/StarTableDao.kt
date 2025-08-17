@@ -1,5 +1,6 @@
 package ponder.galaxy.server.db.services
 
+import kabinet.web.Url
 import klutch.db.DbService
 import klutch.db.batchUpdate
 import klutch.db.read
@@ -65,7 +66,7 @@ class StarTableDao: DbService() {
         StarTable.read { it.id.inList(starIds.map { starId -> starId.toUUID()}) }.map { it.toStar() }
     }
 
-    suspend fun readByUrl(url: String) = dbQuery {
-        StarTable.readSingleOrNull { it.url.eq(url) }?.toStar()
+    suspend fun readByUrl(url: Url) = dbQuery {
+        StarTable.readSingleOrNull { it.url.eq(url.href) }?.toStar()
     }
 }

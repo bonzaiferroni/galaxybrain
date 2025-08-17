@@ -2,7 +2,12 @@ package ponder.galaxy.server.io
 
 import kabinet.utils.generateUuidString
 import kabinet.utils.lerp
+import kabinet.web.Url
+import kabinet.web.fromHref
+import kabinet.web.fromHrefOrNull
 import klutch.utils.toStringId
+import klutch.web.WebContent
+import klutch.web.WebDocument
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -24,11 +29,14 @@ import ponder.galaxy.model.data.StarLink
 import ponder.galaxy.model.data.StarLinkId
 import ponder.galaxy.model.data.StarLog
 import ponder.galaxy.model.data.StarLogId
+import ponder.galaxy.model.data.generate
 import ponder.galaxy.model.reddit.ListingType
 import ponder.galaxy.model.reddit.REDDIT_URL_BASE
 import ponder.galaxy.model.reddit.RedditClient
 import ponder.galaxy.model.reddit.RedditArticleDto
 import ponder.galaxy.server.db.services.GalaxyTableDao
+import ponder.galaxy.server.db.services.HostTableService
+import ponder.galaxy.server.db.services.SnippetTableService
 import ponder.galaxy.server.db.services.StarLinkTableDao
 import ponder.galaxy.server.db.services.StarLogTableDao
 import ponder.galaxy.server.db.services.StarTableDao
@@ -40,7 +48,9 @@ class RedditMonitor(
     private val starDao: StarTableDao = StarTableDao(),
     private val starLogDao: StarLogTableDao = StarLogTableDao(),
     private val starLinkDao: StarLinkTableDao = StarLinkTableDao(),
-    private val galaxyDao: GalaxyTableDao = GalaxyTableDao()
+    private val galaxyDao: GalaxyTableDao = GalaxyTableDao(),
+    private val hostService: HostTableService = HostTableService(),
+    private val snippetService: SnippetTableService = SnippetTableService(),
 ) {
 
     private var job: Job? = null
@@ -57,26 +67,32 @@ class RedditMonitor(
     suspend fun getFlows(): List<StateFlow<GalaxyProbe>> = lock.withLock { _galaxyProbeFlows.values.toList() }
     private suspend fun initializeFlow(galaxyId: GalaxyId, flow: MutableStateFlow<GalaxyProbe>) =
         lock.withLock { _galaxyProbeFlows[galaxyId] = flow }
+
     private suspend fun setFlowState(galaxyId: GalaxyId, probe: GalaxyProbe) =
         lock.withLock { _galaxyProbeFlows[galaxyId]?.value = probe }
 
     fun start() {
         job = CoroutineScope(Dispatchers.IO).launch {
 
+            val redditUrl = Url.fromHref("https://reddit.com")
+            val host = hostService.dao.readByUrl(redditUrl) ?: hostService.createByUrl(redditUrl)
+
             subredditNames.forEach { subredditName ->
                 launch {
                     val galaxy = galaxyDao.readByNameOrInsert(subredditName) {
                         Galaxy(
                             galaxyId = GalaxyId(generateUuidString()),
+                            hostId = host.hostId,
                             name = subredditName,
                             url = "$REDDIT_URL_BASE/r/$subredditName",
-                            visibility = 0f
+                            visibility = 0f,
+                            createdAt = Clock.System.now(),
                         )
                     }
                     // val starLogs = galaxyDao.readLatestStarLogs(galaxy.galaxyId)
                     initializeFlow(galaxy.galaxyId, MutableStateFlow(GalaxyProbe(galaxy.galaxyId, emptyList())))
 
-                    while(isActive) {
+                    while (isActive) {
                         val now = Clock.System.now()
                         val starLogs = mutableListOf<StarLog>()
 
@@ -92,18 +108,25 @@ class RedditMonitor(
                         val prevVisibility = galaxy.visibility.takeIf { it > 0 } ?: currentVisibility
                         val galaxyVisibility = lerp(prevVisibility, currentVisibility, .1f)
 
-                        galaxyDao.update(galaxy.copy(
-                            visibility = galaxyVisibility
-                        ))
+                        galaxyDao.update(
+                            galaxy.copy(
+                                visibility = galaxyVisibility
+                            )
+                        )
 
                         articles.forEach { article ->
 
                             val visibility = article.deriveVisibility()
-                            val visibilityRatio = galaxyVisibility.takeIf{ it > 0 }?.let { visibility / it } ?: 0f
+                            val visibilityRatio = galaxyVisibility.takeIf { it > 0 }?.let { visibility / it } ?: 0f
                             val createdAt = Instant.fromEpochSeconds(article.createdUtc.toLong())
 
                             val thumbUrl = article.preview?.images?.minBy { it.source.width }?.source?.url
                             val imageUrl = article.preview?.images?.maxBy { it.source.width }?.source?.url
+                            val starUrl =
+                                Url.fromHrefOrNull("https://www.reddit.com${article.permalink}") ?: return@forEach
+
+                            val wordCount = article.selftext.takeIf {it.isNotEmpty()}
+                                ?.split(" ")?.filter { it.isNotBlank() }?.size
 
                             val starId = starDao.updateByUrlOrInsert(article.url, galaxy.galaxyId) {
                                 Star(
@@ -111,13 +134,13 @@ class RedditMonitor(
                                     galaxyId = galaxy.galaxyId,
                                     identifier = article.id,
                                     title = article.title,
-                                    textContent = article.selftext.takeIf { it.isNotEmpty() },
                                     link = article.url,
-                                    url = "https://www.reddit.com${article.permalink}",
+                                    url = starUrl.href,
                                     thumbUrl = thumbUrl,
                                     imageUrl = imageUrl,
                                     visibility = visibility,
                                     voteCount = article.ups,
+                                    wordCount = wordCount,
                                     commentCount = article.numComments,
                                     updatedAt = now,
                                     createdAt = createdAt,
@@ -125,28 +148,45 @@ class RedditMonitor(
                                 )
                             }.let { StarId(it.toStringId()) }
 
-                            article.url.takeIf { it.isNotEmpty() && !it.contains("reddit.com") && !it.contains("redd.it") }?.let { url ->
-                                val starLink = starLinkDao.readByUrl(url)
-                                if (starLink != null) return@let
-                                val toStar = starDao.readByUrl(url)
-                                starLinkDao.insert(StarLink(
-                                    starLinkId = StarLinkId(generateUuidString()),
-                                    fromStarId = starId,
-                                    toStarId = toStar?.starId,
-                                    url = url,
-                                    createdAt = now,
-                                ))
+                            article.url.takeIf { it.isNotEmpty() && !it.contains("reddit.com") && !it.contains("redd.it") }
+                                ?.let { href ->
+                                    val url = Url.fromHrefOrNull(href) ?: return@let
+                                    val starLink = starLinkDao.readByUrl(url)
+                                    if (starLink != null) return@let
+                                    val toStar = starDao.readByUrl(url)
+                                    starLinkDao.insert(
+                                        StarLink(
+                                            starLinkId = StarLinkId.generate(),
+                                            fromStarId = starId,
+                                            toStarId = toStar?.starId,
+                                            url = url,
+                                            createdAt = now,
+                                        )
+                                    )
+                                }
+
+                            article.selftext.takeIf { it.isNotEmpty() }?.let { selfText ->
+                                val document = WebDocument(
+                                    title = article.title,
+                                    url = starUrl,
+                                    wordCount = wordCount ?: 0,
+                                    contents = selfText.split("\n").filter { it.isNotEmpty() }
+                                        .map { WebContent(it, emptyList()) }
+                                )
+                                snippetService.createFromStarDocument(starId, document)
                             }
 
-                            val starLogId = starLogDao.insert(StarLog(
-                                starLogId = StarLogId(0L),
-                                starId = starId,
-                                visibility = visibility,
-                                visibilityRatio = visibilityRatio,
-                                commentCount = article.numComments,
-                                voteCount = article.ups,
-                                createdAt = now,
-                            )).let { StarLogId(it) }
+                            val starLogId = starLogDao.insert(
+                                StarLog(
+                                    starLogId = StarLogId(0L),
+                                    starId = starId,
+                                    visibility = visibility,
+                                    visibilityRatio = visibilityRatio,
+                                    commentCount = article.numComments,
+                                    voteCount = article.ups,
+                                    createdAt = now,
+                                )
+                            ).let { StarLogId(it) }
                             val starLog = starLogDao.readById(starLogId)
                             starLogs.add(starLog)
                         }
@@ -154,7 +194,7 @@ class RedditMonitor(
                         setFlowState(galaxy.galaxyId, GalaxyProbe(galaxy.galaxyId, starLogs))
 
                         val delayMinutes = min(20000 / galaxyVisibility, 10f).toDouble().minutes
-                        println ("$subredditName, $delayMinutes")
+                        println("$subredditName, $delayMinutes")
                         delay(delayMinutes)
                     }
                 }

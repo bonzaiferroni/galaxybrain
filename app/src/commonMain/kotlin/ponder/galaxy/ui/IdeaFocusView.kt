@@ -50,7 +50,7 @@ fun IdeaFocusView(
                     val url = if (imageUrl.startsWith("http")) imageUrl else "$APP_API_URL/$imageUrl"
                     AsyncImage(model = url, contentDescription = null, modifier = Modifier.weight(1f, fill = false))
                 }
-                Text(star.title, modifier = Modifier.actionable { uriHandle.openUri(star.url) } )
+                Text(star.displayTitle, modifier = Modifier.actionable { uriHandle.openUri(star.url) } )
                 Row(1) {
                     Text(galaxy.name, color = Pond.colors.getSwatchFromIndex(galaxy.intrinsicIndex))
                     val now = Clock.System.now()

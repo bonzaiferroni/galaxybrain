@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS snippet (id uuid PRIMARY KEY, "text" TEXT NOT NULL);

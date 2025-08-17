@@ -1,7 +1,11 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package ponder.galaxy.server.db.services
 
+import kabinet.web.Url
 import klutch.db.DbService
 import klutch.db.batchUpdate
+import klutch.db.eq
 import klutch.db.read
 import klutch.db.readByIdOrNull
 import klutch.db.readSingleOrNull
@@ -20,6 +24,7 @@ import ponder.galaxy.server.db.tables.toStar
 import ponder.galaxy.server.db.tables.toStarLink
 import ponder.galaxy.server.db.tables.writeFull
 import ponder.galaxy.server.db.tables.writeUpdate
+import kotlin.uuid.ExperimentalUuidApi
 
 class StarLinkTableDao : DbService() {
 
@@ -47,7 +52,7 @@ class StarLinkTableDao : DbService() {
         StarLinkTable.read { it.id.inList(starLinkIds.map { id -> id.toUUID() }) }.map { it.toStarLink() }
     }
 
-    suspend fun readByUrl(url: String) = dbQuery {
+    suspend fun readByUrl(url: Url) = dbQuery {
         StarLinkTable.readSingleOrNull { it.url.eq(url) }?.toStarLink()
     }
 

@@ -18,7 +18,8 @@ class IdeaService(
     private val starDao: StarTableDao = StarTableDao(),
     private val galaxyDao: GalaxyTableDao = GalaxyTableDao(),
     private val commentDao: CommentTableDao = CommentTableDao(),
-    private val geminiService: GeminiService = GeminiService()
+    private val geminiService: GeminiService = GeminiService(),
+    private val snippetService: SnippetTableService = SnippetTableService(),
 ) {
     suspend fun createFromHeadline(starId: StarId): Idea {
         val star = starDao.readByIdOrNull(starId) ?: error("star not found: $starId")
@@ -49,7 +50,7 @@ class IdeaService(
 
     suspend fun createFromContent(starId: StarId): Idea? {
         val star = starDao.readByIdOrNull(starId) ?: error("star not found: $starId")
-        val textContent = star.textContent ?: return null
+        val textContent = snippetService.dao.readTextByStarId(starId).joinToString("\n")
         val galaxy = galaxyDao.readById(star.galaxyId)
         val voice = SpeechVoice.entries[galaxy.intrinsicIndex % SpeechVoice.entries.size]
         val audioUrl = geminiService.generateSpeech(SpeechGenRequest(

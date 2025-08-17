@@ -81,7 +81,7 @@ fun StarProfileScreen(
 
     DrawerScaffold(
         drawerContent = {
-            H3(star.title, maxLines = 2, modifier = Modifier.actionable { uriHandler.openUri(star.url) })
+            H3(star.displayTitle, maxLines = 2, modifier = Modifier.actionable { uriHandler.openUri(star.url) })
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
@@ -135,15 +135,15 @@ fun StarProfileScreen(
                                 .clip(Pond.ruler.unitCorners)
                         )
                     }
-                    H3(star.title)
-                    star.textContent?.let {
-                        Text(it)
-                    }
+                    H3(star.displayTitle)
+//                    star.textContent?.let {
+//                        Text(it)
+//                    }
                 }
             }
             Tab("Links", modifier = Modifier.scaffoldPadding(padding)) {
                 for (starLink in state.outgoingLinks) {
-                    Text(starLink.url)
+                    Text(starLink.url.href)
                 }
             }
             Tab("Data", modifier = Modifier.scaffoldPadding(padding)) {
@@ -190,7 +190,7 @@ fun StarProfileScreen(
                 }
                 Section {
                     FlowRow(1, modifier = Modifier.fillMaxWidth()) {
-                        Text(text = "Visibility: ${star.visibility.toMetricString()}", color = Pond.colors.swatches[0])
+                        Text(text = "Visibility: ${star.visibility?.toMetricString()}", color = Pond.colors.swatches[0])
                         Text(text = "Comments: ${starLog.commentCount.toFloat().toMetricString()}", color = Pond.colors.swatches[1])
                         Text(text = "Rise: ${starLog.getRise(star.createdAt, state.riseFactor).toMetricString()}", color = Pond.colors.swatches[2])
                         Text(text = "Votes: ${starLog.voteCount.toFloat().toMetricString()}", color = Pond.colors.swatches[3])

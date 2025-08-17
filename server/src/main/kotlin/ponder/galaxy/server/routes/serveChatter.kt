@@ -38,7 +38,7 @@ fun Route.serveChatter(
         val star = starDao.readByIdOrNull(starId) ?: error("star not found")
 
         val subredditName = galaxy.name
-        val articleId = star.identifier
+        val articleId = star.identifier ?: error("Article id not found")
 
         println("chatter probe: $subredditName $articleId")
 
