@@ -49,7 +49,7 @@ class StarTableService(
         )
 
         if (document != null && document.contents.isNotEmpty()) {
-            snippetService.createOrUpdateFromStarDocument(star.starId, document)
+            snippetService.createOrUpdateStarSnippets(star.starId, document)
         }
         
         star.starId

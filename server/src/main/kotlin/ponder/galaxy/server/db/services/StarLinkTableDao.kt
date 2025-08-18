@@ -15,6 +15,7 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.batchUpsert
 import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.insert
 import ponder.galaxy.model.data.StarId
 import ponder.galaxy.model.data.StarLink
 import ponder.galaxy.model.data.StarLinkId
@@ -28,7 +29,11 @@ import kotlin.uuid.ExperimentalUuidApi
 
 class StarLinkTableDao : DbService() {
 
-    suspend fun insert(vararg starLinks: StarLink) = dbQuery {
+    suspend fun insert(starLink: StarLink) = dbQuery {
+        StarLinkTable.insert { it.writeFull(starLink) }
+    }
+
+    suspend fun insert(starLinks: List<StarLink>) = dbQuery {
         StarLinkTable.batchInsert(starLinks.toList()) { writeFull(it) }
     }
 

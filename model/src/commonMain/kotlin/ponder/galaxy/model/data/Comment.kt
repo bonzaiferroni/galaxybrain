@@ -13,7 +13,6 @@ data class Comment(
     val starId: StarId,
     val identifier: String,
     val author: String,
-    val text: String,
     val depth: Int?,
     val voteCount: Int,
     val replyCount: Int,
@@ -46,4 +45,5 @@ data class CommentDelta(
 data class CommentProbe(
     val newComments: List<Comment>,
     val deltas: List<CommentDelta>,
+    val snippets: Map<CommentId, List<Snippet>>
 )

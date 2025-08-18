@@ -47,7 +47,7 @@ object Api: ApiNode(ApiNode(null, "api"), "v1") {
     object Gemini : ApiNode(this, "gemini"), GeminiApi {
         object Chat : PostEndpoint<List<GeminiMessage>, String>(this, "chat")
         object Image : PostEndpoint<ImageGenRequest, ImageUrls>(this, "image")
-        object GenerateSpeech: PostEndpoint<SpeechGenRequest, String>(this, "generate-speech")
+        object GenerateSpeech: PostEndpoint<SpeechGenRequest, String>(this, "random-speech")
 
         override val chat = Chat
         override val image = Image

@@ -23,7 +23,7 @@ class SnippetTableService(
     private val snippetDao: SnippetTableDao = SnippetTableDao()
 ) : DbService() {
 
-    suspend fun createOrUpdateFromStarDocument(starId: StarId, document: WebDocument) = dbQuery {
+    suspend fun createOrUpdateStarSnippets(starId: StarId, document: WebDocument) = dbQuery {
         val starSnippets = snippetDao.readByStarId(starId)
         if (starSnippets.isNotEmpty()) return@dbQuery // todo: update snippets
 
@@ -31,24 +31,25 @@ class SnippetTableService(
         document.contents.forEachIndexed { index, content ->
             val snippet = readOrCreateByText(content.text)
 
-            val starSnippetId = StarSnippetId(Uuid.random())
+            val starSnippetId = StarSnippetId.random()
             starSnippetDao.insert(StarSnippet(
                 starSnippetId = starSnippetId,
                 snippetId = snippet.snippetId,
                 starId = starId,
                 commentId = null,
-                index = index,
+                order = index,
                 createdAt = now,
             ))
 
             content.links.forEach { link ->
-                val starLinkId = StarLinkId(Uuid.random())
+                val starLinkId = StarLinkId.random()
                 val toStar = starDao.readByUrl(link.url)
                 starLinkDao.insert(StarLink(
                     starLinkId = starLinkId,
                     fromStarId = starId,
                     toStarId = toStar?.starId,
                     snippetId = snippet.snippetId,
+                    commentId = null,
                     url = link.url,
                     text = link.text,
                     startIndex = link.startIndex,

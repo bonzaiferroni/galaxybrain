@@ -23,7 +23,7 @@ internal object StarSnippetTable : UUIDTable("star_snippet") {
     val starId = reference("star_id", StarTable, onDelete = ReferenceOption.CASCADE)
     val snippetId = reference("snippet_id", SnippetTable, onDelete = ReferenceOption.CASCADE)
     val commentId = reference("comment_id", CommentTable, onDelete = ReferenceOption.SET_NULL).nullable()
-    val index = integer("text_index")
+    val order = integer("text_index")
     val createdAt = datetime("created_at")
 }
 
@@ -32,7 +32,7 @@ internal fun ResultRow.toStarSnippet() = StarSnippet(
     snippetId = SnippetId(this[StarSnippetTable.snippetId].value.toUuid()),
     starId = StarId(this[StarSnippetTable.starId].value.toStringId()),
     commentId = this[StarSnippetTable.commentId]?.value?.toStringId()?.let(::CommentId),
-    index = this[StarSnippetTable.index],
+    order = this[StarSnippetTable.order],
     createdAt = this[StarSnippetTable.createdAt].toInstantFromUtc(),
 )
 
@@ -46,5 +46,5 @@ internal fun UpdateBuilder<*>.writeFull(starSnippet: StarSnippet) {
 }
 
 internal fun UpdateBuilder<*>.writeUpdate(starSnippet: StarSnippet) {
-    this[StarSnippetTable.index] = starSnippet.index
+    this[StarSnippetTable.order] = starSnippet.order
 }

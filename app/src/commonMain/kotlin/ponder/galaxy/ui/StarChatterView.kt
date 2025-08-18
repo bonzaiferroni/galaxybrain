@@ -76,7 +76,14 @@ fun StarChatterView(
                             Text(age.toShortDescription())
                         }
                     }
-                    Text(comment.text)
+                    val snippets = state.snippets[comment.commentId]
+                    snippets?.let {
+                        Column(1) {
+                            snippets.forEach { snippet ->
+                                Text(snippet.text)
+                            }
+                        }
+                    }
                 }
             }
         }

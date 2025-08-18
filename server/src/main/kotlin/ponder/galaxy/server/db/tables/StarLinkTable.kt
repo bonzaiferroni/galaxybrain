@@ -13,6 +13,7 @@ import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
+import ponder.galaxy.model.data.CommentId
 import ponder.galaxy.model.data.SnippetId
 import ponder.galaxy.model.data.StarId
 import ponder.galaxy.model.data.StarLink
@@ -23,6 +24,7 @@ internal object StarLinkTable : UUIDTable("star_link") {
     val fromStarId = reference("from_star_id", StarTable, onDelete = ReferenceOption.SET_NULL).nullable()
     val toStarId = reference("to_star_id", StarTable, onDelete = ReferenceOption.SET_NULL).nullable()
     val snippetId = reference("snippet_id", SnippetTable, onDelete = ReferenceOption.CASCADE).nullable()
+    val commentId = reference("comment_id", CommentTable, onDelete = ReferenceOption.SET_NULL).nullable()
     val url = text("url")
     val text = text("text").nullable()
     val startIndex = integer("start_index").nullable()
@@ -34,6 +36,7 @@ internal fun ResultRow.toStarLink() = StarLink(
     fromStarId = this[StarLinkTable.fromStarId]?.value?.toStringId()?.let(::StarId),
     toStarId = this[StarLinkTable.toStarId]?.value?.toStringId()?.let(::StarId),
     snippetId = this[StarLinkTable.snippetId]?.value?.toUuid()?.let(::SnippetId),
+    commentId = this[StarLinkTable.commentId]?.value?.toString()?.let(::CommentId),
     url = this[StarLinkTable.url].toUrl(),
     text = this[StarLinkTable.text],
     startIndex = this[StarLinkTable.startIndex],
@@ -45,6 +48,7 @@ internal fun UpdateBuilder<*>.writeFull(starLink: StarLink) {
     this[StarLinkTable.fromStarId] = starLink.fromStarId?.toUUID()
     this[StarLinkTable.toStarId] = starLink.toStarId?.toUUID()
     this[StarLinkTable.snippetId] = starLink.snippetId?.toUUID()
+    this[StarLinkTable.commentId] = starLink.commentId?.toUUID()
     this[StarLinkTable.createdAt] = starLink.createdAt.toLocalDateTimeUtc()
     writeUpdate(starLink)
 }

@@ -54,7 +54,7 @@ class SnippetTableDao : DbService() {
         StarSnippetTable.join(SnippetTable, JoinType.INNER, StarSnippetTable.snippetId, SnippetTable.id)
             .select(SnippetTable.columns)
             .where { StarSnippetTable.starId.eq(starId) }
-            .orderBy(StarSnippetTable.index)
+            .orderBy(StarSnippetTable.order)
             .map { it.toSnippet() }
     }
 

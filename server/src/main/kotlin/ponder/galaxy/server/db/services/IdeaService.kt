@@ -18,6 +18,7 @@ class IdeaService(
     private val commentDao: CommentTableDao = CommentTableDao(),
     private val geminiService: GeminiService = GeminiService(),
     private val snippetService: SnippetTableService = SnippetTableService(),
+    private val starSnippetDao: StarSnippetTableDao = StarSnippetTableDao(),
 ) {
     suspend fun createFromHeadline(starId: StarId): Idea {
         val star = starDao.readByIdOrNull(starId) ?: error("star not found: $starId")
@@ -82,7 +83,8 @@ class IdeaService(
     suspend fun createFromComment(commentId: CommentId): Idea? {
         val comment = commentDao.readByIdOrNull(commentId) ?: return null
         val star = starDao.readByIdOrNull(comment.starId) ?: return null
-        val textContent = comment.text
+        val snippets = starSnippetDao.readByCommentId(commentId)
+        val textContent = snippets.joinToString("\n")
         val voice = comment.getVoice()
         val audioUrl = geminiService.generateSpeech(SpeechGenRequest(
             text = textContent,

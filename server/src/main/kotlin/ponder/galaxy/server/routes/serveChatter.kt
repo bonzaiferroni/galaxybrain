@@ -14,6 +14,7 @@ import ponder.galaxy.model.data.CommentProbe
 import ponder.galaxy.model.data.Comment
 import ponder.galaxy.model.data.CommentId
 import ponder.galaxy.model.data.GalaxyId
+import ponder.galaxy.model.data.Snippet
 import ponder.galaxy.model.data.StarId
 import ponder.galaxy.model.reddit.ListingType
 import ponder.galaxy.model.reddit.RedditClient
@@ -58,7 +59,16 @@ fun Route.serveChatter(
 
             val comments = mutableListOf<Comment>()
             val now = Clock.System.now()
-            commentService.gatherComments(null, commentDtos, comments, starId, averageVisibility, now)
+            val snippetMap = mutableMapOf<CommentId, List<Snippet>>()
+            commentService.gatherComments(
+                parentId = null,
+                commentDtos = commentDtos,
+                comments = comments,
+                snippetMap = snippetMap,
+                starId = starId,
+                averageVisibility = averageVisibility,
+                now = now
+            )
             val newComments = mutableListOf<Comment>()
             val deltas = mutableListOf<CommentDelta>()
             for (comment in comments) {
@@ -77,7 +87,8 @@ fun Route.serveChatter(
             }
             sendChatterProbe(CommentProbe(
                 newComments = newComments,
-                deltas = deltas
+                deltas = deltas,
+                snippets = snippetMap,
             ))
             delay(1000 * 60)
         }

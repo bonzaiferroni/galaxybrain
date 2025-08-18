@@ -15,9 +15,13 @@ data class StarSnippet(
     val snippetId: SnippetId,
     val starId: StarId,
     val commentId: CommentId?,
-    val index: Int,
+    val order: Int,
     val createdAt: Instant,
 )
 
 @JvmInline @Serializable
-value class StarSnippetId(override val value: Uuid): TableId<Uuid>
+value class StarSnippetId(override val value: Uuid): TableId<Uuid> {
+    companion object {
+        fun random() = StarSnippetId(Uuid.random())
+    }
+}

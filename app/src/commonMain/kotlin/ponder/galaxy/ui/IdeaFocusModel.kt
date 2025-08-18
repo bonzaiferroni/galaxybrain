@@ -74,7 +74,7 @@ class IdeaFocusModel(
             generatedSpeech[star.starId] = now
             println("queuing speech: ${galaxy.name}")
 
-            queuedSpeech.add(star)
+            // queuedSpeech.add(star)
         }
     }
 

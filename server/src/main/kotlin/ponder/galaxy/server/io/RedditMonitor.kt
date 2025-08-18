@@ -28,7 +28,6 @@ import ponder.galaxy.model.data.StarLink
 import ponder.galaxy.model.data.StarLinkId
 import ponder.galaxy.model.data.StarLog
 import ponder.galaxy.model.data.StarLogId
-import ponder.galaxy.model.data.generate
 import ponder.galaxy.model.reddit.ListingType
 import ponder.galaxy.model.reddit.REDDIT_URL_BASE
 import ponder.galaxy.model.reddit.RedditClient
@@ -161,10 +160,11 @@ class RedditMonitor(
                                     val toStar = starDao.readByUrl(url)
                                     starLinkDao.insert(
                                         StarLink(
-                                            starLinkId = StarLinkId.generate(),
+                                            starLinkId = StarLinkId.random(),
                                             fromStarId = starId,
                                             toStarId = toStar?.starId,
                                             snippetId = null,
+                                            commentId = null,
                                             url = url,
                                             text = null,
                                             startIndex = null,
@@ -174,7 +174,7 @@ class RedditMonitor(
                                 }
 
                             document?.let {
-                                snippetService.createOrUpdateFromStarDocument(starId, document)
+                                snippetService.createOrUpdateStarSnippets(starId, document)
                             }
 
                             val starLogId = starLogDao.insert(

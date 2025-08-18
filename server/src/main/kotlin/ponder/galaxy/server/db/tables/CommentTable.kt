@@ -18,7 +18,6 @@ internal object CommentTable : UUIDTable("comment") {
     val starId = reference("star_id", StarTable, onDelete = ReferenceOption.CASCADE)
     val identifier = text("identifier")
     val author = text("author")
-    val text = text("text")
     val depth = integer("depth").nullable()
     val visibility = float("visibility")
     val visibilityRatio = float("visibility_ratio")
@@ -36,7 +35,6 @@ internal fun ResultRow.toComment() = Comment(
     starId = StarId(this[CommentTable.starId].value.toStringId()),
     identifier = this[CommentTable.identifier],
     author = this[CommentTable.author],
-    text = this[CommentTable.text],
     depth = this[CommentTable.depth],
     visibility = this[CommentTable.visibility],
     visibilityRatio = this[CommentTable.visibilityRatio],
@@ -62,7 +60,6 @@ internal fun UpdateBuilder<*>.writeFull(comment: Comment) {
 }
 
 internal fun UpdateBuilder<*>.writeUpdate(comment: Comment) {
-    this[CommentTable.text] = comment.text
     this[CommentTable.visibility] = comment.visibility
     this[CommentTable.visibilityRatio] = comment.visibilityRatio
     this[CommentTable.voteCount] = comment.voteCount

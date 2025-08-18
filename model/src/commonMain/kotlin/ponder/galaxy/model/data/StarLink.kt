@@ -16,6 +16,7 @@ data class StarLink(
     val fromStarId: StarId?,
     val toStarId: StarId?,
     val snippetId: SnippetId?,
+    val commentId: CommentId?,
     val url: Url,
     val text: String?,
     val startIndex: Int?,
@@ -23,6 +24,8 @@ data class StarLink(
 )
 
 @JvmInline @Serializable
-value class StarLinkId(override val value: Uuid): TableId<Uuid>
-
-fun StarLinkId.Companion.generate() = StarLinkId(Uuid.random())
+value class StarLinkId(override val value: Uuid): TableId<Uuid> {
+    companion object {
+        fun random() = StarLinkId(Uuid.random())
+    }
+}
