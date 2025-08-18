@@ -28,7 +28,7 @@ kotlin {
                 implementation(libs.ktor.serialization.kotlinx.json)
                 implementation(libs.ktor.client.content.negotiation)
 
-                implementation("io.ktor:ktor-client-logging:3.1.0")
+                implementation("io.ktor:ktor-client-logging:3.2.3")
             }
         }
     }
