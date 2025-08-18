@@ -72,9 +72,9 @@ class IdeaFocusModel(
             if (generatedSpeech.contains(star.starId)) continue
             val now = Clock.System.now()
             generatedSpeech[star.starId] = now
-            println("queuing speech: ${galaxy.name}")
+            println("queuing speech: ${galaxy.name} ${star.starId}")
 
-            // queuedSpeech.add(star)
+            queuedSpeech.add(star)
         }
     }
 

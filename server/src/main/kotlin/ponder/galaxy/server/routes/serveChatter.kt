@@ -1,9 +1,12 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package ponder.galaxy.server.routes
 
 import io.ktor.server.routing.Route
 import io.ktor.server.websocket.DefaultWebSocketServerSession
 import io.ktor.server.websocket.webSocket
 import io.ktor.websocket.Frame
+import kabinet.utils.toUuid
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.datetime.Clock
@@ -24,6 +27,7 @@ import ponder.galaxy.server.db.services.CommentService
 import ponder.galaxy.server.db.services.GalaxyTableDao
 import ponder.galaxy.server.db.services.StarTableDao
 import kotlin.time.Duration.Companion.minutes
+import kotlin.uuid.ExperimentalUuidApi
 
 fun Route.serveChatter(
     redditClient: RedditClient,

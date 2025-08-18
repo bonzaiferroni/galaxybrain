@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package ponder.galaxy.server.db.services
 
 import kabinet.web.Url
@@ -25,6 +27,7 @@ import ponder.galaxy.server.db.tables.StarTable
 import ponder.galaxy.server.db.tables.toStar
 import ponder.galaxy.server.db.tables.writeFull
 import ponder.galaxy.server.db.tables.writeUpdate
+import kotlin.uuid.ExperimentalUuidApi
 
 class StarTableDao: DbService() {
 

@@ -1,6 +1,9 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package ponder.galaxy.server.routes
 
 import io.ktor.server.routing.Routing
+import kabinet.utils.toUuid
 import klutch.server.get
 import klutch.server.readParamOrNull
 import ponder.galaxy.model.Api
@@ -10,6 +13,7 @@ import ponder.galaxy.server.db.services.IDEA_CONTENT_DESCRIPTION
 import ponder.galaxy.server.db.services.IDEA_HEADLINE_DESCRIPTION
 import ponder.galaxy.server.db.services.IdeaService
 import ponder.galaxy.server.db.services.IdeaTableDao
+import kotlin.uuid.ExperimentalUuidApi
 
 fun Routing.serveIdeas(
     service: IdeaService = IdeaService(),

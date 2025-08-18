@@ -32,11 +32,11 @@ internal object StarLinkTable : UUIDTable("star_link") {
 }
 
 internal fun ResultRow.toStarLink() = StarLink(
-    starLinkId = StarLinkId(this[StarLinkTable.id].value.toUuid()),
+    starLinkId = StarLinkId(this[StarLinkTable.id].value.toStringId()),
     fromStarId = this[StarLinkTable.fromStarId]?.value?.toStringId()?.let(::StarId),
     toStarId = this[StarLinkTable.toStarId]?.value?.toStringId()?.let(::StarId),
-    snippetId = this[StarLinkTable.snippetId]?.value?.toUuid()?.let(::SnippetId),
-    commentId = this[StarLinkTable.commentId]?.value?.toString()?.let(::CommentId),
+    snippetId = this[StarLinkTable.snippetId]?.value?.toStringId()?.let(::SnippetId),
+    commentId = this[StarLinkTable.commentId]?.value?.toStringId()?.let(::CommentId),
     url = this[StarLinkTable.url].toUrl(),
     text = this[StarLinkTable.text],
     startIndex = this[StarLinkTable.startIndex],

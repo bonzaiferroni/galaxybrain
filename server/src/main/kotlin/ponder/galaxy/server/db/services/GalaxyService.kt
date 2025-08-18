@@ -8,7 +8,6 @@ import klutch.utils.eq
 import kotlinx.datetime.Clock
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insertAndGetId
-import kabinet.utils.generateUuidString
 import ponder.galaxy.model.data.Galaxy
 import ponder.galaxy.model.data.GalaxyId
 import ponder.galaxy.model.data.HostId
@@ -25,7 +24,7 @@ class GalaxyService(val dao: GalaxyTableDao = GalaxyTableDao()): DbService() {
 
     suspend fun createUnchartedByHostId(hostId: HostId, url: String): Galaxy = dbQuery {
         val galaxy = Galaxy(
-            galaxyId = GalaxyId(generateUuidString()),
+            galaxyId = GalaxyId.random(),
             hostId = hostId,
             name = "Uncharted",
             url = url,

@@ -4,6 +4,7 @@ package ponder.galaxy.server.db.tables
 
 import kabinet.utils.toInstantFromUtc
 import kabinet.utils.toLocalDateTimeUtc
+import klutch.utils.toStringId
 import klutch.utils.toUUID
 import klutch.utils.toUuid
 import org.jetbrains.exposed.dao.id.UUIDTable
@@ -19,7 +20,7 @@ internal object HostTable : UUIDTable("host") {
 }
 
 internal fun ResultRow.toHost() = Host(
-    hostId = HostId(this[HostTable.id].value.toUuid()),
+    hostId = HostId(this[HostTable.id].value.toStringId()),
     core = this[HostTable.core],
     createdAt = this[HostTable.createdAt].toInstantFromUtc(),
 )

@@ -1,11 +1,10 @@
-@file:OptIn(kotlin.uuid.ExperimentalUuidApi::class)
 package ponder.galaxy.model.data
 
 import kabinet.db.TableId
+import kabinet.utils.randomUuidString
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmInline
-import kotlin.uuid.Uuid
 
 @Serializable
 data class Host(
@@ -16,5 +15,9 @@ data class Host(
 
 @JvmInline
 @Serializable
-value class HostId(override val value: Uuid) : TableId<Uuid>
+value class HostId(override val value: String) : TableId<String> {
+    companion object {
+        fun random() = HostId(randomUuidString())
+    }
+}
 

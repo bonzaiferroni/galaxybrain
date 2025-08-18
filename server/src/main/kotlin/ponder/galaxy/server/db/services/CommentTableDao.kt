@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package ponder.galaxy.server.db.services
 
 import klutch.db.DbService
@@ -20,6 +22,7 @@ import ponder.galaxy.server.db.tables.CommentTable
 import ponder.galaxy.server.db.tables.toComment
 import ponder.galaxy.server.db.tables.writeFull
 import ponder.galaxy.server.db.tables.writeUpdate
+import kotlin.uuid.ExperimentalUuidApi
 
 class CommentTableDao : DbService() {
 

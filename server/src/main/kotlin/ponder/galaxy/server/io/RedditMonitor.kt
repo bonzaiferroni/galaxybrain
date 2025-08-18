@@ -1,11 +1,13 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package ponder.galaxy.server.io
 
-import kabinet.utils.generateUuidString
 import kabinet.utils.lerp
 import kabinet.web.Url
 import kabinet.web.fromHref
 import kabinet.web.fromHrefOrNull
 import klutch.utils.toStringId
+import klutch.utils.toUuid
 import klutch.web.RedditReader
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -40,6 +42,7 @@ import ponder.galaxy.server.db.services.StarLogTableDao
 import ponder.galaxy.server.db.services.StarTableDao
 import kotlin.math.min
 import kotlin.time.Duration.Companion.minutes
+import kotlin.uuid.ExperimentalUuidApi
 
 class RedditMonitor(
     private val client: RedditClient,
@@ -80,7 +83,7 @@ class RedditMonitor(
                 launch {
                     val galaxy = galaxyDao.readByNameOrInsert(subredditName) {
                         Galaxy(
-                            galaxyId = GalaxyId(generateUuidString()),
+                            galaxyId = GalaxyId.random(),
                             hostId = host.hostId,
                             name = subredditName,
                             url = "$REDDIT_URL_BASE/r/$subredditName",
@@ -134,7 +137,7 @@ class RedditMonitor(
 
                             val starId = starDao.updateByUrlOrInsert(article.url, galaxy.galaxyId) {
                                 Star(
-                                    starId = StarId(generateUuidString()),
+                                    starId = StarId.random(),
                                     galaxyId = galaxy.galaxyId,
                                     identifier = article.id,
                                     title = article.title,

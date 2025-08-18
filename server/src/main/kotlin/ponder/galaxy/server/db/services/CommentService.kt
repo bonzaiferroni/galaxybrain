@@ -1,6 +1,5 @@
 package ponder.galaxy.server.db.services
 
-import kabinet.utils.generateUuidString
 import kabinet.utils.fromEpochSecondsDouble
 import kabinet.web.Url
 import kabinet.web.fromHref
@@ -56,7 +55,7 @@ class CommentService(
             val visibility = dto.deriveVisibility()
             val visibilityRatio = visibility / averageVisibility
             Comment(
-                commentId = CommentId(generateUuidString()),
+                commentId = CommentId.random(),
                 parentId = parentId,
                 starId = starId,
                 identifier = dto.id,

@@ -4,7 +4,6 @@ import klutch.db.DbService
 import klutch.web.HtmlClient
 import kabinet.web.toUrlOrNull
 import kotlinx.datetime.Clock
-import kabinet.utils.generateUuidString
 import ponder.galaxy.model.data.Star
 import ponder.galaxy.model.data.StarId
 
@@ -31,7 +30,7 @@ class StarTableService(
         val document = htmlClient.readUrl(href)
 
         val star = Star(
-            starId = StarId(generateUuidString()),
+            starId = StarId.random(),
             galaxyId = galaxy.galaxyId,
             url = url.href,
             identifier = null,

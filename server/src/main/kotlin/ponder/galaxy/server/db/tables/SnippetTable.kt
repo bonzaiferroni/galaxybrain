@@ -2,6 +2,7 @@
 
 package ponder.galaxy.server.db.tables
 
+import klutch.utils.toStringId
 import klutch.utils.toUuid
 import kotlin.uuid.ExperimentalUuidApi
 import klutch.utils.toUUID
@@ -16,7 +17,7 @@ internal object SnippetTable : UUIDTable("snippet") {
 }
 
 internal fun ResultRow.toSnippet() = Snippet(
-    snippetId = SnippetId(this[SnippetTable.id].value.toUuid()),
+    snippetId = SnippetId(this[SnippetTable.id].value.toStringId()),
     text = this[SnippetTable.text],
 )
 

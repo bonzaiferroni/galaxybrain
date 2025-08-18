@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package ponder.galaxy.server.db.services
 
 import kabinet.utils.startOfDay
@@ -22,6 +24,7 @@ import ponder.galaxy.server.db.tables.writeUpdate
 import klutch.utils.eq
 import org.jetbrains.exposed.sql.and
 import ponder.galaxy.model.data.CommentId
+import kotlin.uuid.ExperimentalUuidApi
 
 class IdeaTableDao: DbService() {
 

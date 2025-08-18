@@ -1,9 +1,12 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package ponder.galaxy.server.db.tables
 
 import kabinet.utils.toInstantFromUtc
 import kabinet.utils.toLocalDateTimeUtc
 import klutch.utils.toStringId
 import klutch.utils.toUUID
+import klutch.utils.toUuid
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.ResultRow
@@ -12,6 +15,7 @@ import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import ponder.galaxy.model.data.Comment
 import ponder.galaxy.model.data.CommentId
 import ponder.galaxy.model.data.StarId
+import kotlin.uuid.ExperimentalUuidApi
 
 internal object CommentTable : UUIDTable("comment") {
     val parentId = reference("parent_id", CommentTable, onDelete = ReferenceOption.CASCADE).nullable()

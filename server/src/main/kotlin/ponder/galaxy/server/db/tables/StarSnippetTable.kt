@@ -28,8 +28,8 @@ internal object StarSnippetTable : UUIDTable("star_snippet") {
 }
 
 internal fun ResultRow.toStarSnippet() = StarSnippet(
-    starSnippetId = StarSnippetId(this[StarSnippetTable.id].value.toUuid()),
-    snippetId = SnippetId(this[StarSnippetTable.snippetId].value.toUuid()),
+    starSnippetId = StarSnippetId(this[StarSnippetTable.id].value.toStringId()),
+    snippetId = SnippetId(this[StarSnippetTable.snippetId].value.toStringId()),
     starId = StarId(this[StarSnippetTable.starId].value.toStringId()),
     commentId = this[StarSnippetTable.commentId]?.value?.toStringId()?.let(::CommentId),
     order = this[StarSnippetTable.order],

@@ -25,7 +25,7 @@ internal object GalaxyTable: UUIDTable("galaxy") {
 
 internal fun ResultRow.toGalaxy() = Galaxy(
     galaxyId = GalaxyId(this[GalaxyTable.id].value.toStringId()),
-    hostId = HostId(this[GalaxyTable.hostId].value.toUuid()),
+    hostId = HostId(this[GalaxyTable.hostId].value.toStringId()),
     name = this[GalaxyTable.name],
     url = this[GalaxyTable.url],
     visibility = this[GalaxyTable.visibility],

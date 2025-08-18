@@ -3,6 +3,7 @@
 package ponder.galaxy.server.routes
 
 import io.ktor.server.routing.Routing
+import kabinet.utils.toUuid
 import klutch.server.get
 import ponder.galaxy.model.Api
 import ponder.galaxy.model.data.StarId

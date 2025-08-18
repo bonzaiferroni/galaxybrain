@@ -1,12 +1,9 @@
-@file:OptIn(ExperimentalUuidApi::class)
-
 package ponder.galaxy.model.data
 
 import kabinet.db.TableId
+import kabinet.utils.randomUuidString
 import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmInline
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 @Serializable
 data class Snippet(
@@ -15,8 +12,8 @@ data class Snippet(
 )
 
 @JvmInline @Serializable
-value class SnippetId(override val value: Uuid): TableId<Uuid> {
+value class SnippetId(override val value: String): TableId<String> {
     companion object {
-        fun random() = SnippetId(Uuid.random())
+        fun random() = SnippetId(randomUuidString())
     }
 }

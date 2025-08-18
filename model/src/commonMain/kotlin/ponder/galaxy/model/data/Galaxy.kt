@@ -1,6 +1,7 @@
 package ponder.galaxy.model.data
 
 import kabinet.db.TableId
+import kabinet.utils.randomUuidString
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmInline
@@ -18,4 +19,8 @@ data class Galaxy(
 }
 
 @JvmInline @Serializable
-value class GalaxyId(override val value: String): TableId<String>
+value class GalaxyId(override val value: String): TableId<String> {
+    companion object {
+        fun random() = GalaxyId(randomUuidString())
+    }
+}

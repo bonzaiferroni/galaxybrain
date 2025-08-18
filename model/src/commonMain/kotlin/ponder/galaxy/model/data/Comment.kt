@@ -2,6 +2,7 @@ package ponder.galaxy.model.data
 
 import kabinet.db.TableId
 import kabinet.model.SpeechVoice
+import kabinet.utils.randomUuidString
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmInline
@@ -30,7 +31,11 @@ data class Comment(
 
 @JvmInline
 @Serializable
-value class CommentId(override val value: String): TableId<String>
+value class CommentId(override val value: String): TableId<String> {
+    companion object {
+        fun random() = CommentId(randomUuidString())
+    }
+}
 
 @Serializable
 data class CommentDelta(

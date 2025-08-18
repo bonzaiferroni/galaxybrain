@@ -71,7 +71,7 @@ class SnippetTableService(
         var snippet = dao.readByText(text)
         if (snippet != null) return@dbQuery snippet
 
-        val snippetId = SnippetId(Uuid.random())
+        val snippetId = SnippetId.random()
         snippet = Snippet(
             snippetId = snippetId,
             text = text

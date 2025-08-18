@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package ponder.galaxy.db
 
 import androidx.room.ConstructedBy
@@ -12,6 +14,8 @@ import kotlinx.datetime.Instant
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import java.util.UUID
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 @Database(
     entities = [
@@ -41,6 +45,10 @@ class Converters {
     @TypeConverter
     fun toStringList(value: String): List<String> = if (value.isEmpty()) emptyList() else value.split(",")
 
+    @TypeConverter
+    fun fromUuid(value: Uuid): String = value.toString()
+    @TypeConverter
+    fun toUuid(value: String): Uuid = Uuid.parse(value)
 }
 
 // The Room compiler generates the `actual` implementations.

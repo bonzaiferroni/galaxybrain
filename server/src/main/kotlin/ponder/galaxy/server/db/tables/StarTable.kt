@@ -1,9 +1,12 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package ponder.galaxy.server.db.tables
 
 import kabinet.utils.toInstantFromUtc
 import kabinet.utils.toLocalDateTimeUtc
 import klutch.utils.toStringId
 import klutch.utils.toUUID
+import klutch.utils.toUuid
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.ResultRow
@@ -12,6 +15,7 @@ import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import ponder.galaxy.model.data.GalaxyId
 import ponder.galaxy.model.data.Star
 import ponder.galaxy.model.data.StarId
+import kotlin.uuid.ExperimentalUuidApi
 
 internal object StarTable: UUIDTable("star") {
     val galaxyId = reference("galaxy_id", GalaxyTable, onDelete = ReferenceOption.CASCADE)

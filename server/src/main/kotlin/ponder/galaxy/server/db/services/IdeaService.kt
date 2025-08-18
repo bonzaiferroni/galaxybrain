@@ -2,7 +2,6 @@ package ponder.galaxy.server.db.services
 
 import kabinet.model.SpeechGenRequest
 import kabinet.model.SpeechVoice
-import kabinet.utils.generateUuidString
 import kabinet.utils.toAgoDescription
 import klutch.gemini.GeminiService
 import kotlinx.datetime.Clock
@@ -33,7 +32,7 @@ class IdeaService(
         ))
         println("IdeaService: $audioUrl")
         val idea = Idea(
-            ideaId = IdeaId(generateUuidString()),
+            ideaId = IdeaId.random(),
             starId = starId,
             commentId = null,
             description = IDEA_HEADLINE_DESCRIPTION,
@@ -66,7 +65,7 @@ class IdeaService(
 //            filename = star.title
 //        ))
         val idea = Idea(
-            ideaId = IdeaId(generateUuidString()),
+            ideaId = IdeaId.random(),
             starId = starId,
             commentId = null,
             description = IDEA_CONTENT_DESCRIPTION,
@@ -100,7 +99,7 @@ class IdeaService(
 //            filename = "${comment.identifier}_comment",
 //        ))
         val idea = Idea(
-            ideaId = IdeaId(generateUuidString()),
+            ideaId = IdeaId.random(),
             starId = star.starId,
             commentId = comment.commentId,
             description = IDEA_COMMENT_DESCRIPTION,

@@ -4,6 +4,7 @@ import kabinet.utils.toInstantFromUtc
 import kabinet.utils.toLocalDateTimeUtc
 import klutch.utils.toStringId
 import klutch.utils.toUUID
+import klutch.utils.toUuid
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.ResultRow
