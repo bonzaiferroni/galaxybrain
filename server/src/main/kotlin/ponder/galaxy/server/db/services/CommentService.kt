@@ -88,11 +88,13 @@ class CommentService(
             keySelector = { it.key },
             valueTransform = { (commentId, document) ->
                 document.contents.map { content ->
-                    snippetService.readOrCreateByText(content.text)
+                    snippetService.readOrCreateByTextAlt(content.text)
                 }
             }
         )
         snippetMap.putAll(snippets)
+        val dbSnippets = starSnippetDao.readByCommentIds(dbComments.map { it.commentId} )
+        snippetMap.putAll(dbSnippets)
 
         val starSnippets: Map<CommentId, List<StarSnippet>> = snippets.entries.associateBy(
             keySelector = { it.key },

@@ -12,7 +12,7 @@ import ponder.galaxy.model.data.Snippet
 import ponder.galaxy.model.data.SnippetId
 
 internal object SnippetTable : UUIDTable("snippet") {
-    val text = text("text")
+    val text = text("text").uniqueIndex()
 }
 
 internal fun ResultRow.toSnippet() = Snippet(

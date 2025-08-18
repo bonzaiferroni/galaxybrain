@@ -15,4 +15,8 @@ data class Snippet(
 )
 
 @JvmInline @Serializable
-value class SnippetId(override val value: Uuid): TableId<Uuid>
+value class SnippetId(override val value: Uuid): TableId<Uuid> {
+    companion object {
+        fun random() = SnippetId(Uuid.random())
+    }
+}
