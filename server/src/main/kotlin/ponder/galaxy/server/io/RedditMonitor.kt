@@ -6,7 +6,7 @@ import kabinet.web.Url
 import kabinet.web.fromHref
 import kabinet.web.fromHrefOrNull
 import klutch.utils.toStringId
-import klutch.web.TextReader
+import klutch.web.RedditReader
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -50,7 +50,7 @@ class RedditMonitor(
     private val galaxyDao: GalaxyTableDao = GalaxyTableDao(),
     private val hostService: HostTableService = HostTableService(),
     private val snippetService: SnippetTableService = SnippetTableService(),
-    private val textReader: TextReader = TextReader()
+    private val redditReader: RedditReader = RedditReader()
 ) {
 
     private var job: Job? = null
@@ -126,7 +126,7 @@ class RedditMonitor(
                                 Url.fromHrefOrNull("https://www.reddit.com${article.permalink}") ?: return@forEach
 
                             val document = article.selftext.takeIf { it.isNotEmpty() }?.let {
-                                textReader.read(
+                                redditReader.read(
                                     title = article.title,
                                     url = starUrl,
                                     text = it

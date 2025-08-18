@@ -1,5 +1,6 @@
 package ponder.galaxy.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -116,18 +118,8 @@ fun StarProfileScreen(
     ) { padding ->
         TabContent(tabScope) {
             Tab("Content", modifier = Modifier.verticalScroll(rememberScrollState())) {
-                Column(1, modifier = Modifier.scaffoldPadding(padding)) {
-                    Row(1) {
-                        if (state.contentIdea == null) {
-                            Button("Generate Audio", onClick = viewModel::generateAudio)
-                        } else {
-                            val icon = when (state.isPlaying) {
-                                true -> TablerIcons.PlayerPause
-                                false -> TablerIcons.PlayerPlay
-                            }
-                            Button(icon, onClick = viewModel::toggleIsPlaying)
-                        }
-                    }
+                Section(modifier = Modifier.scaffoldPadding(padding)) {
+
                     val imgUrl = star.imageUrl ?: state.contentIdea?.imageUrl?.let { "$APP_API_URL/$it"}
                     imgUrl?.let {
                         AsyncImage(
@@ -141,7 +133,22 @@ fun StarProfileScreen(
                     Column(1) {
                         state.snippets.forEach { snippet ->
                             val links = state.outgoingLinks.filter { it.snippetId == snippet.snippetId }
-                            SnippetText(snippet.text, links) { println("ey") }
+                            SnippetText(
+                                text = snippet.text,
+                                starLinks = links,
+                                modifier = Modifier.background(Color.White.copy(.1f))
+                            ) { println("ey") }
+                        }
+                    }
+                    Row(1) {
+                        if (state.contentIdea == null) {
+                            Button("Generate Audio", onClick = viewModel::generateAudio)
+                        } else {
+                            val icon = when (state.isPlaying) {
+                                true -> TablerIcons.PlayerPause
+                                false -> TablerIcons.PlayerPlay
+                            }
+                            Button(icon, onClick = viewModel::toggleIsPlaying)
                         }
                     }
                 }
