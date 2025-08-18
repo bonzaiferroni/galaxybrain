@@ -69,6 +69,6 @@ object Api: ApiNode(ApiNode(null, "api"), "v1") {
     }
 
     object Snippets : ApiNode(this, "snippet") {
-        object Stars : GetByTableIdEndpoint<StarId, List<Snippet>>(this, "star")
+        object StarSnippets : GetByTableIdEndpoint<StarId, List<Snippet>>(this, "star")
     }
 }

@@ -41,7 +41,7 @@ class StarProfileModel(
             val galaxy = galaxySource.readGalaxyById(star.galaxyId)
             val idea = ideaApiClient.readContentIdea(starId, false)
             val outgoingLinks = starLinkApiClient.readOutgoingLinks(starId) ?: emptyList()
-            val snippets = snippetApiClient.readByStarId(starId) ?: emptyList()
+            val snippets = snippetApiClient.readStarSnippets(starId) ?: emptyList()
             setState { it.copy(
                 star = star,
                 starLogs = starLogs,

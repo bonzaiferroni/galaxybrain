@@ -28,7 +28,7 @@ class SnippetTableService(
 ) : DbService() {
 
     suspend fun createOrUpdateStarSnippets(starId: StarId, document: WebDocument) = dbQuery {
-        val starSnippets = snippetDao.readByStarId(starId)
+        val starSnippets = snippetDao.readStarSnippets(starId)
         if (starSnippets.isNotEmpty()) return@dbQuery // todo: update snippets
 
         val now = Clock.System.now()

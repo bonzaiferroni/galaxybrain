@@ -49,7 +49,7 @@ class IdeaService(
 
     suspend fun createFromContent(starId: StarId): Idea? {
         val star = starDao.readByIdOrNull(starId) ?: error("star not found: $starId")
-        val textContent = snippetService.dao.readByStarId(starId).joinToString("\n") { it.text }
+        val textContent = snippetService.dao.readStarSnippets(starId).joinToString("\n") { it.text }
         val galaxy = galaxyDao.readById(star.galaxyId)
         val voice = SpeechVoice.entries[galaxy.intrinsicIndex % SpeechVoice.entries.size]
         val audioUrl = geminiService.generateSpeech(SpeechGenRequest(

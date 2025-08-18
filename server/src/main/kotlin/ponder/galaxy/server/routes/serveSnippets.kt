@@ -13,7 +13,7 @@ fun Routing.serveSnippets(
     service: SnippetTableService = SnippetTableService(),
 ) {
     // Returns the snippets associated with a given Star, ordered by their index
-    get(Api.Snippets.Stars, { StarId(it) }) { starId, _ ->
-        service.dao.readByStarId(starId)
+    get(Api.Snippets.StarSnippets, { StarId(it) }) { starId, _ ->
+        service.dao.readStarSnippets(starId)
     }
 }

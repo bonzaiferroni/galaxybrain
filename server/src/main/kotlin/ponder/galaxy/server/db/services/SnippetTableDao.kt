@@ -11,6 +11,7 @@ import klutch.utils.eq
 import klutch.utils.toUUID
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.batchUpsert
 import org.jetbrains.exposed.sql.deleteWhere
@@ -54,6 +55,14 @@ class SnippetTableDao : DbService() {
         StarSnippetTable.join(SnippetTable, JoinType.INNER, StarSnippetTable.snippetId, SnippetTable.id)
             .select(SnippetTable.columns)
             .where { StarSnippetTable.starId.eq(starId) }
+            .orderBy(StarSnippetTable.order)
+            .map { it.toSnippet() }
+    }
+
+    suspend fun readStarSnippets(starId: StarId) = dbQuery {
+        StarSnippetTable.join(SnippetTable, JoinType.INNER, StarSnippetTable.snippetId, SnippetTable.id)
+            .select(SnippetTable.columns)
+            .where { StarSnippetTable.starId.eq(starId) and StarSnippetTable.commentId.isNull() }
             .orderBy(StarSnippetTable.order)
             .map { it.toSnippet() }
     }

@@ -154,7 +154,18 @@ fun StarProfileScreen(
                 }
             }
             Tab("Links", modifier = Modifier.scaffoldPadding(padding)) {
-                for (starLink in state.outgoingLinks) {
+                val starLinks = remember(state.outgoingLinks) { state.outgoingLinks.filter { it.commentId == null } }
+                if (starLinks.isNotEmpty()) {
+                    H3("Content links")
+                }
+                for (starLink in starLinks) {
+                    Text(starLink.url.href)
+                }
+                val commentLinks = remember(state.outgoingLinks) { state.outgoingLinks.filter { it.commentId != null } }
+                if (commentLinks.isNotEmpty()) {
+                    H3("Comment links")
+                }
+                for (starLink in commentLinks) {
                     Text(starLink.url.href)
                 }
             }

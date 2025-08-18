@@ -9,6 +9,6 @@ import pondui.io.globalNeoApiClient
 class SnippetApiClient(
     private val client: NeoApiClient = globalNeoApiClient
 ) {
-    suspend fun readByStarId(starId: StarId): List<Snippet>? =
-        client.getById(Api.Snippets.Stars, starId)
+    suspend fun readStarSnippets(starId: StarId): List<Snippet>? =
+        client.getById(Api.Snippets.StarSnippets, starId)
 }
