@@ -24,10 +24,11 @@ class StarTableService(
 
         val host = hostService.dao.readByUrl(url) ?: hostService.createByUrl(url)
 
-        val galaxy = galaxyService.readUnchartedByHostId(host.hostId) 
-            ?: galaxyService.createUnchartedByHostId(host.hostId, "https://${url.hostAddress}")
-
         val document = htmlClient.readUrl(href)
+
+        val name = document?.publisherName ?: url.core
+        val galaxy = galaxyService.readByNameAndHostId(host.hostId, name)
+            ?: galaxyService.createByNameAndHostId(host.hostId, "https://${url.hostAddress}", name)
 
         val star = Star(
             starId = StarId.random(),

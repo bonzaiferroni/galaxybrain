@@ -76,4 +76,11 @@ class StarTableDao: DbService() {
     suspend fun readByUrl(url: String) = dbQuery {
         StarTable.readSingleOrNull { it.url.eq(url) }?.toStar()
     }
+
+    suspend fun readLatestByGalaxyId(galaxyId: GalaxyId, limit: Int = 100) = dbQuery {
+        StarTable.read { it.galaxyId.eq(galaxyId) }
+            .orderBy(StarTable.createdAt, SortOrder.ASC)
+            .limit(limit)
+            .map { it.toStar() }
+    }
 }

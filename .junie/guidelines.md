@@ -48,7 +48,7 @@ Maintaining documentation of the API will be an important part of your role. Wit
 
 The following functions define workflows and parameters. These may be invoked as prompts in the form of Workflow(argument). Perform the instructions in the body of the workflow given the provided arguments. Foo will be used as a placeholder for a type name. 
 
-CreateModel(Foo): Create a new data class in the form of `data class Foo(val fooId: FooId)` in the package `ponder.galaxy.model.data`. It must be serializable. Also create the value class `value class FooId(override val fooId: Uuid): TableId<Uuid>`. Opt in to experimental uuid at the level of the file `@file:OptIn(ExperimentalUuidApi::class)`. Create the content for this file and nothing else.
+CreateModel(Foo): Create a new data class in the form of `data class Foo(val fooId: FooId)` in the package `ponder.galaxy.model.data`. It must be serializable. Also create the value class `value class FooId(override val fooId: String): TableId<String>`. Create the content for this file and nothing else.
 
 CreateTable(Foo): Create a new table in the form of FooTable in the file FooTable.kt that will provide Foo objects. You may use Star and StarTable as examples. Create the content for FooTable.kt and nothing else.
 

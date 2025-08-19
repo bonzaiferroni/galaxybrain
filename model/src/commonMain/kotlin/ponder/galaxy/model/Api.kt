@@ -32,6 +32,7 @@ object Api: ApiNode(ApiNode(null, "api"), "v1") {
         object ByUrl : PostEndpoint<String, Star>(this, "url") {
             val create = addBooleanParam("create")
         }
+        object Latest: GetByTableIdEndpoint<GalaxyId, List<Star>>(this, "latest")
     }
 
     object StarLinks: ApiNode(this, "star_link") {

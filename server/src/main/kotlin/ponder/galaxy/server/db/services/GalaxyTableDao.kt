@@ -22,6 +22,7 @@ import ponder.galaxy.server.db.tables.toGalaxy
 import ponder.galaxy.server.db.tables.writeFull
 import ponder.galaxy.server.db.tables.writeUpdate
 import org.jetbrains.exposed.sql.and
+import ponder.galaxy.server.db.tables.StarTable
 
 class GalaxyTableDao : DbService() {
 

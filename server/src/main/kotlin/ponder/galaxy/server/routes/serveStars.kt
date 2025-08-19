@@ -8,6 +8,7 @@ import klutch.server.get
 import klutch.server.post
 import klutch.server.readParamOrNull
 import ponder.galaxy.model.Api
+import ponder.galaxy.model.data.GalaxyId
 import ponder.galaxy.model.data.StarId
 import ponder.galaxy.server.db.services.StarTableService
 import kotlin.uuid.ExperimentalUuidApi
@@ -32,5 +33,9 @@ fun Routing.serveStars(
             star = service.discoverStarFromUrl(url)
         }
         star
+    }
+
+    get(Api.Stars.Latest, { GalaxyId(it)}) { galaxyId, endpoint ->
+        service.dao.readLatestByGalaxyId(galaxyId)
     }
 }
