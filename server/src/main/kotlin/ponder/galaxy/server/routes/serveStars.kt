@@ -38,4 +38,8 @@ fun Routing.serveStars(
     get(Api.Stars.Latest, { GalaxyId(it)}) { galaxyId, endpoint ->
         service.dao.readLatestByGalaxyId(galaxyId)
     }
+
+    post(Api.Stars.NewContent) { newContent, endpoint ->
+        service.createStarFromContent(newContent)
+    }
 }

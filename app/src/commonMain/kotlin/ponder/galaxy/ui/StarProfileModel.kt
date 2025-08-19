@@ -14,6 +14,7 @@ import ponder.galaxy.io.StarApiClient
 import ponder.galaxy.io.StarLinkApiClient
 import ponder.galaxy.model.data.Galaxy
 import ponder.galaxy.model.data.Idea
+import ponder.galaxy.model.data.NewStarContent
 import ponder.galaxy.model.data.Snippet
 import ponder.galaxy.model.data.Star
 import ponder.galaxy.model.data.StarId
@@ -37,6 +38,10 @@ class StarProfileModel(
     override val state = ModelState(StarProfileState())
 
     init {
+        refreshStar()
+    }
+
+    fun refreshStar() {
         viewModelScope.launch {
             val star = probeService.getStar(starId) ?: starApiClient.readById(starId) ?: return@launch
             val starLogs = probeService.readStarLogs(starId) ?: emptyList()
@@ -84,6 +89,19 @@ class StarProfileModel(
         viewModelScope.launch(Dispatchers.IO) {
             val star = starApiClient.readByUrl(link, true)
             setState { it.copy(linkStar = star)}
+        }
+    }
+
+    fun readFromHtml(html: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val isSuccess = starApiClient.updateFromNewContent(NewStarContent(
+                starId = starId,
+                content = html,
+                isHtml = true
+            ))
+            if (isSuccess == true) {
+                refreshStar()
+            }
         }
     }
 }

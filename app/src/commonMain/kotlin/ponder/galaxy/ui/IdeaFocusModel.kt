@@ -72,6 +72,7 @@ class IdeaFocusModel(
         println("looking through ${stars.size} stars")
         for (galaxy in galaxies) {
             val star = stars.firstOrNull { it.galaxyId == galaxy.galaxyId } ?: continue
+            if (star.visibility == null) continue
             if (generatedSpeech.contains(star.starId)) continue
             val now = Clock.System.now()
             generatedSpeech[star.starId] = now

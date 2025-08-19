@@ -1,9 +1,12 @@
 package ponder.galaxy.server.db.services
 
+import kabinet.web.Url
+import kabinet.web.fromHref
 import klutch.db.DbService
 import klutch.web.HtmlClient
 import kabinet.web.toUrlOrNull
 import kotlinx.datetime.Clock
+import ponder.galaxy.model.data.NewStarContent
 import ponder.galaxy.model.data.Star
 import ponder.galaxy.model.data.StarId
 
@@ -54,5 +57,25 @@ class StarTableService(
         }
         
         star
+    }
+
+    suspend fun createStarFromContent(newContent: NewStarContent) = dbQuery {
+        var star = dao.readByIdOrNull(newContent.starId) ?: error("missing star: ${newContent.starId}")
+        val document = if (newContent.isHtml) {
+            htmlClient.readHtml(star.url, newContent.content)
+        } else error("non html not yet supported")
+
+        star = star.copy(
+            title = document.title,
+            wordCount = document.wordCount,
+        )
+
+        dao.update(star)
+
+        if (document.contents.isNotEmpty()) {
+            snippetService.createOrUpdateStarSnippets(star.starId, document)
+        }
+
+        true
     }
 }

@@ -3,6 +3,7 @@ package ponder.galaxy.io
 import kabinet.api.write
 import ponder.galaxy.model.Api
 import ponder.galaxy.model.data.GalaxyId
+import ponder.galaxy.model.data.NewStarContent
 import ponder.galaxy.model.data.StarId
 import pondui.io.NeoApiClient
 import pondui.io.globalNeoApiClient
@@ -21,4 +22,6 @@ class StarApiClient(
     suspend fun readById(starId: StarId) = client.getById(Api.Stars, starId)
 
     suspend fun readLatestByGalaxyId(galaxyId: GalaxyId) = client.getById(Api.Stars.Latest, galaxyId)
+
+    suspend fun updateFromNewContent(newContent: NewStarContent) = client.request(Api.Stars.NewContent, newContent)
 }

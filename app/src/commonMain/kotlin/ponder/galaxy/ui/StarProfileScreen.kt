@@ -13,7 +13,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,6 +27,8 @@ import coil3.compose.AsyncImage
 import compose.icons.TablerIcons
 import compose.icons.tablericons.PlayerPause
 import compose.icons.tablericons.PlayerPlay
+import io.github.vinceglb.filekit.dialogs.FileKitType
+import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
 import kabinet.utils.toMetricString
 import kabinet.utils.toShortDescription
 import kabinet.utils.toTimeFormat
@@ -82,6 +86,15 @@ fun StarProfileScreen(
             state.contentIdea?.let {
                 wavePlayer.play("$APP_API_URL/${it.audioUrl}")
             }
+        }
+    }
+
+    val launcher = rememberFilePickerLauncher(
+        type = FileKitType.File(extensions = listOf("html"))
+    ) { file ->
+        val html = file?.file?.readText()
+        if (html != null) {
+            viewModel.readFromHtml(html)
         }
     }
 
@@ -159,6 +172,9 @@ fun StarProfileScreen(
                             } else {
                                 Button("Discover", onClick = viewModel::discoverLink)
                             }
+                        }
+                        if (star.title == null) {
+                            Button("HTML") { launcher.launch() }
                         }
                     }
                 }

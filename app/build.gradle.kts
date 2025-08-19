@@ -69,6 +69,8 @@ kotlin {
 
             implementation(libs.room.runtime)
             implementation(libs.sqlite.bundled)
+
+            implementation("io.github.vinceglb:filekit-dialogs-compose:0.10.0")
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)

@@ -13,6 +13,7 @@ import ponder.galaxy.model.data.Galaxy
 import ponder.galaxy.model.data.GalaxyId
 import ponder.galaxy.model.data.Idea
 import ponder.galaxy.model.data.NewExample
+import ponder.galaxy.model.data.NewStarContent
 import ponder.galaxy.model.data.Snippet
 import ponder.galaxy.model.data.Star
 import ponder.galaxy.model.data.StarId
@@ -33,6 +34,7 @@ object Api: ApiNode(ApiNode(null, "api"), "v1") {
             val create = addBooleanParam("create")
         }
         object Latest: GetByTableIdEndpoint<GalaxyId, List<Star>>(this, "latest")
+        object NewContent : PostEndpoint<NewStarContent, Boolean>(this, "new-content")
     }
 
     object StarLinks: ApiNode(this, "star_link") {
