@@ -58,6 +58,7 @@ import pondui.ui.controls.TabScope
 import pondui.ui.controls.Text
 import pondui.ui.controls.actionable
 import pondui.ui.controls.scaffoldPadding
+import pondui.ui.nav.LocalNav
 import pondui.ui.theme.Pond
 
 @Composable
@@ -72,7 +73,8 @@ fun StarProfileScreen(
 
     val star = state.star ?: return
     val galaxy = state.galaxy ?: return
-    val starLog = state.starLogs.lastOrNull() ?: return
+    val starLog = state.starLogs.lastOrNull()
+    val nav = LocalNav.current
     val wavePlayer = remember { WavePlayer() }
 
     LaunchedEffect(state.isPlaying) {
@@ -118,7 +120,7 @@ fun StarProfileScreen(
     ) { padding ->
         TabContent(tabScope) {
             Tab("Content", modifier = Modifier.verticalScroll(rememberScrollState())) {
-                Section(modifier = Modifier.scaffoldPadding(padding)) {
+                Section(modifier = Modifier.scaffoldPadding(padding).fillMaxWidth()) {
 
                     val imgUrl = star.imageUrl ?: state.contentIdea?.imageUrl?.let { "$APP_API_URL/$it"}
                     imgUrl?.let {
@@ -149,6 +151,14 @@ fun StarProfileScreen(
                                 false -> TablerIcons.PlayerPlay
                             }
                             Button(icon, onClick = viewModel::toggleIsPlaying)
+                        }
+                        star.link?.let {
+                            val linkStar = state.linkStar
+                            if (linkStar != null) {
+                                Button("Read") { nav.go(StarProfileRoute(linkStar.starId.value)) }
+                            } else {
+                                Button("Discover", onClick = viewModel::discoverLink)
+                            }
                         }
                     }
                 }
@@ -211,12 +221,14 @@ fun StarProfileScreen(
                             .height(300.dp)
                     )
                 }
-                Section {
-                    FlowRow(1, modifier = Modifier.fillMaxWidth()) {
-                        Text(text = "Visibility: ${star.visibility?.toMetricString()}", color = Pond.colors.swatches[0])
-                        Text(text = "Comments: ${starLog.commentCount.toFloat().toMetricString()}", color = Pond.colors.swatches[1])
-                        Text(text = "Rise: ${starLog.getRise(star.createdAt, state.riseFactor).toMetricString()}", color = Pond.colors.swatches[2])
-                        Text(text = "Votes: ${starLog.voteCount.toFloat().toMetricString()}", color = Pond.colors.swatches[3])
+                starLog?.let {
+                    Section {
+                        FlowRow(1, modifier = Modifier.fillMaxWidth()) {
+                            Text(text = "Visibility: ${star.visibility?.toMetricString()}", color = Pond.colors.swatches[0])
+                            Text(text = "Comments: ${starLog.commentCount.toFloat().toMetricString()}", color = Pond.colors.swatches[1])
+                            Text(text = "Rise: ${starLog.getRise(star.createdAt, state.riseFactor).toMetricString()}", color = Pond.colors.swatches[2])
+                            Text(text = "Votes: ${starLog.voteCount.toFloat().toMetricString()}", color = Pond.colors.swatches[3])
+                        }
                     }
                 }
             }

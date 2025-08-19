@@ -29,7 +29,9 @@ object Api: ApiNode(ApiNode(null, "api"), "v1") {
 
     object Stars: GetByTableIdEndpoint<StarId, Star>(this, "star") {
         object Multi : PostEndpoint<List<StarId>, List<Star>>(this, "multi")
-        object ByUrl : PostEndpoint<String, Star>(this, "url")
+        object ByUrl : PostEndpoint<String, Star>(this, "url") {
+            val create = addBooleanParam("create")
+        }
     }
 
     object StarLinks: ApiNode(this, "star_link") {

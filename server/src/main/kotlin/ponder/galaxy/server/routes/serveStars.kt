@@ -6,6 +6,7 @@ import io.ktor.server.routing.Routing
 import kabinet.utils.toUuid
 import klutch.server.get
 import klutch.server.post
+import klutch.server.readParamOrNull
 import ponder.galaxy.model.Api
 import ponder.galaxy.model.data.StarId
 import ponder.galaxy.server.db.services.StarTableService
@@ -22,7 +23,14 @@ fun Routing.serveStars(
         service.dao.readByIdOrNull(starId)
     }
 
-//    post(Api.Stars.ByUrl) { url, endpoint ->
-//
-//    }
+    post(Api.Stars.ByUrl) { url, endpoint ->
+        var star = service.dao.readByUrl(url)
+        if (star != null) return@post star
+        val create = endpoint.create.readParamOrNull(call)
+        println(create)
+        if (create == true) {
+            star = service.discoverStarFromUrl(url)
+        }
+        star
+    }
 }

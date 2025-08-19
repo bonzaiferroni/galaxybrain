@@ -5,7 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ponder.galaxy.globalProbeService
-import ponder.galaxy.io.GalaxySource
+import ponder.galaxy.io.GalaxyApiClient
 import ponder.galaxy.io.ProbeService
 import ponder.galaxy.model.data.Galaxy
 import ponder.galaxy.model.data.Star
@@ -17,7 +17,7 @@ import kotlin.math.min
 
 class GalaxyFeedModel(
     private val probeService: ProbeService = globalProbeService,
-    private val galaxySource: GalaxySource = GalaxySource(),
+    private val galaxyApiClient: GalaxyApiClient = GalaxyApiClient(),
     private val valueSource: LocalValueSource = LocalValueSource(),
 ): StateModel<GalaxyFlowState>() {
     override val state = ModelState(GalaxyFlowState())
@@ -26,7 +26,7 @@ class GalaxyFeedModel(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            val galaxies = galaxySource.readAll() ?: error("galaxies not found")
+            val galaxies = galaxyApiClient.readAll() ?: error("galaxies not found")
             val activeGalaxyNames = valueSource.readObjectOrNull<List<String>>(ACTIVE_GALAXY_NAMES_KEY) ?: galaxies.map { it.name }
             val filteredNames = activeGalaxyNames.filter { galaxyName -> galaxies.any { it.name == galaxyName} }
             val riseFactor = valueSource.readInt(RISE_FACTOR_KEY, 1)

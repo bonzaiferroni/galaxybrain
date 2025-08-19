@@ -15,11 +15,11 @@ class StarTableService(
     private val htmlClient: HtmlClient = HtmlClient()
 ): DbService() {
 
-    suspend fun discoverStarFromUrl(href: String): StarId? = dbQuery {
+    suspend fun discoverStarFromUrl(href: String): Star? = dbQuery {
         val url = href.toUrlOrNull() ?: return@dbQuery null
         val existingStar = dao.readByUrl(url)
         if (existingStar != null) {
-            return@dbQuery existingStar.starId
+            return@dbQuery existingStar
         }
 
         val host = hostService.dao.readByUrl(url) ?: hostService.createByUrl(url)
@@ -46,11 +46,12 @@ class StarTableService(
             createdAt = Clock.System.now(),
             accessedAt = Clock.System.now(),
         )
+        dao.insert(star)
 
         if (document != null && document.contents.isNotEmpty()) {
             snippetService.createOrUpdateStarSnippets(star.starId, document)
         }
         
-        star.starId
+        star
     }
 }

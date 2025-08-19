@@ -72,4 +72,8 @@ class StarTableDao: DbService() {
     suspend fun readByUrl(url: Url) = dbQuery {
         StarTable.readSingleOrNull { it.url.eq(url.href) }?.toStar()
     }
+
+    suspend fun readByUrl(url: String) = dbQuery {
+        StarTable.readSingleOrNull { it.url.eq(url) }?.toStar()
+    }
 }

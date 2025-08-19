@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import ponder.galaxy.globalProbeService
-import ponder.galaxy.io.GalaxySource
+import ponder.galaxy.io.GalaxyApiClient
 import ponder.galaxy.io.IdeaApiClient
 import ponder.galaxy.io.ProbeService
 import ponder.galaxy.model.data.Galaxy
@@ -23,19 +23,22 @@ import kotlin.time.Duration.Companion.seconds
 
 class IdeaFocusModel(
     private val probeService: ProbeService = globalProbeService,
-    private val galaxySource: GalaxySource = GalaxySource(),
+    private val galaxyApiClient: GalaxyApiClient = GalaxyApiClient(),
     // private val geminiClient: GeminiApiClient = GeminiApiClient(Api.Gemini)
     private val ideaClient: IdeaApiClient = IdeaApiClient()
 ): StateModel<IdeaFocusState>() {
     override val state = ModelState(IdeaFocusState())
 
-    private val generatedSpeech = mutableMapOf<StarId, Instant>()
+    companion object {
+        private val generatedSpeech = mutableMapOf<StarId, Instant>()
+    }
+
     private val queuedSpeech = mutableListOf<Star>()
 
     init {
         val startOfDay = Clock.startOfDay()
         viewModelScope.launch(Dispatchers.IO) {
-            val galaxies = galaxySource.readAll() ?: error("galaxies not found")
+            val galaxies = galaxyApiClient.readAll() ?: error("galaxies not found")
             val ideas = ideaClient.readIdeas(Clock.startOfDay()) ?: error("ideas not found")
             for (idea in ideas) {
                 val starId = idea.starId ?: continue
