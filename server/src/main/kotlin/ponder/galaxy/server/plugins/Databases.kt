@@ -13,6 +13,7 @@ import ponder.galaxy.server.db.tables.StarLogTable
 import ponder.galaxy.server.db.tables.StarTable
 import ponder.galaxy.server.db.tables.StarSnippetTable
 import ponder.galaxy.server.db.tables.HostTable
+import ponder.galaxy.server.db.tables.SnippetAudioTable
 import ponder.galaxy.server.db.tables.SnippetTable
 
 fun Application.configureDatabases() {
@@ -31,6 +32,7 @@ val dbTables = listOf(
     CommentTable,
     StarLinkTable,
     SnippetTable,
+    SnippetAudioTable,
     StarSnippetTable,
     HostTable,
 )

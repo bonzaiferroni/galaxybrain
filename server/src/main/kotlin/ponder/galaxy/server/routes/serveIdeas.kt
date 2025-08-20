@@ -3,7 +3,6 @@
 package ponder.galaxy.server.routes
 
 import io.ktor.server.routing.Routing
-import kabinet.utils.toUuid
 import klutch.server.get
 import klutch.server.readParamOrNull
 import ponder.galaxy.model.Api
@@ -11,12 +10,11 @@ import ponder.galaxy.model.data.CommentId
 import ponder.galaxy.model.data.StarId
 import ponder.galaxy.server.db.services.IDEA_CONTENT_DESCRIPTION
 import ponder.galaxy.server.db.services.IDEA_HEADLINE_DESCRIPTION
-import ponder.galaxy.server.db.services.IdeaService
-import ponder.galaxy.server.db.services.IdeaTableDao
+import ponder.galaxy.server.db.services.IdeaTableService
 import kotlin.uuid.ExperimentalUuidApi
 
 fun Routing.serveIdeas(
-    service: IdeaService = IdeaService(),
+    service: IdeaTableService = IdeaTableService(),
 ) {
     get(Api.Ideas.Headline, { StarId(it) }) { starId, endpoint ->
         val create = endpoint.create.readParamOrNull(call)

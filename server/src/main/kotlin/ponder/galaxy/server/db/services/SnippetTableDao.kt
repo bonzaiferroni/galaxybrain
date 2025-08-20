@@ -70,4 +70,8 @@ class SnippetTableDao : DbService() {
     suspend fun readByText(text: String) = dbQuery {
         SnippetTable.readSingleOrNull { it.text.eq(text) }?.toSnippet()
     }
+
+    suspend fun readById(snippetId: SnippetId) = dbQuery {
+        SnippetTable.readSingleOrNull { it.id.eq(snippetId) }?.toSnippet()
+    }
 }

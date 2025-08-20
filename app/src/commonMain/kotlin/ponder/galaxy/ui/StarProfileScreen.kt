@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -24,20 +23,20 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
-import compose.icons.TablerIcons
-import compose.icons.tablericons.PlayerPause
-import compose.icons.tablericons.PlayerPlay
 import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
 import kabinet.utils.toMetricString
 import kabinet.utils.toShortDescription
 import kabinet.utils.toTimeFormat
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import ponder.galaxy.StarProfileRoute
+import ponder.galaxy.model.data.SnippetId
 import ponder.galaxy.model.data.StarId
 import pondui.APP_API_URL
 import pondui.WavePlayer
+import pondui.ui.behavior.selected
 import pondui.ui.charts.AxisSide
 import pondui.ui.charts.BottomAxisAutoConfig
 import pondui.ui.charts.ChartBox
@@ -51,7 +50,6 @@ import pondui.ui.controls.DrawerScaffold
 import pondui.ui.controls.FlowRow
 import pondui.ui.controls.H3
 import pondui.ui.controls.LabeledValue
-import pondui.ui.controls.LazyColumn
 import pondui.ui.controls.ProgressBar
 import pondui.ui.controls.Row
 import pondui.ui.controls.Section
@@ -134,7 +132,7 @@ fun StarProfileScreen(
         TabContent(tabScope) {
             Tab("Content", modifier = Modifier.verticalScroll(rememberScrollState())) {
                 Section(modifier = Modifier.scaffoldPadding(padding).fillMaxWidth()) {
-
+                    var playingId by remember { mutableStateOf<SnippetId?>(null) }
                     val imgUrl = star.imageUrl ?: state.contentIdea?.imageUrl?.let { "$APP_API_URL/$it"}
                     imgUrl?.let {
                         AsyncImage(
@@ -148,23 +146,19 @@ fun StarProfileScreen(
                     Column(1) {
                         state.snippets.forEach { snippet ->
                             val links = state.outgoingLinks.filter { it.snippetId == snippet.snippetId }
+                            val isPlaying = snippet.snippetId == playingId
                             SnippetText(
                                 text = snippet.text,
                                 starLinks = links,
-                                modifier = Modifier.background(Color.White.copy(.1f))
+                                modifier = Modifier.background(Color.White.copy(.1f)).selected(isPlaying)
                             ) { println("ey") }
                         }
                     }
                     Row(1) {
-                        if (state.contentIdea == null) {
-                            Button("Generate Audio", onClick = viewModel::generateAudio)
-                        } else {
-                            val icon = when (state.isPlaying) {
-                                true -> TablerIcons.PlayerPause
-                                false -> TablerIcons.PlayerPlay
-                            }
-                            Button(icon, onClick = viewModel::toggleIsPlaying)
+                        val snippetIds = remember(state.snippets) {
+                            state.snippets.takeIf { it.isNotEmpty() }?.map { it.snippetId }?.toPersistentList()
                         }
+                        SnippetAudioPlayerView(snippetIds) { playingId = it }
                         star.link?.let {
                             val linkStar = state.linkStar
                             if (linkStar != null) {

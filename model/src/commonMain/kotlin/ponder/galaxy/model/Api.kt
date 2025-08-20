@@ -15,6 +15,8 @@ import ponder.galaxy.model.data.Idea
 import ponder.galaxy.model.data.NewExample
 import ponder.galaxy.model.data.NewStarContent
 import ponder.galaxy.model.data.Snippet
+import ponder.galaxy.model.data.SnippetAudio
+import ponder.galaxy.model.data.SnippetId
 import ponder.galaxy.model.data.Star
 import ponder.galaxy.model.data.StarId
 import ponder.galaxy.model.data.StarLink
@@ -75,5 +77,6 @@ object Api: ApiNode(ApiNode(null, "api"), "v1") {
 
     object Snippets : ApiNode(this, "snippet") {
         object StarSnippets : GetByTableIdEndpoint<StarId, List<Snippet>>(this, "star")
+        object Audio : GetByTableIdEndpoint<SnippetId, SnippetAudio>(this, "audio")
     }
 }

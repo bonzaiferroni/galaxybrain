@@ -2,12 +2,16 @@
 
 package ponder.galaxy.server.db.services
 
+import kabinet.model.SpeechGenRequest
+import kabinet.model.SpeechVoice
 import klutch.db.DbService
+import klutch.gemini.GeminiService
 import klutch.utils.toUUID
 import klutch.web.WebDocument
 import kotlinx.datetime.Clock
 import org.jetbrains.exposed.sql.upsertReturning
 import ponder.galaxy.model.data.Snippet
+import ponder.galaxy.model.data.SnippetAudio
 import ponder.galaxy.model.data.SnippetId
 import ponder.galaxy.model.data.StarId
 import ponder.galaxy.model.data.StarLink
@@ -21,10 +25,12 @@ import kotlin.uuid.Uuid
 
 class SnippetTableService(
     val dao: SnippetTableDao = SnippetTableDao(),
+    val audioDao: SnippetAudioTableDao = SnippetAudioTableDao(),
     private val starSnippetDao: StarSnippetTableDao = StarSnippetTableDao(),
     private val starLinkDao: StarLinkTableDao = StarLinkTableDao(),
     private val starDao: StarTableDao = StarTableDao(),
-    private val snippetDao: SnippetTableDao = SnippetTableDao()
+    private val snippetDao: SnippetTableDao = SnippetTableDao(),
+    private val geminiService: GeminiService = GeminiService()
 ) : DbService() {
 
     suspend fun createOrUpdateStarSnippets(starId: StarId, document: WebDocument) = dbQuery {
@@ -92,5 +98,30 @@ class SnippetTableService(
             st[SnippetTable.text] = text
         }
             .single().toSnippet()
+    }
+
+    suspend fun readOrCreateAudio(snippetId: SnippetId) = dbQuery {
+        var audio = audioDao.readByIdOrNull(snippetId)
+        if (audio != null) {
+            return@dbQuery audio
+        }
+        val snippet = dao.readById(snippetId) ?: return@dbQuery null
+        println("audio: ${snippet.text.take(40)}")
+        val path = geminiService.generateSpeech(
+            SpeechGenRequest(
+                text = snippet.text,
+                theme = "Say the following in a conversational voice, in a style that matches the content, " +
+                        "and don't be overly enthusiastic:",
+                voice = SpeechVoice.Firm2,
+                filename = snippet.text
+            )
+        ) ?: return@dbQuery null
+
+        audio = SnippetAudio(
+            snippetId = snippetId,
+            path = path,
+        )
+        audioDao.upsert(audio)
+        audio
     }
 }

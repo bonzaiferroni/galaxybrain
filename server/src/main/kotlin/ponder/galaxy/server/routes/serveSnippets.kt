@@ -6,6 +6,7 @@ import io.ktor.server.routing.Routing
 import kabinet.utils.toUuid
 import klutch.server.get
 import ponder.galaxy.model.Api
+import ponder.galaxy.model.data.SnippetId
 import ponder.galaxy.model.data.StarId
 import ponder.galaxy.server.db.services.SnippetTableService
 import kotlin.uuid.ExperimentalUuidApi
@@ -16,5 +17,9 @@ fun Routing.serveSnippets(
     // Returns the snippets associated with a given Star, ordered by their index
     get(Api.Snippets.StarSnippets, { StarId(it) }) { starId, _ ->
         service.dao.readStarSnippets(starId)
+    }
+
+    get(Api.Snippets.Audio, { SnippetId(it) }) { snippetId, _ ->
+        service.readOrCreateAudio(snippetId)
     }
 }

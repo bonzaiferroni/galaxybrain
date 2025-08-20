@@ -10,7 +10,7 @@ import ponder.galaxy.model.data.Idea
 import ponder.galaxy.model.data.IdeaId
 import ponder.galaxy.model.data.StarId
 
-class IdeaService(
+class IdeaTableService(
     val dao: IdeaTableDao = IdeaTableDao(),
     private val starDao: StarTableDao = StarTableDao(),
     private val galaxyDao: GalaxyTableDao = GalaxyTableDao(),

@@ -2,6 +2,8 @@ package ponder.galaxy.ui
 
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.viewModelScope
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -16,6 +18,7 @@ import ponder.galaxy.model.data.Galaxy
 import ponder.galaxy.model.data.Idea
 import ponder.galaxy.model.data.NewStarContent
 import ponder.galaxy.model.data.Snippet
+import ponder.galaxy.model.data.SnippetId
 import ponder.galaxy.model.data.Star
 import ponder.galaxy.model.data.StarId
 import ponder.galaxy.model.data.StarLink
