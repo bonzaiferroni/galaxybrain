@@ -128,7 +128,7 @@ dependencies {
 
 compose.desktop {
     application {
-        mainClass = "ponder.galaxy.MainKt"
+        mainClass = "ponder.galaxy.app.MainKt"
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)

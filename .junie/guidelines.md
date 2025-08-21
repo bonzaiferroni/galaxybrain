@@ -60,6 +60,8 @@ CreateServeFunction(Foo): Create the function `Routing.serveFoos(service: FooTab
 
 CreateApiClient(Foo): Create the class `FooApiClient` that consumes an API endpoint, most typically found at Api.Foo. You may use StarApiClient as an example. Create the content of this file only.
 
+CreateScreen(Foo): Create a set of types and functions to provide ui content in compose. First, create in the file `FooModel.kt` and the package `ponder.galaxy.app.ui` the viewmodel class `class FooModel(): StateModel<FooState>() { override val state = ModelState(FooState())` and the ui state class `data class FooState(val content: String)`. Then create the composable function `fun FooScreen(viewModel: FooModel = viewModel { FooModel() } { val state by viewModel.stateFlow.collectAsState() }` in the file `FooScreen.kt`. Add a route `object FooRoute: AppRoute("Foo")` to `appRoutes.kt`. Add a call to `RouteConfig(FooRoute::MatchRoute) { defaultScreen<FooRoute> { FooScreen() } }` within the list definition assigned to routes in `appConfig.kt`. Create the content for these files and nothing else.
+
 ## Junie's notes to self
 
 This is where you can create notes to yourself, information that you know you'll need later on.

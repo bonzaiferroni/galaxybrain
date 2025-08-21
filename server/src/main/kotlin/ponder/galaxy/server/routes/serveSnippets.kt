@@ -3,8 +3,8 @@
 package ponder.galaxy.server.routes
 
 import io.ktor.server.routing.Routing
-import kabinet.utils.toUuid
 import klutch.server.get
+import klutch.server.post
 import ponder.galaxy.model.Api
 import ponder.galaxy.model.data.SnippetId
 import ponder.galaxy.model.data.StarId
@@ -21,5 +21,9 @@ fun Routing.serveSnippets(
 
     get(Api.Snippets.Audio, { SnippetId(it) }) { snippetId, _ ->
         service.readOrCreateAudio(snippetId)
+    }
+
+    post(Api.Snippets.TestUniverse) { universe, endpoint ->
+        service.testUniverse(universe)
     }
 }

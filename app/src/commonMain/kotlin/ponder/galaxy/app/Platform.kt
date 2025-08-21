@@ -1,0 +1,7 @@
+package ponder.galaxy.app
+
+interface Platform {
+    val name: String
+}
+
+expect fun getPlatform(): Platform
