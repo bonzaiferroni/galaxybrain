@@ -6,6 +6,7 @@ import kabinet.model.SpeechGenRequest
 import kabinet.model.SpeechVoice
 import klutch.db.DbService
 import klutch.gemini.GeminiService
+import klutch.gemini.KokoroClient
 import klutch.utils.toUUID
 import klutch.web.WebDocument
 import kotlinx.datetime.Clock
@@ -30,7 +31,8 @@ class SnippetTableService(
     private val starLinkDao: StarLinkTableDao = StarLinkTableDao(),
     private val starDao: StarTableDao = StarTableDao(),
     private val snippetDao: SnippetTableDao = SnippetTableDao(),
-    private val geminiService: GeminiService = GeminiService()
+    private val geminiService: GeminiService = GeminiService(),
+    private val kokoroClient: KokoroClient = KokoroClient(),
 ) : DbService() {
 
     suspend fun createOrUpdateStarSnippets(starId: StarId, document: WebDocument) = dbQuery {
@@ -107,15 +109,15 @@ class SnippetTableService(
         }
         val snippet = dao.readById(snippetId) ?: return@dbQuery null
         println("audio: ${snippet.text.take(40)}")
-        val path = geminiService.generateSpeech(
+        val path = kokoroClient.generateSpeech(
             SpeechGenRequest(
                 text = snippet.text,
                 theme = "Say the following in a conversational voice, in a style that matches the content, " +
                         "and don't be overly enthusiastic:",
-                voice = SpeechVoice.Firm2,
+                voice = SpeechVoice.Isabella,
                 filename = snippet.text
             )
-        ) ?: return@dbQuery null
+        )
 
         audio = SnippetAudio(
             snippetId = snippetId,

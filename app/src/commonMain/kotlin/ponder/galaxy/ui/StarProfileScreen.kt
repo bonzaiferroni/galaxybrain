@@ -2,9 +2,13 @@ package ponder.galaxy.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -36,6 +40,7 @@ import ponder.galaxy.model.data.SnippetId
 import ponder.galaxy.model.data.StarId
 import pondui.APP_API_URL
 import pondui.WavePlayer
+import pondui.ui.behavior.drawSection
 import pondui.ui.behavior.selected
 import pondui.ui.charts.AxisSide
 import pondui.ui.charts.BottomAxisAutoConfig
@@ -50,6 +55,7 @@ import pondui.ui.controls.DrawerScaffold
 import pondui.ui.controls.FlowRow
 import pondui.ui.controls.H3
 import pondui.ui.controls.LabeledValue
+import pondui.ui.controls.LazyColumn
 import pondui.ui.controls.ProgressBar
 import pondui.ui.controls.Row
 import pondui.ui.controls.Section
@@ -76,7 +82,6 @@ fun StarProfileScreen(
     val star = state.star ?: return
     val galaxy = state.galaxy ?: return
     val starLog = state.starLogs.lastOrNull()
-    val nav = LocalNav.current
     val wavePlayer = remember { WavePlayer() }
 
     LaunchedEffect(state.isPlaying) {
@@ -84,15 +89,6 @@ fun StarProfileScreen(
             state.contentIdea?.let {
                 wavePlayer.play("$APP_API_URL/${it.audioUrl}")
             }
-        }
-    }
-
-    val launcher = rememberFilePickerLauncher(
-        type = FileKitType.File(extensions = listOf("html"))
-    ) { file ->
-        val html = file?.file?.readText()
-        if (html != null) {
-            viewModel.readFromHtml(html)
         }
     }
 
@@ -130,48 +126,8 @@ fun StarProfileScreen(
         }
     ) { padding ->
         TabContent(tabScope) {
-            Tab("Content", modifier = Modifier.verticalScroll(rememberScrollState())) {
-                Section(modifier = Modifier.scaffoldPadding(padding).fillMaxWidth()) {
-                    var playingId by remember { mutableStateOf<SnippetId?>(null) }
-                    val imgUrl = star.imageUrl ?: state.contentIdea?.imageUrl?.let { "$APP_API_URL/$it"}
-                    imgUrl?.let {
-                        AsyncImage(
-                            model = it,
-                            contentDescription = null,
-                            modifier = Modifier.fillMaxWidth()
-                                .clip(Pond.ruler.unitCorners)
-                        )
-                    }
-                    H3(star.displayTitle)
-                    Column(1) {
-                        state.snippets.forEach { snippet ->
-                            val links = state.outgoingLinks.filter { it.snippetId == snippet.snippetId }
-                            val isPlaying = snippet.snippetId == playingId
-                            SnippetText(
-                                text = snippet.text,
-                                starLinks = links,
-                                modifier = Modifier.background(Color.White.copy(.1f)).selected(isPlaying)
-                            ) { println("ey") }
-                        }
-                    }
-                    Row(1) {
-                        val snippetIds = remember(state.snippets) {
-                            state.snippets.takeIf { it.isNotEmpty() }?.map { it.snippetId }?.toPersistentList()
-                        }
-                        SnippetAudioPlayerView(snippetIds) { playingId = it }
-                        star.link?.let {
-                            val linkStar = state.linkStar
-                            if (linkStar != null) {
-                                Button("Read") { nav.go(StarProfileRoute(linkStar.starId.value)) }
-                            } else {
-                                Button("Discover", onClick = viewModel::discoverLink)
-                            }
-                        }
-                        if (star.title == null) {
-                            Button("HTML") { launcher.launch() }
-                        }
-                    }
-                }
+            Tab("Content") {
+                StarContentView(viewModel, padding)
             }
             Tab("Links", modifier = Modifier.scaffoldPadding(padding)) {
                 val starLinks = remember(state.outgoingLinks) { state.outgoingLinks.filter { it.commentId == null } }

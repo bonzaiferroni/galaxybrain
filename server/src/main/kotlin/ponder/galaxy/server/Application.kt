@@ -3,6 +3,7 @@ package ponder.galaxy.server
 import io.ktor.server.application.*
 import klutch.db.generateMigrationScript
 import klutch.environment.readEnvFromPath
+import klutch.gemini.KokoroClient
 import klutch.web.HtmlClient
 import klutch.server.configureSecurity
 import kotlinx.coroutines.CoroutineScope
@@ -22,6 +23,7 @@ import ponder.galaxy.server.plugins.configureLogging
 import ponder.galaxy.server.plugins.configureSerialization
 import ponder.galaxy.server.plugins.configureWebSockets
 import ponder.galaxy.server.plugins.dbTables
+import java.io.File
 
 fun main(args: Array<String>) {
     if ("migrate" in args) generateMigrationScript(readEnvFromPath(), dbTables)
@@ -47,10 +49,13 @@ fun Application.module() {
     configureWebSockets(redditMonitor, redditClient)
     configureLogging()
 
-     redditMonitor.start()
+    redditMonitor.start()
 
     CoroutineScope(Dispatchers.IO).launch {
-        val htmlClient = HtmlClient()
+//        val client = KokoroClient()
+//        val bytes = client.getMessage("hello world")
+//        File("msg.wav").writeBytes(bytes)
+        // val htmlClient = HtmlClient()
 //        val content = htmlClient.readUrl("https://colton.dev/blog/curing-your-ai-10x-engineer-imposter-syndrome/") ?: return@launch
 //        File("content/colton.md").writeText(content.toMarkdown())
 //        val content = htmlClient.readUrl("https://www.theverge.com/ai-artificial-intelligence/759965/sam-altman-openai-ai-bubble-interview") ?: return@launch

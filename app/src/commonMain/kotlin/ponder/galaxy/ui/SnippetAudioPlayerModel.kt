@@ -15,28 +15,29 @@ class SnippetAudioPlayerModel(
     override val state = ModelState(SnippetAudioPlayerState())
 
     private var buffer: Array<String?> = emptyArray()
+    private var snippetIds: List<SnippetId>? = null
 
     fun toggleIsPlaying(isPlaying: Boolean = !stateNow.isPlaying) {
         if (isPlaying) {
-            setState { it.copy(isPlaying = true, position = 0) }
-            bufferNext(0)
+            val position = stateNow.position ?: 0
+            setState { it.copy(isPlaying = true, position = position) }
+            bufferNext(position)
         } else {
             setState { it.copy(isPlaying = false)}
         }
     }
 
-    fun load(snippetIds: List<SnippetId>?) {
-        println("loaded")
-        buffer = arrayOfNulls(snippetIds?.size ?: 0)
-        setState { it.copy(position = null, snippetIds = snippetIds) }
+    fun load(loadIds: List<SnippetId>?) {
+        buffer = arrayOfNulls(loadIds?.size ?: 0)
+        snippetIds = loadIds
+        setState { it.copy(position = null, isPlaying = false) }
     }
 
-    fun setFinished(position: Int) {
-        val nextPosition = position + 1
-        if (nextPosition >= (stateNow.snippetIds?.size ?: 0)) return
-        setState { it.copy(position = nextPosition )}
+    fun setPosition(position: Int) {
+        if (position < 0 || position >= (snippetIds?.size ?: 0)) return
+        setState { it.copy(position = position )}
         if (stateNow.isPlaying) {
-            bufferNext(nextPosition + 1)
+            bufferNext(position + 1)
         }
     }
 
@@ -63,19 +64,18 @@ class SnippetAudioPlayerModel(
     }
 
     private suspend fun bufferPosition(position: Int): String? {
-        val snippetIds = stateNow.snippetIds?.takeIf { it.size > position } ?: return null
+        val snippetIds = snippetIds?.takeIf { it.size > position } ?: return null
         val path = buffer[position]
         if (path != null) return path.takeIf { it.isNotEmpty() }
         buffer[position] = ""
         val snippetId = snippetIds[position]
         val audio = snippetClient.readAudioById(snippetId)
-        buffer[position] = audio?.path
-        return audio?.path
+        buffer[position] = audio?.path ?: error("unable to download audio")
+        return audio.path
     }
 }
 
 data class SnippetAudioPlayerState(
     val isPlaying: Boolean = false,
-    val snippetIds: List<SnippetId>? = null,
     val position: Int? = null,
 )

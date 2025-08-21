@@ -27,6 +27,7 @@ import pondui.LocalValueSource
 import pondui.ui.core.ModelState
 import pondui.ui.core.StateModel
 
+@Stable
 class StarProfileModel(
     private val starId: StarId,
     private val probeService: ProbeService = globalProbeService,

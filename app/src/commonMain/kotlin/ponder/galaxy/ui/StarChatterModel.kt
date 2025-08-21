@@ -1,6 +1,7 @@
 package ponder.galaxy.ui
 
 import androidx.lifecycle.viewModelScope
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
@@ -11,6 +12,7 @@ import ponder.galaxy.model.data.CommentId
 import ponder.galaxy.model.data.GalaxyId
 import ponder.galaxy.model.data.Idea
 import ponder.galaxy.model.data.Snippet
+import ponder.galaxy.model.data.SnippetId
 import ponder.galaxy.model.data.StarId
 import pondui.LocalValueSource
 import pondui.ui.core.ModelState

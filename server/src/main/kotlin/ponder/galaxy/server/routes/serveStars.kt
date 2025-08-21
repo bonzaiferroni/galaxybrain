@@ -28,7 +28,6 @@ fun Routing.serveStars(
         var star = service.dao.readByUrl(url)
         if (star != null) return@post star
         val create = endpoint.create.readParamOrNull(call)
-        println(create)
         if (create == true) {
             star = service.discoverStarFromUrl(url)
         }

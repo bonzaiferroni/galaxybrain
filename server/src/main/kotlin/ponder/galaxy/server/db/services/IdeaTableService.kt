@@ -4,6 +4,7 @@ import kabinet.model.SpeechGenRequest
 import kabinet.model.SpeechVoice
 import kabinet.utils.toAgoDescription
 import klutch.gemini.GeminiService
+import klutch.gemini.KokoroClient
 import kotlinx.datetime.Clock
 import ponder.galaxy.model.data.CommentId
 import ponder.galaxy.model.data.Idea
@@ -15,7 +16,8 @@ class IdeaTableService(
     private val starDao: StarTableDao = StarTableDao(),
     private val galaxyDao: GalaxyTableDao = GalaxyTableDao(),
     private val commentDao: CommentTableDao = CommentTableDao(),
-    private val geminiService: GeminiService = GeminiService(),
+    // private val geminiService: GeminiService = GeminiService(),
+    private val kokoroClient: KokoroClient = KokoroClient(),
     private val snippetService: SnippetTableService = SnippetTableService(),
     private val starSnippetDao: StarSnippetTableDao = StarSnippetTableDao(),
 ) {
@@ -24,7 +26,7 @@ class IdeaTableService(
         val galaxy = galaxyDao.readById(star.galaxyId)
         val speechText = "From ${galaxy.name}, posted ${(Clock.System.now() - star.createdAt).toAgoDescription()}.\n\n${star.title}"
         val voice = SpeechVoice.entries[galaxy.intrinsicIndex % SpeechVoice.entries.size]
-        val audioUrl = geminiService.generateSpeech(SpeechGenRequest(
+        val audioUrl = kokoroClient.generateSpeech(SpeechGenRequest(
             text = speechText,
             filename = star.title,
             theme = "Say the following like you are a news reporter:",
@@ -51,7 +53,7 @@ class IdeaTableService(
         val textContent = snippetService.dao.readStarSnippets(starId).joinToString("\n") { it.text }
         val galaxy = galaxyDao.readById(star.galaxyId)
         val voice = SpeechVoice.entries[galaxy.intrinsicIndex % SpeechVoice.entries.size]
-        val audioUrl = geminiService.generateSpeech(SpeechGenRequest(
+        val audioUrl = kokoroClient.generateSpeech(SpeechGenRequest(
             text = textContent,
             filename = "${star.identifier}_content",
             theme = "Say the following in a conversational voice, in a style that matches the content, " +
@@ -85,7 +87,7 @@ class IdeaTableService(
         val snippets = starSnippetDao.readByCommentId(commentId)
         val textContent = snippets.joinToString("\n")
         val voice = comment.getVoice()
-        val audioUrl = geminiService.generateSpeech(SpeechGenRequest(
+        val audioUrl = kokoroClient.generateSpeech(SpeechGenRequest(
             text = textContent,
             filename = "${comment.identifier}_comment",
             theme = "Say the following in a conversational voice, in a style that matches the content, " +
