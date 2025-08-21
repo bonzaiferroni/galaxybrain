@@ -3,8 +3,7 @@ package ponder.galaxy.server
 import io.ktor.server.application.*
 import klutch.db.generateMigrationScript
 import klutch.environment.readEnvFromPath
-import klutch.gemini.KokoroClient
-import klutch.web.HtmlClient
+import klutch.gemini.GeminiService
 import klutch.server.configureSecurity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -15,6 +14,7 @@ import ponder.galaxy.model.reddit.REDDIT_PASSWORD_KEY
 import ponder.galaxy.model.reddit.REDDIT_USERNAME_KEY
 import ponder.galaxy.model.reddit.RedditAuth
 import ponder.galaxy.model.reddit.RedditClient
+import ponder.galaxy.server.io.EmbeddingWriter
 import ponder.galaxy.server.io.RedditMonitor
 import ponder.galaxy.server.plugins.configureApiRoutes
 import ponder.galaxy.server.plugins.configureCors
@@ -23,7 +23,6 @@ import ponder.galaxy.server.plugins.configureLogging
 import ponder.galaxy.server.plugins.configureSerialization
 import ponder.galaxy.server.plugins.configureWebSockets
 import ponder.galaxy.server.plugins.dbTables
-import java.io.File
 
 fun main(args: Array<String>) {
     if ("migrate" in args) generateMigrationScript(readEnvFromPath(), dbTables)
@@ -40,6 +39,7 @@ fun Application.module() {
         )
     )
     val redditMonitor = RedditMonitor(redditClient)
+    val embeddingWriter = EmbeddingWriter()
 
     configureCors()
     configureSerialization()
@@ -50,8 +50,12 @@ fun Application.module() {
     configureLogging()
 
     redditMonitor.start()
+    embeddingWriter.start()
 
     CoroutineScope(Dispatchers.IO).launch {
+        // val geminiService = GeminiService()
+        // val vector = geminiService.generateEmbedding("hello world")
+        // println(vector?.joinToString()?.take(40))
 //        val client = KokoroClient()
 //        val bytes = client.getMessage("hello world")
 //        File("msg.wav").writeBytes(bytes)

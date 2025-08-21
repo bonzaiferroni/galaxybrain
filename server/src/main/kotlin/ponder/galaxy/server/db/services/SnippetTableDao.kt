@@ -16,8 +16,10 @@ import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.batchUpsert
 import org.jetbrains.exposed.sql.deleteWhere
 import ponder.galaxy.model.data.Snippet
+import ponder.galaxy.model.data.SnippetEmbedding
 import ponder.galaxy.model.data.SnippetId
 import ponder.galaxy.model.data.StarId
+import ponder.galaxy.server.db.tables.SnippetEmbeddingTable
 import ponder.galaxy.server.db.tables.SnippetTable
 import ponder.galaxy.server.db.tables.StarSnippetTable
 import ponder.galaxy.server.db.tables.toSnippet
@@ -29,6 +31,10 @@ class SnippetTableDao : DbService() {
 
     suspend fun insert(vararg contents: Snippet) = dbQuery {
         SnippetTable.batchInsert(contents.toList()) { writeFull(it) }
+    }
+
+    suspend fun insert(vararg embeddings: SnippetEmbedding) = dbQuery {
+        SnippetEmbeddingTable.batchInsert(embeddings.toList()) { writeFull(it) }
     }
 
     suspend fun upsert(vararg contents: Snippet) = dbQuery {

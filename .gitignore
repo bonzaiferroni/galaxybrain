@@ -30,3 +30,4 @@ server/json/*
 server/img/*
 server/html/*
 server/content/*
+server/emb/*

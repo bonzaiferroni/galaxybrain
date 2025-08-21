@@ -5,11 +5,13 @@ package ponder.galaxy.server.db.services
 import kabinet.model.SpeechGenRequest
 import kabinet.model.SpeechVoice
 import klutch.db.DbService
-import klutch.gemini.GeminiService
 import klutch.gemini.KokoroClient
 import klutch.utils.toUUID
 import klutch.web.WebDocument
 import kotlinx.datetime.Clock
+import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.charLength
+import org.jetbrains.exposed.sql.leftJoin
 import org.jetbrains.exposed.sql.upsertReturning
 import ponder.galaxy.model.data.Snippet
 import ponder.galaxy.model.data.SnippetAudio
@@ -19,10 +21,10 @@ import ponder.galaxy.model.data.StarLink
 import ponder.galaxy.model.data.StarLinkId
 import ponder.galaxy.model.data.StarSnippet
 import ponder.galaxy.model.data.StarSnippetId
+import ponder.galaxy.server.db.tables.SnippetEmbeddingTable
 import ponder.galaxy.server.db.tables.SnippetTable
 import ponder.galaxy.server.db.tables.toSnippet
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 class SnippetTableService(
     val dao: SnippetTableDao = SnippetTableDao(),
@@ -31,7 +33,6 @@ class SnippetTableService(
     private val starLinkDao: StarLinkTableDao = StarLinkTableDao(),
     private val starDao: StarTableDao = StarTableDao(),
     private val snippetDao: SnippetTableDao = SnippetTableDao(),
-    private val geminiService: GeminiService = GeminiService(),
     private val kokoroClient: KokoroClient = KokoroClient(),
 ) : DbService() {
 
@@ -125,5 +126,12 @@ class SnippetTableService(
         )
         audioDao.upsert(audio)
         audio
+    }
+
+    suspend fun readMissingEmbeddings(minCharacters: Int = 200) = dbQuery {
+        SnippetTable.leftJoin(SnippetEmbeddingTable, { id }, { id })
+            .select(SnippetTable.columns)
+            .where { SnippetEmbeddingTable.vector.isNull() and SnippetTable.text.charLength().greaterEq(minCharacters) }
+            .map { it.toSnippet() }
     }
 }
