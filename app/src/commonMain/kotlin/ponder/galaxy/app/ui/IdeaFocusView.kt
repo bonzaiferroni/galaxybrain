@@ -13,6 +13,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import kabinet.utils.toShortDescription
 import kotlinx.datetime.Clock
+import ponder.galaxy.app.StarProfileRoute
 import ponder.galaxy.model.data.Idea
 import pondui.APP_API_URL
 import pondui.WavePlayer
@@ -34,7 +35,6 @@ fun IdeaFocusView(
     val state by viewModel.stateFlow.collectAsState()
     val audioUrl = state.idea?.audioUrl
     val wavePlayer = remember { WavePlayer() }
-    val uriHandle = LocalUriHandler.current
     LaunchedEffect(audioUrl) {
         if (audioUrl == null) return@LaunchedEffect
         wavePlayer.play("$APP_API_URL/$audioUrl")
@@ -50,7 +50,7 @@ fun IdeaFocusView(
                     val url = if (imageUrl.startsWith("http")) imageUrl else "$APP_API_URL/$imageUrl"
                     AsyncImage(model = url, contentDescription = null, modifier = Modifier.weight(1f, fill = false))
                 }
-                Text(star.displayTitle, modifier = Modifier.actionable { uriHandle.openUri(star.url) } )
+                Text(star.displayTitle, modifier = Modifier.actionable(StarProfileRoute(star.starId.value)) )
                 Row(1) {
                     Text(galaxy.name, color = Pond.colors.getSwatchFromIndex(galaxy.intrinsicIndex))
                     val now = Clock.System.now()

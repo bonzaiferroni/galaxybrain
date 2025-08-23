@@ -1,5 +1,6 @@
 package ponder.galaxy.server.db.services
 
+import kabinet.console.globalConsole
 import kabinet.model.SpeechGenRequest
 import kabinet.model.SpeechVoice
 import kabinet.utils.toAgoDescription
@@ -10,6 +11,8 @@ import ponder.galaxy.model.data.CommentId
 import ponder.galaxy.model.data.Idea
 import ponder.galaxy.model.data.IdeaId
 import ponder.galaxy.model.data.StarId
+
+private val console = globalConsole.getHandle(IdeaTableService::class)
 
 class IdeaTableService(
     val dao: IdeaTableDao = IdeaTableDao(),
@@ -32,7 +35,7 @@ class IdeaTableService(
             theme = "Say the following like you are a news reporter:",
             voice = voice
         ))
-        println("IdeaService: $audioUrl")
+        console.log(audioUrl)
         val idea = Idea(
             ideaId = IdeaId.random(),
             starId = starId,

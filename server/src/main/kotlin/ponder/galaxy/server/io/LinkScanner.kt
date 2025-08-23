@@ -1,5 +1,9 @@
 package ponder.galaxy.server.io
 
+import kabinet.console.LogColumn
+import kabinet.console.LogJustify
+import kabinet.console.LogTable
+import kabinet.console.logTable
 import kabinet.console.globalConsole
 import kabinet.utils.startOfDay
 import kabinet.web.Url
@@ -45,7 +49,6 @@ class LinkScanner(
 
                 val outcomes = mutableMapOf<LinkVisitOutcome, Int>()
                 val jobs = mutableListOf<Job>()
-                println("scanning ${originStars.size} stars")
                 for ((originStar, url) in originStars) {
                     scannedIds.add(originStar.starId.toUUID())
 
@@ -71,7 +74,9 @@ class LinkScanner(
                 }
                 delay((60..90).random() * 1000L)
                 jobs.forEach { it.cancel() }
-                println("LinkScanner: $outcomes")
+                if (outcomes.isNotEmpty()) {
+                    console.logTable(table, outcomes.entries)
+                }
             }
         }
     }
@@ -83,3 +88,8 @@ class LinkScanner(
             .map { it.toStar() }
     }
 }
+
+val table = LogTable<Map.Entry<LinkVisitOutcome, Int>>(
+    LogColumn("outcome") { it.key.toString() },
+    LogColumn("count", justify = LogJustify.RIGHT) { it.value }
+)

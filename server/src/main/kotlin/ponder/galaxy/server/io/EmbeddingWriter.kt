@@ -1,5 +1,6 @@
 package ponder.galaxy.server.io
 
+import kabinet.console.globalConsole
 import klutch.gemini.GeminiService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -11,6 +12,8 @@ import ponder.galaxy.model.data.SnippetEmbedding
 import ponder.galaxy.server.db.services.SnippetTableService
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
+
+private val console = globalConsole.getHandle(EmbeddingWriter::class)
 
 class EmbeddingWriter(
     private val geminiService: GeminiService = GeminiService(),
@@ -24,7 +27,7 @@ class EmbeddingWriter(
                 for (snippet in snippets) {
                     val vector = geminiService.generateEmbedding(snippet.text)
                     if (vector == null) {
-                        println("EmbeddingWriter: missing embedding")
+                        console.logError("missing embedding")
                         continue
                     }
                     snippetService.dao.insert(SnippetEmbedding(
@@ -33,7 +36,9 @@ class EmbeddingWriter(
                     ))
                     delay(1.seconds)
                 }
-                println("wrote: ${snippets.size} embeddings")
+                if (snippets.isNotEmpty()) {
+                    console.log("wrote: ${snippets.size} embeddings")
+                }
                 delay(1.minutes)
             }
         }

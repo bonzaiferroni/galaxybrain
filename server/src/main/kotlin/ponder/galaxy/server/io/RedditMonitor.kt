@@ -3,7 +3,10 @@
 package ponder.galaxy.server.io
 
 import kabinet.console.LogColor
+import kabinet.console.LogColumn
 import kabinet.console.LogJustify
+import kabinet.console.LogTable
+import kabinet.console.LogTableBuffer
 import kabinet.console.globalConsole
 import kabinet.utils.lerp
 import kabinet.utils.toMetricString
@@ -204,9 +207,7 @@ class RedditMonitor(
                         setFlowState(galaxy.galaxyId, GalaxyProbe(galaxy.galaxyId, starLogs))
 
                         val delayMinutes = min(20000 / galaxyVisibility, 10f).toDouble().minutes
-                        console.cell(subredditName, 20, justify = LogJustify.LEFT)
-                            .cell((delayMinutes.inWholeSeconds / 60f).toMetricString(), 4, LogColor.Blue)
-                            .send(background = LogColor.Purple)
+                        tableBuffer.logItem(console, subredditName to delayMinutes.inWholeSeconds / 60f)
                         delay(delayMinutes)
                     }
                 }
@@ -221,3 +222,11 @@ val redditHosts = listOf(
     "reddit.com",
     "redd.it"
 )
+
+private val tableBuffer = LogTableBuffer(
+    LogTable<Pair<String, Float>>(
+        LogColumn("subreddit") { it.first },
+        LogColumn("minutes", color = LogColor.Blue) { it.second.toMetricString() },
+        color = LogColor.Purple
+    )
+) { it.first }

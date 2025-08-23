@@ -6,6 +6,7 @@ import io.ktor.server.websocket.webSocket
 import io.ktor.websocket.CloseReason
 import io.ktor.websocket.Frame
 import io.ktor.websocket.close
+import kabinet.console.globalConsole
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.merge
 import kotlinx.io.IOException
@@ -14,13 +15,15 @@ import kotlinx.serialization.cbor.Cbor
 import ponder.galaxy.model.data.GalaxyProbe
 import ponder.galaxy.server.io.RedditMonitor
 
+private val console = globalConsole.getHandle("serveProbeSocket")
+
 fun Route.serveProbeSocket(
     redditMonitor: RedditMonitor
 ) {
 
     webSocket("/probe_socket") {
 
-        println("client connect")
+        console.log("client connect")
 
         try {
             // snapshot + drop nulls
@@ -36,7 +39,7 @@ fun Route.serveProbeSocket(
             }
         } catch (ioe: IOException) {
             // handle ping timeout
-            println("Ping timeout: ${ioe.message}")
+            console.log("Ping timeout: ${ioe.message}")
             close(CloseReason(CloseReason.Codes.GOING_AWAY, "Ping timeout"))
         }
     }
