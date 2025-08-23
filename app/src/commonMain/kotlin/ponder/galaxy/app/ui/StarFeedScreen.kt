@@ -261,7 +261,7 @@ fun StarFeedScreen(
                                     }
                                 }
                             }
-                            val age = now - star.createdAt
+                            val age = now - star.existedAt
                             val ageRatio = age.inWholeSeconds / (60 * 60 * 24).toFloat()
                             ProgressBar(
                                 progress = ageRatio,

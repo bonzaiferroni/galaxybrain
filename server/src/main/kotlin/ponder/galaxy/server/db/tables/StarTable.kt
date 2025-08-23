@@ -29,9 +29,10 @@ internal object StarTable: UUIDTable("star") {
     val commentCount = integer("comment_count").nullable()
     val voteCount = integer("vote_count").nullable()
     val wordCount = integer("word_count").nullable()
+    val accessedAt = datetime("accessed_at").nullable()
+    val publishedAt = datetime("published_at").nullable()
     val updatedAt = datetime("updated_at")
     val createdAt = datetime("created_at")
-    val accessedAt = datetime("accessed_at")
 }
 
 internal fun ResultRow.toStar() = Star(
@@ -47,9 +48,10 @@ internal fun ResultRow.toStar() = Star(
     commentCount = this[StarTable.commentCount],
     voteCount = this[StarTable.voteCount],
     wordCount = this[StarTable.wordCount],
+    accessedAt = this[StarTable.accessedAt]?.toInstantFromUtc(),
+    publishedAt = this[StarTable.publishedAt]?.toInstantFromUtc(),
     updatedAt = this[StarTable.updatedAt].toInstantFromUtc(),
     createdAt = this[StarTable.createdAt].toInstantFromUtc(),
-    accessedAt = this[StarTable.accessedAt].toInstantFromUtc()
 )
 
 internal fun UpdateBuilder<*>.writeFull(star: Star) {
@@ -57,7 +59,7 @@ internal fun UpdateBuilder<*>.writeFull(star: Star) {
     this[StarTable.galaxyId] = star.galaxyId.toUUID()
     this[StarTable.identifier] = star.identifier
     this[StarTable.createdAt] = star.createdAt.toLocalDateTimeUtc()
-    this[StarTable.accessedAt] = star.accessedAt.toLocalDateTimeUtc()
+    this[StarTable.accessedAt] = star.accessedAt?.toLocalDateTimeUtc()
     writeUpdate(star)
 }
 
@@ -72,4 +74,5 @@ internal fun UpdateBuilder<*>.writeUpdate(star: Star) {
     this[StarTable.voteCount] = star.voteCount
     this[StarTable.wordCount] = star.wordCount
     this[StarTable.updatedAt] = star.updatedAt.toLocalDateTimeUtc()
+    this[StarTable.publishedAt] = star.publishedAt?.toLocalDateTimeUtc()
 }

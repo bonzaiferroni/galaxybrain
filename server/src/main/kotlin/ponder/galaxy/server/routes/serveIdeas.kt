@@ -32,7 +32,7 @@ fun Routing.serveIdeas(
         }
     }
 
-    get(Api.Ideas.Comment, { CommentId(it)}) { commentId, endpoint ->
+    get(Api.Ideas.Comments, { CommentId(it)}) { commentId, endpoint ->
         val create = endpoint.create.readParamOrNull(call)
         service.dao.readIdeas(commentId).firstOrNull() ?: when (create) {
             true -> service.createFromComment(commentId)

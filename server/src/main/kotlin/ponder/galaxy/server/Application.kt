@@ -15,6 +15,7 @@ import ponder.galaxy.model.reddit.REDDIT_USERNAME_KEY
 import ponder.galaxy.model.reddit.RedditAuth
 import ponder.galaxy.model.reddit.RedditClient
 import ponder.galaxy.server.io.EmbeddingWriter
+import ponder.galaxy.server.io.LinkScanner
 import ponder.galaxy.server.io.RedditMonitor
 import ponder.galaxy.server.plugins.configureApiRoutes
 import ponder.galaxy.server.plugins.configureCors
@@ -40,6 +41,7 @@ fun Application.module() {
     )
     val redditMonitor = RedditMonitor(redditClient)
     val embeddingWriter = EmbeddingWriter()
+    val linkScanner = LinkScanner()
 
     configureCors()
     configureSerialization()
@@ -51,6 +53,7 @@ fun Application.module() {
 
     redditMonitor.start()
     embeddingWriter.start()
+    linkScanner.start()
 
     CoroutineScope(Dispatchers.IO).launch {
         // val geminiService = GeminiService()

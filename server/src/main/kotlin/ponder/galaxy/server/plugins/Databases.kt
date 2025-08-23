@@ -5,6 +5,7 @@ import klutch.db.initDb
 import klutch.db.tables.RefreshTokenTable
 import klutch.db.tables.UserTable
 import klutch.environment.readEnvFromPath
+import ponder.galaxy.model.data.LinkVisit
 import ponder.galaxy.server.db.tables.CommentTable
 import ponder.galaxy.server.db.tables.GalaxyTable
 import ponder.galaxy.server.db.tables.IdeaTable
@@ -13,6 +14,7 @@ import ponder.galaxy.server.db.tables.StarLogTable
 import ponder.galaxy.server.db.tables.StarTable
 import ponder.galaxy.server.db.tables.StarSnippetTable
 import ponder.galaxy.server.db.tables.HostTable
+import ponder.galaxy.server.db.tables.LinkVisitTable
 import ponder.galaxy.server.db.tables.SnippetAudioTable
 import ponder.galaxy.server.db.tables.SnippetEmbeddingTable
 import ponder.galaxy.server.db.tables.SnippetTable
@@ -37,6 +39,7 @@ val dbTables = listOf(
     SnippetEmbeddingTable,
     StarSnippetTable,
     HostTable,
+    LinkVisitTable,
 )
 
 //CREATE DATABASE example_db;

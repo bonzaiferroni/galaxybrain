@@ -24,7 +24,7 @@ class IdeaTableService(
     suspend fun createFromHeadline(starId: StarId): Idea {
         val star = starDao.readByIdOrNull(starId) ?: error("star not found: $starId")
         val galaxy = galaxyDao.readById(star.galaxyId)
-        val speechText = "From ${galaxy.name}, posted ${(Clock.System.now() - star.createdAt).toAgoDescription()}.\n\n${star.title}"
+        val speechText = "From ${galaxy.name}, posted ${(Clock.System.now() - star.existedAt).toAgoDescription()}.\n\n${star.title}"
         val voice = SpeechVoice.entries[galaxy.intrinsicIndex % SpeechVoice.entries.size]
         val audioUrl = kokoroClient.generateSpeech(SpeechGenRequest(
             text = speechText,

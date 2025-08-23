@@ -29,7 +29,7 @@ fun Routing.serveStars(
         if (star != null) return@post star
         val create = endpoint.create.readParamOrNull(call)
         if (create == true) {
-            star = service.discoverStarFromUrl(url)
+            star = service.discoverStarFromUrl(url, true)
         }
         star
     }

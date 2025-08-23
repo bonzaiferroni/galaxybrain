@@ -7,7 +7,6 @@ import kabinet.web.Url
 import kabinet.web.fromHref
 import kabinet.web.fromHrefOrNull
 import klutch.utils.toStringId
-import klutch.utils.toUuid
 import klutch.web.RedditReader
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -120,7 +119,7 @@ class RedditMonitor(
 
                             val visibility = article.deriveVisibility()
                             val visibilityRatio = galaxyVisibility.takeIf { it > 0 }?.let { visibility / it } ?: 0f
-                            val createdAt = Instant.fromEpochSeconds(article.createdUtc.toLong())
+                            val publishedAt = Instant.fromEpochSeconds(article.createdUtc.toLong())
 
                             val thumbUrl = article.preview?.images?.minBy { it.source.width }?.source?.url
                             val imageUrl = article.preview?.images?.maxBy { it.source.width }?.source?.url
@@ -141,7 +140,7 @@ class RedditMonitor(
                                     galaxyId = galaxy.galaxyId,
                                     identifier = article.id,
                                     title = article.title,
-                                    link = article.url,
+                                    link = article.url.takeIf { link -> redditHosts.none { link.contains(it) } },
                                     url = starUrl.href,
                                     thumbUrl = thumbUrl,
                                     imageUrl = imageUrl,
@@ -149,9 +148,10 @@ class RedditMonitor(
                                     voteCount = article.ups,
                                     wordCount = document?.wordCount,
                                     commentCount = article.numComments,
+                                    publishedAt = publishedAt,
+                                    accessedAt = now,
                                     updatedAt = now,
-                                    createdAt = createdAt,
-                                    accessedAt = now
+                                    createdAt = now,
                                 )
                             }.let { StarId(it.toStringId()) }
 
@@ -209,3 +209,7 @@ class RedditMonitor(
 
 fun RedditArticleDto.deriveVisibility() = (numComments * 2 + score).toFloat()
 
+val redditHosts = listOf(
+    "reddit.com",
+    "redd.it"
+)

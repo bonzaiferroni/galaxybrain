@@ -21,7 +21,7 @@ import ponder.galaxy.model.data.Star
 import ponder.galaxy.model.data.StarId
 import ponder.galaxy.model.data.StarLink
 import ponder.galaxy.model.data.StarLog
-import ponder.galaxy.model.data.UniverseTest
+import ponder.galaxy.model.data.SnippetDistance
 
 object Api: ApiNode(ApiNode(null, "api"), "v1") {
     object Examples : GetByTableIdEndpoint<ExampleId, Example>(this, "example") {
@@ -71,7 +71,7 @@ object Api: ApiNode(ApiNode(null, "api"), "v1") {
         object Content : GetByTableIdEndpoint<StarId, Idea?>(this, "content") {
             val create = addBooleanParam("create")
         }
-        object Comment : GetByTableIdEndpoint<CommentId, Idea?>(this, "comment") {
+        object Comments : GetByTableIdEndpoint<CommentId, Idea?>(this, "comment") {
             val create = addBooleanParam("create")
         }
     }
@@ -79,6 +79,6 @@ object Api: ApiNode(ApiNode(null, "api"), "v1") {
     object Snippets : ApiNode(this, "snippet") {
         object StarSnippets : GetByTableIdEndpoint<StarId, List<Snippet>>(this, "star")
         object Audio : GetByTableIdEndpoint<SnippetId, SnippetAudio>(this, "audio")
-        object TestUniverse : PostEndpoint<String, List<UniverseTest>>(this, "test_universe")
+        object TestUniverse : PostEndpoint<String, List<SnippetDistance>>(this, "test_universe")
     }
 }

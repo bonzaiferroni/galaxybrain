@@ -40,4 +40,4 @@ class EmbeddingWriter(
     }
 }
 
-const val MIN_EMBEDDING_CHARS = 250
+const val MIN_EMBEDDING_CHARS = 100

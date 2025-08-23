@@ -20,11 +20,13 @@ data class Star(
     val commentCount: Int?,
     val voteCount: Int?,
     val wordCount: Int?,
+    val accessedAt: Instant?,
+    val publishedAt: Instant?,
     val updatedAt: Instant,
     val createdAt: Instant,
-    val accessedAt: Instant,
 ) {
     val displayTitle get() = title ?: "[Title missing]"
+    val existedAt get() = publishedAt ?: createdAt
 }
 
 @JvmInline @Serializable

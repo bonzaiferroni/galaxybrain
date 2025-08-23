@@ -49,7 +49,7 @@ class StarTableDao: DbService() {
 
     suspend fun updateByUrlOrInsert(url: String, galaxyId: GalaxyId, provideStar: () -> Star) = dbQuery {
         val star = provideStar()
-        StarTable.updateSingleWhere({ it.link.eq(url) and it.galaxyId.eq(galaxyId) }) {
+        StarTable.updateSingleWhere({ it.url.eq(url) and it.galaxyId.eq(galaxyId) }) {
             it.writeUpdate(star)
         } ?: StarTable.insertAndGetId { it.writeFull(star) }.value
     }

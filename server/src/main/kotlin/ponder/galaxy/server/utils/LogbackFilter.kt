@@ -8,11 +8,10 @@ class LogbackFilter : Filter<ILoggingEvent>() {
     override fun decide(event: ILoggingEvent): FilterReply {
         val throwable = event.throwableProxy ?: return FilterReply.NEUTRAL
         val className = throwable.className
-        if (deniedMessages.contains(throwable.message)) {
-            println("eyyy")
-        }
-        return if (deniedClassnames.contains(className))
+        return if (deniedClassnames.contains(className)) {
+            println("filtered exception: $className ${throwable.message}")
             FilterReply.DENY
+        }
         else
             FilterReply.NEUTRAL
     }
@@ -21,9 +20,5 @@ class LogbackFilter : Filter<ILoggingEvent>() {
 val deniedClassnames = setOf(
     "io.ktor.utils.io.ClosedByteChannelException",
     "java.nio.channels.ClosedChannelException",
-    // "java.net.SocketException"
-)
-
-val deniedMessages = setOf(
-    "java.net.SocketException: Connection reset"
+    "java.net.SocketException"
 )

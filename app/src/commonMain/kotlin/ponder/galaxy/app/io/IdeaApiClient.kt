@@ -20,5 +20,5 @@ class IdeaApiClient(
         client.getById(Api.Ideas.Content, starId) { write(it.create, create) }
 
     suspend fun readCommentIdea(commentId: CommentId, create: Boolean = false) =
-        client.getById(Api.Ideas.Comment, commentId) { write(it.create, create) }
+        client.getById(Api.Ideas.Comments, commentId) { write(it.create, create) }
 }

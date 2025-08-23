@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "f4c061669e9dc4685d777cac8c18605e",
+    "identityHash": "1dddfd73bbb2d26b8d0cc5912f24df86",
     "entities": [
       {
         "tableName": "StarEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`starId` TEXT NOT NULL, `title` TEXT, `url` TEXT NOT NULL, `visibility` REAL, `updatedAt` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, `discoveredAt` INTEGER NOT NULL, PRIMARY KEY(`starId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`starId` TEXT NOT NULL, `title` TEXT, `url` TEXT NOT NULL, `visibility` REAL, `updatedAt` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`starId`))",
         "fields": [
           {
             "fieldPath": "starId",
@@ -39,12 +39,6 @@
           {
             "fieldPath": "createdAt",
             "columnName": "createdAt",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "discoveredAt",
-            "columnName": "discoveredAt",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -89,7 +83,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f4c061669e9dc4685d777cac8c18605e')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1dddfd73bbb2d26b8d0cc5912f24df86')"
     ]
   }
 }

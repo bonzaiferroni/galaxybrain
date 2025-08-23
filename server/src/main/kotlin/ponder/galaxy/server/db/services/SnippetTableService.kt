@@ -26,7 +26,7 @@ import ponder.galaxy.model.data.StarLink
 import ponder.galaxy.model.data.StarLinkId
 import ponder.galaxy.model.data.StarSnippet
 import ponder.galaxy.model.data.StarSnippetId
-import ponder.galaxy.model.data.UniverseTest
+import ponder.galaxy.model.data.SnippetDistance
 import ponder.galaxy.server.db.tables.SnippetEmbeddingTable
 import ponder.galaxy.server.db.tables.SnippetTable
 import ponder.galaxy.server.db.tables.toSnippet
@@ -149,6 +149,6 @@ class SnippetTableService(
             .select(SnippetTable.columns + distance)
             .orderBy(distance, SortOrder.ASC)
             .limit(limit)
-            .map { UniverseTest(it[distance], it.toSnippet()) }
+            .map { SnippetDistance(it[distance], it.toSnippet()) }
     }
 }

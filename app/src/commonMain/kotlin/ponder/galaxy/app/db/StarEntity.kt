@@ -23,7 +23,7 @@ data class StarEntity(
     val visibility: Float?,
     val updatedAt: Instant,
     val createdAt: Instant,
-    val discoveredAt: Instant,
+    // val discoveredAt: Instant,
 )
 
 fun Star.toEntity() = StarEntity(
@@ -34,5 +34,5 @@ fun Star.toEntity() = StarEntity(
     visibility = visibility,
     updatedAt = updatedAt,
     createdAt = createdAt,
-    discoveredAt = accessedAt
+    // discoveredAt = accessedAt
 )

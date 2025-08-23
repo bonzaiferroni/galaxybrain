@@ -83,7 +83,7 @@ fun StarProfileScreen(
                     star.commentCount,
                     modifier = Modifier.actionable { uriHandler.openUri(star.url) })
                 val now = Clock.System.now()
-                val age = now - star.createdAt
+                val age = now - star.existedAt
                 val ageRatio = age.inWholeSeconds / (60 * 60 * 24).toFloat()
                 ProgressBar(
                     progress = ageRatio,

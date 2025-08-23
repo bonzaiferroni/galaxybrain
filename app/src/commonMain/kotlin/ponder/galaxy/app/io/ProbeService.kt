@@ -69,7 +69,7 @@ class ProbeService(
     fun getStars() = allStars.values.toList()
 
     fun getRise(starId: StarId) =
-        allStars[starId]?.let { allStarLogs[starId]?.lastOrNull()?.getRise(it.createdAt, state.value.riseFactor) }
+        allStars[starId]?.let { allStarLogs[starId]?.lastOrNull()?.getRise(it.publishedAt ?: it.createdAt, state.value.riseFactor) }
 
     fun getStarLogs(starId: StarId) = allStarLogs[starId]
 

@@ -54,7 +54,7 @@ fun IdeaFocusView(
                 Row(1) {
                     Text(galaxy.name, color = Pond.colors.getSwatchFromIndex(galaxy.intrinsicIndex))
                     val now = Clock.System.now()
-                    val age = now - star.createdAt
+                    val age = now - star.existedAt
                     val ageRatio = (age / 1.days).toFloat()
                     ProgressBar(ageRatio) {
                         Text(age.toShortDescription())

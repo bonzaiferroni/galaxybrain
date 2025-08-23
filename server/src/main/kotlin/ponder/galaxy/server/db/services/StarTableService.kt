@@ -5,10 +5,15 @@ import kabinet.web.fromHref
 import klutch.db.DbService
 import klutch.web.HtmlClient
 import kabinet.web.toUrlOrNull
+import klutch.db.read
+import klutch.utils.greaterEq
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import ponder.galaxy.model.data.NewStarContent
 import ponder.galaxy.model.data.Star
 import ponder.galaxy.model.data.StarId
+import ponder.galaxy.server.db.tables.StarTable
+import ponder.galaxy.server.db.tables.toStar
 
 class StarTableService(
     val dao: StarTableDao = StarTableDao(),
@@ -18,7 +23,7 @@ class StarTableService(
     private val htmlClient: HtmlClient = HtmlClient()
 ): DbService() {
 
-    suspend fun discoverStarFromUrl(href: String): Star? = dbQuery {
+    suspend fun discoverStarFromUrl(href: String, visitDocument: Boolean): Star? = dbQuery {
         val url = href.toUrlOrNull() ?: return@dbQuery null
         val existingStar = dao.readByUrl(url)
         if (existingStar != null) {
@@ -27,7 +32,7 @@ class StarTableService(
 
         val host = hostService.dao.readByUrl(url) ?: hostService.createByUrl(url)
 
-        val document = htmlClient.readUrl(href)
+        val document = if (visitDocument) htmlClient.readUrl(href) else null
 
         val name = document?.publisherName ?: url.core
         val galaxy = galaxyService.readByNameAndHostId(host.hostId, name)
@@ -46,15 +51,18 @@ class StarTableService(
             commentCount = null,
             voteCount = null,
             wordCount = document?.wordCount,
+            accessedAt = if (document != null) Clock.System.now() else null,
+            publishedAt = document?.publishedAt,
             updatedAt = Clock.System.now(),
             createdAt = Clock.System.now(),
-            accessedAt = Clock.System.now(),
         )
         dao.insert(star)
 
         if (document != null && document.contents.isNotEmpty()) {
             snippetService.createOrUpdateStarSnippets(star.starId, document)
         }
+
+        // todo: associate starlinks
         
         star
     }
