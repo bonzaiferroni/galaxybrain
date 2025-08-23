@@ -39,9 +39,12 @@ import ponder.galaxy.server.db.services.SnippetTableService
 import ponder.galaxy.server.db.services.StarLinkTableDao
 import ponder.galaxy.server.db.services.StarLogTableDao
 import ponder.galaxy.server.db.services.StarTableDao
+import ponder.galaxy.server.globalConsole
 import kotlin.math.min
 import kotlin.time.Duration.Companion.minutes
 import kotlin.uuid.ExperimentalUuidApi
+
+private val console = globalConsole.getHandle(RedditMonitor::class)
 
 class RedditMonitor(
     private val client: RedditClient,
@@ -134,7 +137,7 @@ class RedditMonitor(
                                 )
                             }
 
-                            val starId = starDao.updateByUrlOrInsert(article.url, galaxy.galaxyId) {
+                            val starId = starDao.updateByUrlOrInsert(starUrl.href, galaxy.galaxyId) {
                                 Star(
                                     starId = StarId.random(),
                                     galaxyId = galaxy.galaxyId,
@@ -198,7 +201,7 @@ class RedditMonitor(
                         setFlowState(galaxy.galaxyId, GalaxyProbe(galaxy.galaxyId, starLogs))
 
                         val delayMinutes = min(20000 / galaxyVisibility, 10f).toDouble().minutes
-                        println("$subredditName, $delayMinutes")
+                        console.log("$subredditName, $delayMinutes")
                         delay(delayMinutes)
                     }
                 }

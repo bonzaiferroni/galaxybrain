@@ -17,7 +17,7 @@ import ponder.galaxy.model.data.LinkVisitId
 import ponder.galaxy.model.data.LinkVisitOutcome
 
 internal object LinkVisitTable : LongIdTable("link_visit") {
-    val hostId = reference("host_id", HostTable, onDelete = ReferenceOption.CASCADE)
+    val hostId = reference("host_id", HostTable, onDelete = ReferenceOption.CASCADE).index()
     val url = text("url")
     val outcome = enumerationByName("outcome", 32, LinkVisitOutcome::class)
     val createdAt = datetime("created_at")

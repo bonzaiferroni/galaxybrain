@@ -1,0 +1,15 @@
+CREATE INDEX star_galaxy_id ON star (galaxy_id);
+CREATE INDEX star_log_star_id ON star_log (star_id);
+CREATE INDEX star_snippet_comment_id ON star_snippet (comment_id);
+CREATE INDEX idea_star_id ON idea (star_id);
+CREATE INDEX star_snippet_star_id ON star_snippet (star_id);
+CREATE INDEX star_snippet_snippet_id ON star_snippet (snippet_id);
+CREATE INDEX star_link_from_star_id ON star_link (from_star_id);
+CREATE INDEX star_link_snippet_id ON star_link (snippet_id);
+CREATE INDEX link_visit_host_id ON link_visit (host_id);
+CREATE INDEX comment_star_id ON "comment" (star_id);
+CREATE INDEX comment_parent_id ON "comment" (parent_id);
+CREATE INDEX galaxy_host_id ON galaxy (host_id);
+CREATE INDEX star_link_to_star_id ON star_link (to_star_id);
+CREATE INDEX idea_comment_id ON idea (comment_id);
+CREATE INDEX star_link_comment_id ON star_link (comment_id);

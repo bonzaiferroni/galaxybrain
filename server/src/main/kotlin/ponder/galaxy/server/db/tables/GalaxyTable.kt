@@ -16,7 +16,7 @@ import ponder.galaxy.model.data.GalaxyId
 import ponder.galaxy.model.data.HostId
 
 internal object GalaxyTable: UUIDTable("galaxy") {
-    val hostId = reference("host_id", HostTable, onDelete = ReferenceOption.CASCADE)
+    val hostId = reference("host_id", HostTable, onDelete = ReferenceOption.CASCADE).index()
     val name = text("name")
     val url = text("url")
     val visibility = float("visibility")

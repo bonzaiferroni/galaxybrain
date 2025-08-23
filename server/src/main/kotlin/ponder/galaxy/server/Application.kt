@@ -1,6 +1,7 @@
 package ponder.galaxy.server
 
 import io.ktor.server.application.*
+import kabinet.console.LogConsole
 import klutch.db.generateMigrationScript
 import klutch.environment.readEnvFromPath
 import klutch.gemini.GeminiService
@@ -71,3 +72,5 @@ fun Application.module() {
 }
 
 private val env = readEnvFromPath()
+
+val globalConsole = LogConsole()

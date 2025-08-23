@@ -18,8 +18,8 @@ import ponder.galaxy.model.data.StarId
 import kotlin.uuid.ExperimentalUuidApi
 
 internal object CommentTable : UUIDTable("comment") {
-    val parentId = reference("parent_id", CommentTable, onDelete = ReferenceOption.CASCADE).nullable()
-    val starId = reference("star_id", StarTable, onDelete = ReferenceOption.CASCADE)
+    val parentId = reference("parent_id", CommentTable, onDelete = ReferenceOption.CASCADE).nullable().index()
+    val starId = reference("star_id", StarTable, onDelete = ReferenceOption.CASCADE).index()
     val identifier = text("identifier")
     val author = text("author")
     val depth = integer("depth").nullable()

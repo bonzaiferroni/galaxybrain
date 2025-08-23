@@ -21,10 +21,10 @@ import ponder.galaxy.model.data.StarLinkId
 import kotlin.uuid.ExperimentalUuidApi
 
 internal object StarLinkTable : UUIDTable("star_link") {
-    val fromStarId = reference("from_star_id", StarTable, onDelete = ReferenceOption.SET_NULL).nullable()
-    val toStarId = reference("to_star_id", StarTable, onDelete = ReferenceOption.SET_NULL).nullable()
-    val snippetId = reference("snippet_id", SnippetTable, onDelete = ReferenceOption.CASCADE).nullable()
-    val commentId = reference("comment_id", CommentTable, onDelete = ReferenceOption.SET_NULL).nullable()
+    val fromStarId = reference("from_star_id", StarTable, onDelete = ReferenceOption.SET_NULL).nullable().index()
+    val toStarId = reference("to_star_id", StarTable, onDelete = ReferenceOption.SET_NULL).nullable().index()
+    val snippetId = reference("snippet_id", SnippetTable, onDelete = ReferenceOption.CASCADE).nullable().index()
+    val commentId = reference("comment_id", CommentTable, onDelete = ReferenceOption.SET_NULL).nullable().index()
     val url = text("url")
     val text = text("text").nullable()
     val startIndex = integer("start_index").nullable()

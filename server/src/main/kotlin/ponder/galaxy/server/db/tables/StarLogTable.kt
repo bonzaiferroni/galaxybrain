@@ -20,7 +20,7 @@ import ponder.galaxy.model.data.StarLogId
 import kotlin.uuid.ExperimentalUuidApi
 
 object StarLogTable: LongIdTable("star_log") {
-    val starId = reference("star_id", StarTable, onDelete = ReferenceOption.CASCADE)
+    val starId = reference("star_id", StarTable, onDelete = ReferenceOption.CASCADE).index()
     val visibility = float("visibility")
     val visibilityRatio = float("visibility_ratio")
     val commentCount = integer("comment_count")

@@ -17,8 +17,8 @@ import ponder.galaxy.model.data.IdeaId
 import ponder.galaxy.model.data.StarId
 
 internal object IdeaTable: UUIDTable("idea") {
-    val starId = reference("star_id", StarTable, onDelete = ReferenceOption.CASCADE).nullable()
-    val commentId = reference("comment_id", CommentTable, onDelete = ReferenceOption.CASCADE).nullable()
+    val starId = reference("star_id", StarTable, onDelete = ReferenceOption.CASCADE).nullable().index()
+    val commentId = reference("comment_id", CommentTable, onDelete = ReferenceOption.CASCADE).nullable().index()
     val description = text("description")
     val audioUrl = text("audio_url").nullable()
     val textContent = text("text").nullable()

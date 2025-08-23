@@ -20,9 +20,9 @@ import ponder.galaxy.model.data.StarSnippet
 import ponder.galaxy.model.data.StarSnippetId
 
 internal object StarSnippetTable : UUIDTable("star_snippet") {
-    val starId = reference("star_id", StarTable, onDelete = ReferenceOption.CASCADE)
-    val snippetId = reference("snippet_id", SnippetTable, onDelete = ReferenceOption.CASCADE)
-    val commentId = reference("comment_id", CommentTable, onDelete = ReferenceOption.SET_NULL).nullable()
+    val starId = reference("star_id", StarTable, onDelete = ReferenceOption.CASCADE).index()
+    val snippetId = reference("snippet_id", SnippetTable, onDelete = ReferenceOption.CASCADE).index()
+    val commentId = reference("comment_id", CommentTable, onDelete = ReferenceOption.SET_NULL).nullable().index()
     val order = integer("text_index")
     val createdAt = datetime("created_at")
 }
