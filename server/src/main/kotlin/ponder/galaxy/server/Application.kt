@@ -72,5 +72,3 @@ fun Application.module() {
 }
 
 private val env = readEnvFromPath()
-
-val globalConsole = LogConsole()

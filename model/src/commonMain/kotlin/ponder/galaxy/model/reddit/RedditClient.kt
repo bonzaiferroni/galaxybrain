@@ -11,7 +11,10 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.path
+import kabinet.console.globalConsole
 import kotlinx.coroutines.delay
+
+private val console = globalConsole.getHandle(RedditClient::class)
 
 class RedditClient(
     private val auth: RedditAuth,
@@ -33,13 +36,13 @@ class RedditClient(
                     cachedToken = null
                     return@repeat
                 }
-                println("REDDIT API ERROR > get ${request.url}: ${response.status}")
+                console.logError("REDDIT API ERROR > get ${request.url}: ${response.status}")
             } catch (e: Exception) {
-                println("RedditClient: $e")
+                console.logError("RedditClient: $e")
             }
             delay(1000)
         }
-        println("REDDIT API ERROR > endpoint fail: ${request.url}")
+        console.logError("REDDIT API ERROR > endpoint fail: ${request.url}")
         return null
     }
 

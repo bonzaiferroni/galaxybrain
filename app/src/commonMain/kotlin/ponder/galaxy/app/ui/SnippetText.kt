@@ -31,7 +31,7 @@ fun SnippetText(
 ) {
     val colors = Pond.colors
     val localColors = Pond.localColors
-    val linkColor = colors.action.lighten(.3f)
+    val linkColor = colors.action.lighten(.4f)
     val annotated = remember(text, starLinks) {
         val b = AnnotatedString.Builder(text)
 

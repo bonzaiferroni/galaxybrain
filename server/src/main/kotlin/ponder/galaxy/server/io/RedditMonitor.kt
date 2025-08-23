@@ -2,7 +2,11 @@
 
 package ponder.galaxy.server.io
 
+import kabinet.console.LogColor
+import kabinet.console.LogJustify
+import kabinet.console.globalConsole
 import kabinet.utils.lerp
+import kabinet.utils.toMetricString
 import kabinet.web.Url
 import kabinet.web.fromHref
 import kabinet.web.fromHrefOrNull
@@ -39,7 +43,6 @@ import ponder.galaxy.server.db.services.SnippetTableService
 import ponder.galaxy.server.db.services.StarLinkTableDao
 import ponder.galaxy.server.db.services.StarLogTableDao
 import ponder.galaxy.server.db.services.StarTableDao
-import ponder.galaxy.server.globalConsole
 import kotlin.math.min
 import kotlin.time.Duration.Companion.minutes
 import kotlin.uuid.ExperimentalUuidApi
@@ -103,7 +106,7 @@ class RedditMonitor(
                         val galaxy = galaxyDao.readByName(subredditName) ?: error("galaxy not found: $subredditName")
                         val articles = client.getArticles(subredditName, ListingType.Hot)
                         if (articles == null) {
-                            println("RedditMonitor: articles not found")
+                            console.logError("RedditMonitor: articles not found")
                             delay(1.minutes)
                             continue
                         }
@@ -201,7 +204,9 @@ class RedditMonitor(
                         setFlowState(galaxy.galaxyId, GalaxyProbe(galaxy.galaxyId, starLogs))
 
                         val delayMinutes = min(20000 / galaxyVisibility, 10f).toDouble().minutes
-                        console.log("$subredditName, $delayMinutes")
+                        console.cell(subredditName, 20, justify = LogJustify.LEFT)
+                            .cell((delayMinutes.inWholeSeconds / 60f).toMetricString(), 4, LogColor.Blue)
+                            .send(background = LogColor.Purple)
                         delay(delayMinutes)
                     }
                 }

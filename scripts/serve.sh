@@ -1,2 +1,2 @@
 #!/bin/bash
-./gradlew -p server --console=plain
+./gradlew -p server --console=plain  --warn

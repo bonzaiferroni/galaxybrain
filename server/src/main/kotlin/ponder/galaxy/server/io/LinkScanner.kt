@@ -1,5 +1,6 @@
 package ponder.galaxy.server.io
 
+import kabinet.console.globalConsole
 import kabinet.utils.startOfDay
 import kabinet.web.Url
 import kabinet.web.fromHrefOrNull
@@ -23,6 +24,8 @@ import ponder.galaxy.server.db.tables.StarTable
 import ponder.galaxy.server.db.tables.toStar
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
+
+private val console = globalConsole.getHandle(LinkScanner::class)
 
 class LinkScanner(
     private val linkScout: LinkScout = LinkScout(),
