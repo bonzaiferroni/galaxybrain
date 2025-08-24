@@ -35,7 +35,7 @@ class IdeaTableService(
             theme = "Say the following like you are a news reporter:",
             voice = voice
         ))
-        console.log("${voice.name}: ${star.title?.take(25)}")
+        console.log("${voice.apiName}: ${star.title?.take(30)}")
         val idea = Idea(
             ideaId = IdeaId.random(),
             starId = starId,

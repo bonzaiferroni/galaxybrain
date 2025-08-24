@@ -1,6 +1,7 @@
 package ponder.galaxy.app.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -37,8 +38,16 @@ fun IdeaFocusView(
     val wavePlayer = remember { WavePlayer() }
     val uriHandler = LocalUriHandler.current
     LaunchedEffect(audioUrl) {
-        if (audioUrl == null) return@LaunchedEffect
+        if (audioUrl == null || audioUrl == state.finishedAudio) return@LaunchedEffect
         wavePlayer.play("$APP_API_URL/$audioUrl")
+        viewModel.setFinishedAudio(audioUrl)
+    }
+
+    DisposableEffect(Unit) {
+        viewModel.connect()
+        onDispose {
+            viewModel.disconnect()
+        }
     }
 
     Drawer(isIdeaVisible, openHeight = 400.dp) {

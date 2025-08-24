@@ -36,15 +36,20 @@ class IdeaFocusModel(
     private val queuedSpeech = mutableListOf<Star>()
 
     init {
-        val startOfDay = Clock.startOfDay()
         viewModelScope.launch(Dispatchers.IO) {
-            val galaxies = galaxyApiClient.readAll() ?: error("galaxies not found")
             val ideas = ideaClient.readIdeas(Clock.startOfDay()) ?: error("ideas not found")
             for (idea in ideas) {
                 val starId = idea.starId ?: continue
                 generatedSpeech[starId] = idea.createdAt
             }
+        }
+    }
 
+    fun connect() {
+        cancelJobs()
+        val startOfDay = Clock.startOfDay()
+        viewModelScope.launch(Dispatchers.IO) {
+            val galaxies = galaxyApiClient.readAll() ?: error("galaxies not found")
             launch {
                 probeService.stateFlow.collect { state ->
                     takeStars(
@@ -68,22 +73,27 @@ class IdeaFocusModel(
         }
     }
 
+    fun disconnect() {
+        cancelJobs()
+    }
+
+    fun setFinishedAudio(audioUrl: String) = setState { it.copy(finishedAudio = audioUrl) }
+
     private fun takeStars(stars: List<Star>, galaxies: List<Galaxy>) {
         println("looking through ${stars.size} stars")
         for (galaxy in galaxies) {
             val star = stars.firstOrNull { it.galaxyId == galaxy.galaxyId } ?: continue
             if (star.visibility == null) continue
-            if (generatedSpeech.contains(star.starId)) continue
-            val now = Clock.System.now()
-            generatedSpeech[star.starId] = now
+            if (generatedSpeech.contains(star.starId) || queuedSpeech.contains(star)) continue
             println("queuing speech: ${galaxy.name} ${star.starId}")
-
             queuedSpeech.add(star)
         }
     }
 
     private suspend fun generateSpeech(star: Star, galaxy: Galaxy) {
         val idea = ideaClient.readHeadlineIdea(star.starId, true)
+        val now = Clock.System.now()
+        generatedSpeech[star.starId] = now
         setState { it.copy(idea = idea, star = star, galaxy = galaxy)}
     }
 }
@@ -92,4 +102,5 @@ data class IdeaFocusState(
     val star: Star? = null,
     val idea: Idea? = null,
     val galaxy: Galaxy? = null,
+    val finishedAudio: String? = null,
 )
