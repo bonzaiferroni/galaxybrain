@@ -3,13 +3,16 @@ package ponder.galaxy.server.utils
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.filter.Filter
 import ch.qos.logback.core.spi.FilterReply
+import kabinet.console.globalConsole
+
+private val console = globalConsole.getHandle(LogbackFilter::class)
 
 class LogbackFilter : Filter<ILoggingEvent>() {
     override fun decide(event: ILoggingEvent): FilterReply {
         val throwable = event.throwableProxy ?: return FilterReply.NEUTRAL
         val className = throwable.className
         return if (deniedClassnames.contains(className)) {
-            println("filtered exception: $className ${throwable.message}")
+            console.logWarning("$className ${throwable.message}")
             FilterReply.DENY
         }
         else

@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS question (id uuid PRIMARY KEY, "text" TEXT NOT NULL, created_at TIMESTAMP NOT NULL);

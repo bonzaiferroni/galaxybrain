@@ -28,6 +28,17 @@ object StarFeedRoute : AppRoute("StarFeed")
 object GalaxyFeedRoute : AppRoute("GalaxyFeed")
 
 @Serializable
+object QuestionFeedRoute : AppRoute("QuestionFeed")
+
+@Serializable
+data class QuestionProfileRoute(val questionId: String) : IdRoute<String>("Question", questionId) {
+    companion object {
+        const val TITLE = "Question"
+        fun matchRoute(path: String) = matchStringIdRoute(path, TITLE) { QuestionProfileRoute(it) }
+    }
+}
+
+@Serializable
 data class StarProfileRoute(val starId: String) : IdRoute<String>("Star", starId) {
     companion object {
         const val TITLE = "Star"

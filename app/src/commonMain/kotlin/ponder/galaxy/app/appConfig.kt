@@ -6,6 +6,7 @@ import compose.icons.tablericons.AccessPoint
 import compose.icons.tablericons.BrandReddit
 import compose.icons.tablericons.Heart
 import compose.icons.tablericons.Home
+import compose.icons.tablericons.QuestionMark
 import compose.icons.tablericons.Settings
 import compose.icons.tablericons.Space
 import kotlinx.collections.immutable.persistentListOf
@@ -16,6 +17,8 @@ import ponder.galaxy.app.ui.StarFeedScreen
 import ponder.galaxy.app.ui.StarProfileScreen
 import ponder.galaxy.app.ui.StartScreen
 import ponder.galaxy.app.ui.UniverseTestScreen
+import ponder.galaxy.app.ui.QuestionFeedScreen
+import ponder.galaxy.app.ui.QuestionProfileScreen
 import pondui.ui.core.PondConfig
 import pondui.ui.core.RouteConfig
 import pondui.ui.nav.PortalDoor
@@ -33,12 +36,15 @@ val appConfig = PondConfig(
         RouteConfig(GalaxyFeedRoute::matchRoute) { defaultScreen<GalaxyFeedRoute> { GalaxyFeedScreen() } },
         RouteConfig(GalaxyProfileRoute::matchRoute) { defaultScreen<GalaxyProfileRoute> { GalaxyProfileScreen(it) } },
         RouteConfig(UniverseTestRoute::matchRoute) { defaultScreen<UniverseTestRoute> { UniverseTestScreen() } },
+        RouteConfig(QuestionFeedRoute::matchRoute) { defaultScreen<QuestionFeedRoute> { QuestionFeedScreen() } },
+        RouteConfig(QuestionProfileRoute::matchRoute) { defaultScreen<QuestionProfileRoute> { QuestionProfileScreen(it) } },
     ),
     doors = persistentListOf(
         // PortalDoor(TablerIcons.Home, StartRoute),
         PortalDoor(TablerIcons.BrandReddit, StarFeedRoute),
         PortalDoor(TablerIcons.AccessPoint, GalaxyFeedRoute),
         PortalDoor(TablerIcons.Space, UniverseTestRoute),
+        PortalDoor(TablerIcons.QuestionMark, QuestionFeedRoute),
         PortalDoor(TablerIcons.Settings, AppSettingsRoute),
     ),
 )

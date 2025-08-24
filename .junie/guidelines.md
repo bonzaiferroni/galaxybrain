@@ -46,21 +46,43 @@ Maintaining documentation of the API will be an important part of your role. Wit
 
 ## AI workflow functions
 
-The following functions define workflows and parameters. These may be invoked as prompts in the form of Workflow(argument). Perform the instructions in the body of the workflow given the provided arguments. Foo will be used as a placeholder for a type name. 
+The following functions define workflows and parameters. These may be invoked as prompts in the form of Workflow(argument). Perform the instructions in the body of the workflow given the provided arguments. Foo will be used as a placeholder for a type name. Unless otherwise directed, only create the content described in the function, do not worry about integration with the rest of the project. You may also modify this file (`guidelines.md`) with any information that may provide clarity for the next time you follow the steps outlined in the function.
 
-CreateModel(Foo): Create a new data class in the form of `data class Foo(val fooId: FooId)` in the package `ponder.galaxy.model.data`. It must be serializable. Also create the value class `value class FooId(override val fooId: String): TableId<String>`. Create the content for this file and nothing else.
+CreateModel(Foo): 
+* Create a new data class in the form of `data class Foo(val fooId: FooId)` in the package `ponder.galaxy.model.data`. It must be serializable. 
+* Also create the value class `value class FooId(override val fooId: String): TableId<String>`.
 
-CreateTable(Foo): Create a new table in the form of FooTable in the file FooTable.kt that will provide Foo objects. You may use Star and StarTable as examples. Create the content for FooTable.kt and nothing else.
+CreateTable(Foo): 
+* Create a new table in the form of FooTable in the file FooTable.kt that will provide Foo objects. 
+* You may use Star and StarTable as examples. Add `FooTable` to `dbTables` in `Dababases.kt`.
 
-CreateTableDao(Foo): Create a class FooTableDao in the package `ponder.galaxy.server.db.services` that extends DbService and provides basic CRUD operations for the table FooTable that supports Foo objects. You may use StarTableDao as an example.
+CreateTableDao(Foo): 
+* Create a class FooTableDao in the package `ponder.galaxy.server.db.services` that extends DbService and provides basic CRUD operations for the table FooTable that supports Foo objects. 
+* You may use StarTableDao as an example.
 
-CreateTableService(Foo): Create `class FooTableService(val dao: FooTableDao = FooTableDao()): DbService { }` in the package `ponder.galaxy.server.db.services` that extends DbService and takes a FooTableDao as an argument. Create the content of this file only. Do not add any functions to the body of the class unless specifically asked.
+CreateTableService(Foo): 
+* Create `class FooTableService(val dao: FooTableDao = FooTableDao()): DbService { }` in the package `ponder.galaxy.server.db.services` that extends DbService and takes a FooTableDao as an argument. 
+* Add a private global value before `FooTableService`: `private val console = globalConsole.getHandle(FooTableService::class)` 
+* Do not add any functions to the body of the class unless specifically asked. 
 
-CreateServeFunction(Foo): Create the function `Routing.serveFoos(service: FooTableService = FooTableService()) { }` in the package `ponder.galaxy.server.routes` that provides endpoints, most typically found at `Api.Foo`. You may use serveStars() as an example. Create the content of this file only.
+CreateServeFunction(Foo): 
+* Create the function `Routing.serveFoos(service: FooTableService = FooTableService()) { }` in the package `ponder.galaxy.server.routes` that provides endpoints, most typically found at `Api.Foo`. 
+* You may use serveStars() as an example. 
+* Add an invocation to serveFoos() in `RoutingApi.kt`.
 
-CreateApiClient(Foo): Create the class `FooApiClient` that consumes an API endpoint, most typically found at Api.Foo. You may use StarApiClient as an example. Create the content of this file only.
+CreateApiClient(Foo): 
+* Create the class `FooApiClient` that consumes an API endpoint, most typically found at Api.Foo. 
+* You may use StarApiClient as an example. 
+* Create the content of this file only.
 
-CreateScreen(Foo): Create a set of types and functions to provide ui content in compose. First, create in the file `FooModel.kt` and the package `ponder.galaxy.app.ui` the viewmodel class `class FooModel(): StateModel<FooState>() { override val state = ModelState(FooState())` and the ui state class `data class FooState(val content: String)`. Then create the composable function `fun FooScreen(viewModel: FooModel = viewModel { FooModel() } { val state by viewModel.stateFlow.collectAsState() }` in the file `FooScreen.kt`. Add a route `object FooRoute: AppRoute("Foo")` to `appRoutes.kt`. Add a call to `RouteConfig(FooRoute::MatchRoute) { defaultScreen<FooRoute> { FooScreen() } }` within the list definition assigned to routes in `appConfig.kt`. Create the content for these files and nothing else.
+CreateScreen(Foo): 
+* Create a set of types and functions to provide ui content in compose. 
+* First, create in the file `FooModel.kt` and the package `ponder.galaxy.app.ui` the viewmodel class `class FooModel(): StateModel<FooState>() { override val state = ModelState(FooState())` and the ui state class `data class FooState(val content: String)`. 
+* Then create the composable function `fun FooScreen(viewModel: FooModel = viewModel { FooModel() } { val state by viewModel.stateFlow.collectAsState() }` in the file `FooScreen.kt`. 
+* Add a route `object FooRoute: AppRoute("Foo")` to `appRoutes.kt`. 
+  * If the variation on Foo is `FooFeed` you should create an `object FooFeedRoute : AppRoute("FooFeed")`.
+  * If the variation on Foo is `FooProfile` you should create a `data class FooProfileRoute(val fooId: String) : IdRoute<String>("Foo", fooId)`. You should also pass the route as an argument to `FooProfileScreen`.
+* Add a call to `RouteConfig(FooRoute::MatchRoute) { defaultScreen<FooRoute> { FooScreen() } }` within the list definition assigned to routes in `appConfig.kt`.
 
 ## Junie's notes to self
 
@@ -69,3 +91,4 @@ This is where you can create notes to yourself, information that you know you'll
 * Do not take additional steps that are not necessary for the request. 
 * Do not build the project or run tests unless specifically asked to do so.
 * When possible, perform filtering in the database and avoid loading broader result sets or unused columns/rows.
+* Do not make variable names too long or too short. It's fine to assign `FooApiClient` to `fooClient` or `client` but not `c`.

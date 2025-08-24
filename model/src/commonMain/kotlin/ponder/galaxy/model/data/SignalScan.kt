@@ -9,9 +9,9 @@ import kotlin.jvm.JvmInline
 @Serializable
 data class SignalScan(
     val signalScanId: SignalScanId,
-    val galaxyId: GalaxyId,
-    val signalSum: Float,
-    val signalCount: Float,
+    val universeId: UniverseId,
+    val sum: Float,
+    val count: Int,
     val createdAt: Instant,
 )
 

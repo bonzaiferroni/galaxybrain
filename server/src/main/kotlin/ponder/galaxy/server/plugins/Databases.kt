@@ -15,6 +15,8 @@ import ponder.galaxy.server.db.tables.StarTable
 import ponder.galaxy.server.db.tables.StarSnippetTable
 import ponder.galaxy.server.db.tables.HostTable
 import ponder.galaxy.server.db.tables.LinkVisitTable
+import ponder.galaxy.server.db.tables.QuestionTable
+import ponder.galaxy.server.db.tables.UniverseTable
 import ponder.galaxy.server.db.tables.SnippetAudioTable
 import ponder.galaxy.server.db.tables.SnippetEmbeddingTable
 import ponder.galaxy.server.db.tables.SnippetTable
@@ -40,6 +42,8 @@ val dbTables = listOf(
     StarSnippetTable,
     HostTable,
     LinkVisitTable,
+    QuestionTable,
+    UniverseTable,
 )
 
 //CREATE DATABASE example_db;

@@ -68,7 +68,7 @@ class RedditMonitor(
         "news", "politics", "worldnews",
         "Artificial", "science", "technology", "futurology",
         "dataisbeautiful", "InternetIsBeautiful", "whatisthisbug", "outoftheloop", "philosophy", "MadeMeSmile",
-        "gnome", "linuxmasterrace", "opensource", "linux",
+        "gnome", "opensource", "linux",
         "programming", "Kotlin", "androiddev", "redditdev", "webdev", "programmerhumor",
     ) //
 
@@ -226,7 +226,7 @@ val redditHosts = listOf(
 private val tableBuffer = LogTableBuffer(
     LogTable<Pair<String, Float>>(
         LogColumn("subreddit") { it.first },
-        LogColumn("minutes", color = LogColor.Blue) { it.second.toMetricString() },
+        LogColumn("minutes", color = LogColor.Blue, justify = LogJustify.RIGHT) { it.second.toMetricString() },
         color = LogColor.Purple
     )
 ) { it.first }

@@ -13,7 +13,11 @@ import ponder.galaxy.model.data.Galaxy
 import ponder.galaxy.model.data.GalaxyId
 import ponder.galaxy.model.data.Idea
 import ponder.galaxy.model.data.NewExample
+import ponder.galaxy.model.data.NewQuestion
 import ponder.galaxy.model.data.NewStarContent
+import ponder.galaxy.model.data.NewUniverse
+import ponder.galaxy.model.data.Question
+import ponder.galaxy.model.data.QuestionId
 import ponder.galaxy.model.data.Snippet
 import ponder.galaxy.model.data.SnippetAudio
 import ponder.galaxy.model.data.SnippetId
@@ -22,6 +26,8 @@ import ponder.galaxy.model.data.StarId
 import ponder.galaxy.model.data.StarLink
 import ponder.galaxy.model.data.StarLog
 import ponder.galaxy.model.data.SnippetDistance
+import ponder.galaxy.model.data.Universe
+import ponder.galaxy.model.data.UniverseId
 
 object Api: ApiNode(ApiNode(null, "api"), "v1") {
     object Examples : GetByTableIdEndpoint<ExampleId, Example>(this, "example") {
@@ -80,5 +86,15 @@ object Api: ApiNode(ApiNode(null, "api"), "v1") {
         object StarSnippets : GetByTableIdEndpoint<StarId, List<Snippet>>(this, "star")
         object Audio : GetByTableIdEndpoint<SnippetId, SnippetAudio>(this, "audio")
         object TestUniverse : PostEndpoint<String, List<SnippetDistance>>(this, "test_universe")
+    }
+
+    object Questions : GetByTableIdEndpoint<QuestionId, Question>(this, "question") {
+        object All : GetEndpoint<List<Question>>(this, "all")
+        object Create : PostEndpoint<NewQuestion, Boolean>(this, "create")
+    }
+
+    object Universes : GetByTableIdEndpoint<UniverseId, Universe>(this, "universe") {
+        object ByQuestion : GetByTableIdEndpoint<QuestionId, List<Universe>>(this, "question")
+        object Create : PostEndpoint<NewUniverse, Boolean>(this, "create")
     }
 }

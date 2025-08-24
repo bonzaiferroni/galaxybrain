@@ -9,9 +9,14 @@ import kotlin.jvm.JvmInline
 @Serializable
 data class Universe(
     val universeId: UniverseId,
+    val questionId: QuestionId,
+    val label: String,
     val definition: String,
+    val imgUrl: String?,
+    val thumbUrl: String?,
     val interval: Int, // signal check interval in minutes
-    val resolution: Float,
+    val coherence: Float?,
+    val signal: Float?,
     val createdAt: Instant
 )
 
@@ -21,3 +26,8 @@ value class UniverseId(override val value: String): TableId<String> {
         fun random() = UniverseId(randomUuidString())
     }
 }
+
+data class NewUniverse(
+    val questionId: QuestionId,
+    val definition: String,
+)

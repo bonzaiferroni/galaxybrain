@@ -30,5 +30,7 @@ fun Application.configureApiRoutes() {
         serveStarLinks()
         serveGemini(Api.Gemini)
         serveSnippets()
+        serveUniverses()
+        serveQuestions()
     }
 }

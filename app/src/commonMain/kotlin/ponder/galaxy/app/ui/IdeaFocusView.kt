@@ -35,6 +35,7 @@ fun IdeaFocusView(
     val state by viewModel.stateFlow.collectAsState()
     val audioUrl = state.idea?.audioUrl
     val wavePlayer = remember { WavePlayer() }
+    val uriHandler = LocalUriHandler.current
     LaunchedEffect(audioUrl) {
         if (audioUrl == null) return@LaunchedEffect
         wavePlayer.play("$APP_API_URL/$audioUrl")
@@ -50,8 +51,8 @@ fun IdeaFocusView(
                     val url = if (imageUrl.startsWith("http")) imageUrl else "$APP_API_URL/$imageUrl"
                     AsyncImage(model = url, contentDescription = null, modifier = Modifier.weight(1f, fill = false))
                 }
-                Text(star.displayTitle, modifier = Modifier.actionable(StarProfileRoute(star.starId.value)) )
-                Row(1) {
+                Text(star.displayTitle, modifier = Modifier.actionable { uriHandler.openUri(star.url)} )
+                Row(1, modifier = Modifier.actionable(StarProfileRoute(star.starId.value))) {
                     Text(galaxy.name, color = Pond.colors.getSwatchFromIndex(galaxy.intrinsicIndex))
                     val now = Clock.System.now()
                     val age = now - star.existedAt
