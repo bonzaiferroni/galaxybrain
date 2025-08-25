@@ -22,12 +22,16 @@ fun Routing.serveUniverses(
     }
 
     get(Api.Universes.ByQuestion, { QuestionId(it) }) { questionId, endpoint ->
-        tao.universe.readByQuestion(questionId)
+        tao.universe.readByQuestionId(questionId)
     }
 
     post(Api.Universes.Create) { newUniverse: NewUniverse, endpoint ->
         val universe = service.createUniverse(newUniverse)
         universe?.let { service.scanForUniverse(universe) }
         universe != null
+    }
+
+    get(Api.Universes.Scans, { UniverseId(it)}) { universeId, endpoint ->
+        tao.signalScan.readByUniverseId(universeId)
     }
 }

@@ -18,6 +18,7 @@ import ponder.galaxy.model.data.NewStarContent
 import ponder.galaxy.model.data.NewUniverse
 import ponder.galaxy.model.data.Question
 import ponder.galaxy.model.data.QuestionId
+import ponder.galaxy.model.data.SignalScan
 import ponder.galaxy.model.data.Snippet
 import ponder.galaxy.model.data.SnippetAudio
 import ponder.galaxy.model.data.SnippetId
@@ -96,5 +97,6 @@ object Api: ApiNode(ApiNode(null, "api"), "v1") {
     object Universes : GetByTableIdEndpoint<UniverseId, Universe>(this, "universe") {
         object ByQuestion : GetByTableIdEndpoint<QuestionId, List<Universe>>(this, "question")
         object Create : PostEndpoint<NewUniverse, Boolean>(this, "create")
+        object Scans : GetByTableIdEndpoint<UniverseId, List<SignalScan>>(this, "scan")
     }
 }

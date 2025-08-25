@@ -8,7 +8,6 @@ import ponder.galaxy.model.data.UniverseId
 import pondui.io.NeoApiClient
 import pondui.io.globalNeoApiClient
 
-// Avast! Rustbeard chartin' the starry seas o' the Universe API, arrr!
 class UniverseApiClient(
     private val client: NeoApiClient = globalNeoApiClient
 ) {
@@ -17,4 +16,6 @@ class UniverseApiClient(
     suspend fun readByQuestion(questionId: QuestionId): List<Universe>? = client.getById(Api.Universes.ByQuestion, questionId)
 
     suspend fun create(universe: NewUniverse) = client.request(Api.Universes.Create, universe)
+
+    suspend fun readScansByUniverseId(universeId: UniverseId) = client.getById(Api.Universes.Scans, universeId)
 }

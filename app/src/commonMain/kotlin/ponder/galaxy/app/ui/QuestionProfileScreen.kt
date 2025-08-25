@@ -1,11 +1,13 @@
 package ponder.galaxy.app.ui
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kabinet.utils.toMetricString
 import ponder.galaxy.app.QuestionProfileRoute
 import ponder.galaxy.model.data.QuestionId
 import pondui.ui.controls.Button
@@ -15,6 +17,7 @@ import pondui.ui.controls.LazyScaffold
 import pondui.ui.controls.Row
 import pondui.ui.controls.Text
 import pondui.ui.controls.TextField
+import pondui.ui.theme.Pond
 
 @Composable
 fun QuestionProfileScreen(
@@ -43,10 +46,17 @@ fun QuestionProfileScreen(
         }
 
         items(state.universes) { universe ->
+            val scans = state.scans[universe.universeId]
             Row(1) {
                 Column(1) {
                     H3(universe.label)
                     Text(universe.definition)
+                    Column(1, modifier = Modifier.padding(start = Pond.ruler.unitSpacing)) {
+                        scans?.forEach {
+                            val average = it.sum / (it.count.takeIf { it > 0 } ?: 1)
+                            Text("Avg signal: ${average.toMetricString()} Count: ${it.count}")
+                        }
+                    }
                 }
             }
         }

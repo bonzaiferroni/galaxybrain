@@ -3,20 +3,19 @@
 package ponder.galaxy.server.db.services
 
 import klutch.db.DbService
-import klutch.db.batchUpdate
 import klutch.db.read
 import klutch.db.readByIdOrNull
 import klutch.utils.eq
 import klutch.utils.toUUID
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
-import org.jetbrains.exposed.sql.batchInsert
-import org.jetbrains.exposed.sql.batchUpsert
 import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.innerJoin
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.update
 import ponder.galaxy.model.data.QuestionId
 import ponder.galaxy.model.data.Universe
 import ponder.galaxy.model.data.UniverseId
+import ponder.galaxy.server.db.tables.SignalScanTable
 import ponder.galaxy.server.db.tables.UniverseTable
 import ponder.galaxy.server.db.tables.toUniverse
 import ponder.galaxy.server.db.tables.writeFull
@@ -45,8 +44,8 @@ class UniverseTableDao : DbService() {
         UniverseTable.read { it.id.inList(universeIds.map { id -> id.value.toUUID() }) }.map { it.toUniverse() }
     }
 
-    suspend fun readByQuestion(questionId: QuestionId) = dbQuery {
-        UniverseTable.read { it.questionId.eq(questionId.value.toUUID()) }.map { it.toUniverse() }
+    suspend fun readByQuestionId(questionId: QuestionId) = dbQuery {
+        UniverseTable.read { it.questionId.eq(questionId) }.map { it.toUniverse() }
     }
 
     suspend fun countByQuestionId(questionId: QuestionId) = dbQuery {

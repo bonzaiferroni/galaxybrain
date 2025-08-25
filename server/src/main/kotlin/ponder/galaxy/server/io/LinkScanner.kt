@@ -47,7 +47,7 @@ class LinkScanner(
                     .groupBy { it.second.core }
                     .map { it.value.first() }
 
-                val outcomes = mutableMapOf<LinkVisitOutcome, Int>()
+                val outcomes = mutableMapOf<LinkVisitOutcome, Pair<Int, List<String>>>()
                 val jobs = mutableListOf<Job>()
                 for ((originStar, url) in originStars) {
                     scannedIds.add(originStar.starId.toUUID())
@@ -65,7 +65,8 @@ class LinkScanner(
                         LinkVisitOutcome.Skipped
                     }
                     linkScout.trackVisit(url, outcome)
-                    outcomes[outcome] = (outcomes[outcome] ?: 0) + 1
+                    val tracker = (outcomes[outcome] ?: Pair(0, emptyList()))
+                    outcomes[outcome] = Pair(tracker.first + 1, tracker.second + url.core)
                     delay(1.seconds)
 //                    val job = launch {
 //
@@ -89,7 +90,8 @@ class LinkScanner(
     }
 }
 
-val table = LogTable<Map.Entry<LinkVisitOutcome, Int>>(
+val table = LogTable<Map.Entry<LinkVisitOutcome, Pair<Int, List<String>>>>(
     LogColumn("outcome") { it.key.toString() },
-    LogColumn("count", justify = LogJustify.RIGHT) { it.value }
+    LogColumn("count", justify = LogJustify.RIGHT) { it.value.first },
+    LogColumn("hosts") { it.value.second.joinToString(", ").take(25) }
 )

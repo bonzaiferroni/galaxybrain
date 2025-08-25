@@ -18,7 +18,7 @@ data class Universe(
     val coherence: Float?,
     val signal: Float?,
     val embedding: FloatArray,
-    val createdAt: Instant
+    val createdAt: Instant,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
