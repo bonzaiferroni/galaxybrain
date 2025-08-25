@@ -19,6 +19,7 @@ import org.jetbrains.exposed.sql.batchUpsert
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import ponder.galaxy.model.data.CommentId
+import ponder.galaxy.model.data.SnippetId
 import ponder.galaxy.model.data.StarId
 import ponder.galaxy.model.data.StarSnippet
 import ponder.galaxy.model.data.StarSnippetId
@@ -84,5 +85,9 @@ class StarSnippetTableDao : DbService() {
             .orderBy(StarSnippetTable.order, SortOrder.ASC_NULLS_LAST)
             .map { CommentId(it[StarSnippetTable.commentId]!!.value.toStringId()) to it.toSnippet() }
             .groupBy({ it.first }, { it.second })
+    }
+
+    suspend fun readBySnippetId(snippetId: SnippetId) = dbQuery {
+        StarSnippetTable.read { it.snippetId.eq(snippetId) }.map { it.toStarSnippet() }
     }
 }

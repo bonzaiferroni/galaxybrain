@@ -28,6 +28,7 @@ class EmbeddingWriter(
                     val vector = geminiService.generateEmbedding(snippet.text)
                     if (vector == null) {
                         console.logError("missing embedding")
+                        delay(1.minutes)
                         continue
                     }
                     snippetService.dao.insert(SnippetEmbedding(

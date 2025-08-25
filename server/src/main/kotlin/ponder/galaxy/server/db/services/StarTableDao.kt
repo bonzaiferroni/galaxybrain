@@ -19,7 +19,10 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.batchUpsert
 import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.insertAndGetId
+import org.jetbrains.exposed.sql.update
+import org.jetbrains.exposed.sql.upsert
 import ponder.galaxy.model.data.GalaxyId
 import ponder.galaxy.model.data.Star
 import ponder.galaxy.model.data.StarId
@@ -31,16 +34,28 @@ import kotlin.uuid.ExperimentalUuidApi
 
 class StarTableDao: DbService() {
 
-    suspend fun insert(vararg stars: Star) = dbQuery {
-        StarTable.batchInsert(stars.toList()) { writeFull(it) }
+    suspend fun insert(star: Star) = dbQuery {
+        StarTable.insert { it.writeFull(star) }
     }
 
-    suspend fun upsert(vararg stars: Star) = dbQuery {
-        StarTable.batchUpsert(stars.toList()) { writeFull(it) }
+    suspend fun insert(stars: List<Star>) = dbQuery {
+        StarTable.batchInsert(stars) { writeFull(it) }
     }
 
-    suspend fun update(vararg stars: Star) = dbQuery {
-        StarTable.batchUpdate(stars.toList(), { it.starId.toUUID()}) { writeUpdate(it) }
+    suspend fun upsert(star: Star) = dbQuery {
+        StarTable.upsert { it.writeFull(star) }
+    }
+
+    suspend fun upsert(stars: List<Star>) = dbQuery {
+        StarTable.batchUpsert(stars) { writeFull(it) }
+    }
+
+    suspend fun update(star: Star) = dbQuery {
+        StarTable.update { it.writeUpdate(star) }
+    }
+
+    suspend fun update(stars: List<Star>) = dbQuery {
+        StarTable.batchUpdate(stars, { it.starId.toUUID()}) { writeUpdate(it) }
     }
 
     suspend fun delete(vararg stars: Star) = dbQuery {

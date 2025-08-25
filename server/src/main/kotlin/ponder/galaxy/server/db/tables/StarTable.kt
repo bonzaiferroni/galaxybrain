@@ -4,13 +4,28 @@ package ponder.galaxy.server.db.tables
 
 import kabinet.utils.toInstantFromUtc
 import kabinet.utils.toLocalDateTimeUtc
+import klutch.utils.greaterEq
+import klutch.utils.greaterEqNullable
+import klutch.utils.less
+import klutch.utils.lessNullable
 import klutch.utils.toStringId
 import klutch.utils.toUUID
 import klutch.utils.toUuid
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.dao.id.UUIDTable
+import org.jetbrains.exposed.sql.Expression
+import org.jetbrains.exposed.sql.ExpressionWithColumnType
+import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.case
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.isNotNull
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.isNull
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.less
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
+import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import ponder.galaxy.model.data.GalaxyId
 import ponder.galaxy.model.data.Star
@@ -34,6 +49,12 @@ internal object StarTable: UUIDTable("star") {
     val updatedAt = datetime("updated_at")
     val createdAt = datetime("created_at")
 }
+
+@Suppress("UNCHECKED_CAST")
+internal fun StarTable.existedAt(): ExpressionWithColumnType<LocalDateTime?> =
+    case()
+        .When(publishedAt.isNotNull(), publishedAt)
+        .Else(createdAt as ExpressionWithColumnType<LocalDateTime?>)
 
 internal fun ResultRow.toStar() = Star(
     starId = StarId(this[StarTable.id].value.toStringId()),

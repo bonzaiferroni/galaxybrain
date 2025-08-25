@@ -9,7 +9,7 @@ import kotlin.jvm.JvmInline
 @Serializable
 data class Signal(
     val signalId: SignalId,
-    val snippetId: SnippetId,
+    val starSnippetId: StarSnippetId,
     val signalScanId: SignalScanId,
     val distance: Float,
     val visibility: Float,

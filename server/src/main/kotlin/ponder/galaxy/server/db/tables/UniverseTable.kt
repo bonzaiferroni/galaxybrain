@@ -4,6 +4,7 @@ package ponder.galaxy.server.db.tables
 
 import kabinet.utils.toInstantFromUtc
 import kabinet.utils.toLocalDateTimeUtc
+import klutch.db.vector
 import klutch.utils.toStringId
 import klutch.utils.toUUID
 import org.jetbrains.exposed.dao.id.UUIDTable
@@ -25,6 +26,7 @@ internal object UniverseTable : UUIDTable("universe") {
     val interval = integer("interval_minutes")
     val coherence = float("coherence").nullable()
     val signal = float("signal").nullable()
+    val embedding = vector("vector", size = 768)
     val createdAt = datetime("created_at")
 }
 
@@ -38,6 +40,7 @@ internal fun ResultRow.toUniverse() = Universe(
     interval = this[UniverseTable.interval],
     coherence = this[UniverseTable.coherence],
     signal = this[UniverseTable.signal],
+    embedding = this[UniverseTable.embedding],
     createdAt = this[UniverseTable.createdAt].toInstantFromUtc(),
 )
 
@@ -56,4 +59,5 @@ internal fun UpdateBuilder<*>.writeUpdate(universe: Universe) {
     this[UniverseTable.interval] = universe.interval
     this[UniverseTable.coherence] = universe.coherence
     this[UniverseTable.signal] = universe.signal
+    this[UniverseTable.embedding] = universe.embedding
 }

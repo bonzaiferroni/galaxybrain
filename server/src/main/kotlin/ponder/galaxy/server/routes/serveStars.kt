@@ -11,21 +11,23 @@ import ponder.galaxy.model.Api
 import ponder.galaxy.model.data.GalaxyId
 import ponder.galaxy.model.data.StarId
 import ponder.galaxy.server.db.services.StarTableService
+import ponder.galaxy.server.plugins.TableAccess
 import kotlin.uuid.ExperimentalUuidApi
 
 fun Routing.serveStars(
+    tao: TableAccess = TableAccess(),
     service: StarTableService = StarTableService(),
 ) {
     post(Api.Stars.Multi) { starIds, endpoint ->
-        service.dao.readByIds(starIds)
+        tao.star.readByIds(starIds)
     }
 
     get(Api.Stars, { StarId(it) }) { starId, endpoint ->
-        service.dao.readByIdOrNull(starId)
+        tao.star.readByIdOrNull(starId)
     }
 
     post(Api.Stars.ByUrl) { url, endpoint ->
-        var star = service.dao.readByUrl(url)
+        var star = tao.star.readByUrl(url)
         if (star != null) return@post star
         val create = endpoint.create.readParamOrNull(call)
         if (create == true) {
@@ -35,7 +37,7 @@ fun Routing.serveStars(
     }
 
     get(Api.Stars.Latest, { GalaxyId(it)}) { galaxyId, endpoint ->
-        service.dao.readLatestByGalaxyId(galaxyId)
+        tao.star.readLatestByGalaxyId(galaxyId)
     }
 
     post(Api.Stars.NewContent) { newContent, endpoint ->

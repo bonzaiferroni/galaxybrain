@@ -11,7 +11,6 @@ import ponder.galaxy.model.data.Universe
 import pondui.ui.core.ModelState
 import pondui.ui.core.StateModel
 
-// Arrr! Rustbeard be chartin' the state seas for a single question's profile, yarrr!
 class QuestionProfileModel(
     private val questionId: QuestionId,
     private val questionClient: QuestionApiClient = QuestionApiClient(),
@@ -35,23 +34,23 @@ class QuestionProfileModel(
         if (stateNow.newDefinition.isBlank()) return
         val question = stateNow.question ?: return
         viewModelScope.launch {
-//            val ok = universeClient.create(
-//                NewUniverse(
-//                    questionId = question.questionId,
-//                    definition = stateNow.newDefinition.trim(),
-//                )
-//            ) == true
-//            if (ok) {
-//                refresh()
-//                setState { it.copy(newDefinition = "") }
-//            }
+            val ok = universeClient.create(
+                NewUniverse(
+                    questionId = question.questionId,
+                    definition = stateNow.newDefinition.trim(),
+                )
+            ) == true
+            println(ok)
+            if (ok) {
+                refresh()
+                setState { it.copy(newDefinition = "") }
+            }
         }
     }
 
     fun setUniverseText(text: String) = setState { it.copy(newDefinition = text) }
 }
 
-// This be the simple state for the Question Profile screen, matey.
 data class QuestionProfileState(
     val question: Question? = null,
     val universes: List<Universe> = emptyList(),

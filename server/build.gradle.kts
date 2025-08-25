@@ -26,6 +26,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     implementation("org.postgresql:postgresql:42.7.3")
+    implementation("com.pgvector:pgvector:0.1.6")
 
     implementation(libs.ktor.server.auth.jvm)
     implementation(libs.ktor.server.auth.jwt.jvm)

@@ -9,21 +9,25 @@ import ponder.galaxy.model.Api
 import ponder.galaxy.model.data.NewUniverse
 import ponder.galaxy.model.data.QuestionId
 import ponder.galaxy.model.data.UniverseId
-import ponder.galaxy.server.db.services.UniverseTableService
+import ponder.galaxy.server.db.services.UniverseService
+import ponder.galaxy.server.plugins.TableAccess
 import kotlin.uuid.ExperimentalUuidApi
 
 fun Routing.serveUniverses(
-    service: UniverseTableService = UniverseTableService(),
+    tao: TableAccess = TableAccess(),
+    service: UniverseService = UniverseService(),
 ) {
     get(Api.Universes, { UniverseId(it) }) { universeId, endpoint ->
-        service.dao.readByIdOrNull(universeId)
+        tao.universe.readByIdOrNull(universeId)
     }
 
     get(Api.Universes.ByQuestion, { QuestionId(it) }) { questionId, endpoint ->
-        service.dao.readByQuestion(questionId)
+        tao.universe.readByQuestion(questionId)
     }
 
     post(Api.Universes.Create) { newUniverse: NewUniverse, endpoint ->
-        service.createUniverse(newUniverse)
+        val universe = service.createUniverse(newUniverse)
+        universe?.let { service.scanForUniverse(universe) }
+        universe != null
     }
 }

@@ -1,0 +1,14 @@
+CREATE TABLE IF NOT EXISTS signal_scan (id uuid PRIMARY KEY, universe_id uuid NOT NULL, "sum" REAL NOT NULL, "count" INT NOT NULL, created_at TIMESTAMP NOT NULL, CONSTRAINT fk_signal_scan_universe_id__id FOREIGN KEY (universe_id) REFERENCES universe(id) ON DELETE CASCADE ON UPDATE RESTRICT);
+CREATE INDEX signal_scan_universe_id ON signal_scan (universe_id);
+CREATE TABLE IF NOT EXISTS signal (id uuid PRIMARY KEY, star_snippet_id uuid NOT NULL, signal_scan_id uuid NOT NULL, distance REAL NOT NULL, visibility REAL NOT NULL, created_at TIMESTAMP NOT NULL);
+CREATE INDEX signal_star_snippet_id ON signal (star_snippet_id);
+CREATE INDEX signal_signal_scan_id ON signal (signal_scan_id);
+ALTER TABLE signal ADD CONSTRAINT fk_signal_star_snippet_id__id FOREIGN KEY (star_snippet_id) REFERENCES star_snippet(id) ON DELETE CASCADE ON UPDATE RESTRICT;
+ALTER TABLE signal ADD CONSTRAINT fk_signal_signal_scan_id__id FOREIGN KEY (signal_scan_id) REFERENCES signal_scan(id) ON DELETE CASCADE ON UPDATE RESTRICT;
+ALTER TABLE universe ADD definition TEXT NOT NULL;
+ALTER TABLE universe ADD vector vector(768) NOT NULL;
+ALTER TABLE universe ALTER COLUMN img_url TYPE TEXT, ALTER COLUMN img_url DROP NOT NULL;
+ALTER TABLE universe ALTER COLUMN thumb_url TYPE TEXT, ALTER COLUMN thumb_url DROP NOT NULL;
+ALTER TABLE universe ALTER COLUMN coherence TYPE REAL, ALTER COLUMN coherence DROP NOT NULL;
+ALTER TABLE universe ALTER COLUMN signal TYPE REAL, ALTER COLUMN signal DROP NOT NULL;
+ALTER TABLE universe DROP COLUMN description;

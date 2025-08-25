@@ -12,6 +12,8 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.batchUpsert
 import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.update
 import ponder.galaxy.model.data.QuestionId
 import ponder.galaxy.model.data.Universe
 import ponder.galaxy.model.data.UniverseId
@@ -23,16 +25,12 @@ import kotlin.uuid.ExperimentalUuidApi
 
 class UniverseTableDao : DbService() {
 
-    suspend fun insert(vararg universes: Universe) = dbQuery {
-        UniverseTable.batchInsert(universes.toList()) { writeFull(it) }
+    suspend fun insert(universe: Universe) = dbQuery {
+        UniverseTable.insert { it.writeFull(universe) }
     }
 
-    suspend fun upsert(vararg universes: Universe) = dbQuery {
-        UniverseTable.batchUpsert(universes.toList()) { writeFull(it) }
-    }
-
-    suspend fun update(vararg universes: Universe) = dbQuery {
-        UniverseTable.batchUpdate(universes.toList(), { it.universeId.value.toUUID() }) { writeUpdate(it) }
+    suspend fun update(universe: Universe) = dbQuery {
+        UniverseTable.update({ UniverseTable.id.eq(universe.universeId) }) { it.writeUpdate(universe) }
     }
 
     suspend fun delete(vararg universes: Universe) = dbQuery {

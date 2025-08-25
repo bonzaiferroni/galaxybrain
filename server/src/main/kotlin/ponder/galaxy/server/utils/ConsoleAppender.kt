@@ -5,6 +5,7 @@ import ch.qos.logback.core.AppenderBase
 import kabinet.console.LogLevel
 import kabinet.console.globalConsole
 import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.spi.ThrowableProxyUtil
 
 class ConsoleAppender(
     private val handler: (ILoggingEvent) -> Unit = ::defaultHandler
@@ -24,7 +25,17 @@ class ConsoleAppender(
             // val line = "${e.level} ${e.loggerName} - ${e.formattedMessage}"
             // println(line)
             if (e.level == Level.OFF) return
-            globalConsole.log(e.loggerName, e.level.toLogLevel(), e.formattedMessage)
+            val throwable = e.throwableProxy  // just the exception message
+
+            val msg = buildString {
+                append("${e.level} ${e.loggerName} - ${e.formattedMessage}")
+                if (throwable != null) {
+                    appendLine()
+                    append("${throwable.className}: ${throwable.message}")
+                }
+            }
+
+            globalConsole.log(e.loggerName, e.level.toLogLevel(), msg)
         }
     }
 }

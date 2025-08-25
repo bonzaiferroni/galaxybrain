@@ -14,9 +14,10 @@ import ponder.galaxy.model.data.Star
 import ponder.galaxy.model.data.StarId
 import ponder.galaxy.server.db.tables.StarTable
 import ponder.galaxy.server.db.tables.toStar
+import ponder.galaxy.server.plugins.TableAccess
 
 class StarTableService(
-    val dao: StarTableDao = StarTableDao(),
+    private val tao: TableAccess = TableAccess(),
     private val galaxyService: GalaxyService = GalaxyService(),
     private val hostService: HostTableService = HostTableService(),
     private val snippetService: SnippetTableService = SnippetTableService(),
@@ -25,12 +26,12 @@ class StarTableService(
 
     suspend fun discoverStarFromUrl(href: String, visitDocument: Boolean): Star? = dbQuery {
         val url = href.toUrlOrNull() ?: return@dbQuery null
-        val existingStar = dao.readByUrl(url)
+        val existingStar = tao.star.readByUrl(url)
         if (existingStar != null) {
             return@dbQuery existingStar
         }
 
-        val host = hostService.dao.readByUrl(url) ?: hostService.createByUrl(url)
+        val host = tao.host.readByUrl(url) ?: hostService.createByUrl(url)
 
         val document = if (visitDocument) htmlClient.readUrl(href) else null
 
@@ -56,7 +57,7 @@ class StarTableService(
             updatedAt = Clock.System.now(),
             createdAt = Clock.System.now(),
         )
-        dao.insert(star)
+        tao.star.insert(star)
 
         if (document != null && document.contents.isNotEmpty()) {
             snippetService.createOrUpdateStarSnippets(star.starId, document)
@@ -68,7 +69,7 @@ class StarTableService(
     }
 
     suspend fun createStarFromContent(newContent: NewStarContent) = dbQuery {
-        var star = dao.readByIdOrNull(newContent.starId) ?: error("missing star: ${newContent.starId}")
+        var star = tao.star.readByIdOrNull(newContent.starId) ?: error("missing star: ${newContent.starId}")
         val document = if (newContent.isHtml) {
             htmlClient.readHtml(star.url, newContent.content)
         } else error("non html not yet supported")
@@ -78,7 +79,7 @@ class StarTableService(
             wordCount = document.wordCount,
         )
 
-        dao.update(star)
+        tao.star.update(star)
 
         if (document.contents.isNotEmpty()) {
             snippetService.createOrUpdateStarSnippets(star.starId, document)

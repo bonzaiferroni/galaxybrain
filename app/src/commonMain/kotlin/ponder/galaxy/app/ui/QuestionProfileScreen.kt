@@ -16,7 +16,6 @@ import pondui.ui.controls.Row
 import pondui.ui.controls.Text
 import pondui.ui.controls.TextField
 
-// Hoist the colors! This be the Question Profile screen, showin' the details o' a single query.
 @Composable
 fun QuestionProfileScreen(
     route: QuestionProfileRoute,
